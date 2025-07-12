@@ -26,7 +26,7 @@ if (Command-Exists "poetry") {
     Write-Host "Instalando Poetry..." -ForegroundColor Yellow
 
     $installerPath = "$env:TEMP\install-poetry.py"
-    Invoke-WebRequest -Uri "https://install.python-poetry.org" -OutFile $installerPath -UseBasicParsing -Encoding UTF8
+    Invoke-WebRequest -Uri "https://install.python-poetry.org" -OutFile $installerPath -UseBasicParsing
 
     python $installerPath
 
