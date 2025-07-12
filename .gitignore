@@ -1,0 +1,106 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+*.pyd
+*.dll
+
+# Distribution / packaging
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+*.whl
+
+# Poetry
+poetry.lock
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Pytest / Coverage
+.cache/
+coverage.xml
+htmlcov/
+.tox/
+nosetests.xml
+test-output/
+.pytest_cache/
+.junit/
+
+# Spark temp files
+.metastore_db/
+spark-warehouse/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Datasets and output
+*.csv
+*.tsv
+*.parquet
+*.json
+*.avro
+*.orc
+*.zip
+*.gz
+*.lz4
+*.snappy
+
+# Airflow (opcional)
+airflow.cfg
+logs/
+unittests.cfg
+sqlite.db
+
+# MyPy / Type hints
+.mypy_cache/
+.dmypy.json
+.pyre/
+
+# VSCode local settings
+.settings/
+
+# Local test databases
+*.db
+*.sqlite
+*.sqlite3

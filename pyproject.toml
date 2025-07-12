@@ -1,0 +1,49 @@
+[tool.poetry]
+name = "data-engineering-prj-final"
+version = "0.1.0"
+description = "Data Engineering - Final Project"
+authors = [
+  "Michel Silva",
+  "Telma Costa",
+  "Pedro Rocha"
+]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "app" }]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+
+# Utilitários
+python-dotenv = "^1.0.1"
+pydantic = "^2.7.1"
+loguru = "^0.7.2"
+
+# ETL e APIs
+pyspark = "^3.5.1"
+requests = "^2.32.2"
+
+# Parquet (opcional, se usar pandas e gravar fora do Spark)
+pandas = "^2.2.2"
+pyarrow = "^16.1.0"
+
+[tool.poetry.group.dev.dependencies]
+# Testes
+pytest = "^8.2.2"
+pytest-cov = "^5.0.0"
+
+# Qualidade de código
+flake8 = "^7.0.0"
+black = "^24.4.2"
+isort = "^5.13.2"
+mypy = "^1.10.0"
+
+# Pre-commit hooks
+pre-commit = "^3.7.1"
+
+[tool.pre-commit]
+hook-config = ".pre-commit-config.yaml"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
