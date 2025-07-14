@@ -1,3 +1,5 @@
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 Write-Host "`n==> Bootstrap do ambiente de desenvolvimento Poetry" -ForegroundColor Cyan
 
 # ----------------------------------------
@@ -67,15 +69,29 @@ if (-not $hasPreCommit) {
 Write-Host "Instalando hooks do pre-commit..." -ForegroundColor Cyan
 poetry run pre-commit install
 
-# Garantir que o ambiente virtual usa Python 3.12
+# ----------------------------------------
+# 6. Garantir que Poetry usa Python 3.12
 Write-Host "Garantindo que Poetry usa Python 3.12..." -ForegroundColor Cyan
-poetry env use python3.12
+$pythonFullPath = (Get-Command python).Source
+Write-Host "Forçando Poetry a usar: $pythonFullPath" -ForegroundColor Yellow
+poetry env use $pythonFullPath
 
-# Ativar ambiente virtual após bootstrap
+
+# ----------------------------------------
+# 7. Ativar ambiente virtual após bootstrap
 $venvPath = poetry env info --path
 $activateScript = Join-Path $venvPath "Scripts\Activate.ps1"
 Write-Host "Ativando ambiente virtual: $activateScript" -ForegroundColor Cyan
 & $activateScript
 
 # ----------------------------------------
-Write-Host "Ambiente configurado com sucesso!" -ForegroundColor Cyan
+# 8. Configurar variáveis para compatibilidade com Spark
+$pythonPath = Join-Path $venvPath "Scripts\python.exe"
+$env:PYSPARK_PYTHON = $pythonPath
+$env:PYSPARK_DRIVER_PYTHON = $pythonPath
+
+Write-Host "Variável PYSPARK_PYTHON configurada: $env:PYSPARK_PYTHON" -ForegroundColor Cyan
+Write-Host "Variável PYSPARK_DRIVER_PYTHON configurada: $env:PYSPARK_DRIVER_PYTHON" -ForegroundColor Cyan
+
+# ----------------------------------------
+Write-Host "`nAmbiente configurado com sucesso!" -ForegroundColor Cyan
