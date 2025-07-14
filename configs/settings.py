@@ -25,6 +25,7 @@ class Settings:
     """
 
     # GCS
+    GCS_BUCKET = os.getenv("GCS_BUCKET", "applied-project")
     GCS_BASE_PATH = os.getenv("GCS_BASE_PATH", "gs://applied-project/grupo-2")
     RAW_FOLDER = os.getenv("RAW_FOLDER", "raw")
     STAGING_FOLDER = os.getenv("STAGING_FOLDER", "staging")
@@ -32,6 +33,7 @@ class Settings:
 
     # GCP
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", "data-eng-dev-437916")
 
     # API
     CARRIS_API_BASE = os.getenv(

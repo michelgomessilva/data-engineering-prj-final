@@ -16,22 +16,12 @@ class GCSUploader:
     """
 
     def __init__(self):
-        self.bucket_name = Settings.GCS_BUCKET_NAME
-        self.client = storage.Client()
+        self.bucket_name = Settings.GCS_BUCKET
+        self.base_path = Settings.GCS_BASE_PATH.strip("/")
+        self.client = storage.Client(project=Settings.GCP_PROJECT_ID)
         self.bucket = self.client.bucket(self.bucket_name)
 
     def upload_file(self, local_path: str, gcs_path: str) -> None:
-        """
-        Faz o upload de um único arquivo para o GCS.
-
-        Args:
-            local_path (str): Caminho completo do arquivo local.
-            gcs_path (str): Caminho dentro do bucket GCS onde o arquivo será salvo.
-
-        Raises:
-            FileNotFoundError: Se o arquivo local não existir.
-            Exception: Para erros genéricos de upload.
-        """
         local_file = Path(local_path)
         if not local_file.exists():
             logger.error(f"Arquivo não encontrado: {local_path}")
@@ -51,14 +41,6 @@ class GCSUploader:
     def upload_directory(
         self, local_folder: str, gcs_dir: str, file_extension: str = ".parquet"
     ) -> None:
-        """
-        Faz o upload de todos os arquivos com a extensão desejada de um diretório local para o GCS.
-
-        Args:
-            local_dir (str): Caminho da pasta local.
-            gcs_dir (str): Caminho base dentro do bucket.
-            file_extension (str): Extensão dos arquivos a serem enviados (default: '.parquet').
-        """
         local_dir_path = Path(local_folder)
 
         if not local_dir_path.exists() or not local_dir_path.is_dir():
@@ -79,10 +61,9 @@ class GCSUploader:
         logger.info(f"Iniciando upload de {len(files)} arquivos para o GCS...")
 
         for file in files:
-            # Cria o caminho relativo para preservar estrutura da pasta
             relative_path = file.relative_to(local_dir_path).as_posix()
-            gcs_path = f"{gcs_dir}/{relative_path}".rstrip("/")
-            self.upload_file(str(file), gcs_path)
+            full_gcs_path = f"{gcs_dir}/{relative_path}".rstrip("/")
+            self.upload_file(str(file), full_gcs_path)
 
         logger.success(
             f"Upload de diretório finalizado: {local_folder} → gs://{self.bucket_name}/{gcs_dir}"

@@ -1,3 +1,5 @@
+# Configura o terminal para UTF-8 (resolvendo problemas de acentuação de comandos como poetry e pre-commit)
+chcp 65001 > $null
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Write-Host "`n==> Bootstrap do ambiente de desenvolvimento Poetry" -ForegroundColor Cyan
@@ -29,7 +31,6 @@ if (Command-Exists "poetry") {
 
     $installerPath = "$env:TEMP\install-poetry.py"
     Invoke-WebRequest -Uri "https://install.python-poetry.org" -OutFile $installerPath -UseBasicParsing
-
     python $installerPath
 
     $poetryPath = "$env:APPDATA\Python\Scripts"
@@ -48,12 +49,29 @@ if (Command-Exists "poetry") {
 }
 
 # ----------------------------------------
-# 3. Instalar dependências com Poetry
+# 3. Garantir que Poetry usa Python 3.10
+Write-Host "Garantindo que Poetry usa Python 3.10..." -ForegroundColor Cyan
+$pythonCmd = Get-Command python3.10 -ErrorAction SilentlyContinue
+if ($null -ne $pythonCmd) {
+    $pythonFullPath = $pythonCmd.Source
+    Write-Host "Forçando Poetry a usar: $pythonFullPath" -ForegroundColor Yellow
+    poetry env use $pythonFullPath
+} else {
+    Write-Host "Python 3.10 não encontrado. Aborte o bootstrap ou instale com Chocolatey:" -ForegroundColor Red
+    Write-Host "    choco install python --version=3.10.11 -y --allow-downgrade" -ForegroundColor DarkYellow
+    exit 1
+}
+
+# ----------------------------------------
+# 4. Corrigir e instalar dependências com Poetry
+Write-Host "Verificando lockfile..." -ForegroundColor Cyan
+poetry lock
+
 Write-Host "Instalando dependências do projeto..." -ForegroundColor Cyan
 poetry install
 
 # ----------------------------------------
-# 4. Garantir que pre-commit está presente no projeto
+# 5. Garantir que pre-commit está presente no projeto
 Write-Host "Garantindo que pre-commit está listado..." -ForegroundColor Cyan
 $hasPreCommit = poetry show --only=dev | Select-String "pre-commit"
 
@@ -65,24 +83,21 @@ if (-not $hasPreCommit) {
 }
 
 # ----------------------------------------
-# 5. Instalar os hooks do pre-commit
-Write-Host "Instalando hooks do pre-commit..." -ForegroundColor Cyan
-poetry run pre-commit install
-
-# ----------------------------------------
-# 6. Garantir que Poetry usa Python 3.12
-Write-Host "Garantindo que Poetry usa Python 3.12..." -ForegroundColor Cyan
-$pythonFullPath = (Get-Command python).Source
-Write-Host "Forçando Poetry a usar: $pythonFullPath" -ForegroundColor Yellow
-poetry env use $pythonFullPath
-
-
-# ----------------------------------------
-# 7. Ativar ambiente virtual após bootstrap
+# 6. Ativar ambiente virtual após bootstrap
 $venvPath = poetry env info --path
+if (-not $venvPath) {
+    Write-Host "Erro ao obter o caminho do ambiente virtual do Poetry." -ForegroundColor Red
+    exit 1
+}
+
 $activateScript = Join-Path $venvPath "Scripts\Activate.ps1"
 Write-Host "Ativando ambiente virtual: $activateScript" -ForegroundColor Cyan
 & $activateScript
+
+# ----------------------------------------
+# 7. Instalar hooks do pre-commit (após ativar o ambiente)
+Write-Host "Instalando hooks do pre-commit..." -ForegroundColor Cyan
+pre-commit install
 
 # ----------------------------------------
 # 8. Configurar variáveis para compatibilidade com Spark
@@ -90,8 +105,14 @@ $pythonPath = Join-Path $venvPath "Scripts\python.exe"
 $env:PYSPARK_PYTHON = $pythonPath
 $env:PYSPARK_DRIVER_PYTHON = $pythonPath
 
-Write-Host "Variável PYSPARK_PYTHON configurada: $env:PYSPARK_PYTHON" -ForegroundColor Cyan
-Write-Host "Variável PYSPARK_DRIVER_PYTHON configurada: $env:PYSPARK_DRIVER_PYTHON" -ForegroundColor Cyan
+Write-Host "PYSPARK_PYTHON configurada: $env:PYSPARK_PYTHON" -ForegroundColor Cyan
+Write-Host "PYSPARK_DRIVER_PYTHON configurada: $env:PYSPARK_DRIVER_PYTHON" -ForegroundColor Cyan
 
 # ----------------------------------------
-Write-Host "`nAmbiente configurado com sucesso!" -ForegroundColor Cyan
+# 9. Configurar GOOGLE_APPLICATION_CREDENTIALS
+$env:GOOGLE_APPLICATION_CREDENTIALS = "C:/Users/miche/AppData/Roaming/gcloud/application_default_credentials.json"
+Write-Host "GOOGLE_APPLICATION_CREDENTIALS configurada: $env:GOOGLE_APPLICATION_CREDENTIALS" -ForegroundColor Cyan
+
+# ----------------------------------------
+Write-Host "Ambiente configurado com sucesso!" -ForegroundColor Green
+# ----------------------------------------
