@@ -90,3 +90,17 @@ class IngestVehiclesService(IBaseIngestService):
             gcs_dir=Settings.get_raw_path(Settings.VEHICLES_ENDPOINT),
             file_extension=".parquet",
         )
+
+
+def run_ingest_vehicles():
+    """
+    Função utilizada como ponto de entrada para execução do pipeline de ingestão
+    de veículos. Ela instancia o serviço `IngestVehiclesService` e executa o método
+    `ingest()`.
+
+    Essa função é usada diretamente como `python_callable` na DAG do Airflow.
+    """
+    logger.info("Iniciando use case: ingest_vehicles")
+    service = IngestVehiclesService()
+    service.ingest()
+    logger.success("Use case 'ingest_vehicles' finalizado com sucesso.")

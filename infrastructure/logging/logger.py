@@ -24,9 +24,11 @@ from pathlib import Path
 
 from loguru import logger
 
+from configs.settings import Settings
+
 # ----------------------------------------
 # Diretório base para armazenar arquivos de log
-LOG_DIR = Path("logs")
+LOG_DIR = Path(Settings.get_local_log_path())
 LOG_DIR.mkdir(exist_ok=True)
 
 # Caminho completo do arquivo de log baseado na data atual

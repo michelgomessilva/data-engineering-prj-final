@@ -25,6 +25,13 @@ class Settings:
         APP_ENV (str): Ambiente de execução (ex: "dev", "prod").
     """
 
+    # Diretório base do projeto (ajustável para local ou Composer)
+    APP_ENV = os.getenv("APP_ENV", "local")
+    APP_BASE_PATH = os.getenv("APP_BASE_PATH", ".")
+
+    # Logs
+    LOGS_FOLDER = os.getenv("LOGS_FOLDER", "logs")
+
     # GCS
     GCS_BUCKET = os.getenv("GCS_BUCKET", "applied-project")
     GCS_BASE_PATH = os.getenv("GCS_BASE_PATH", "gs://applied-project/grupo-2")
@@ -62,8 +69,38 @@ class Settings:
         """
         # Gera a data atual no formato YYYY-MM-DD
         today_str = datetime.now().strftime("%Y-%m-%d")
-        local_base = os.path.join("data", cls.RAW_FOLDER, today_str)
-        return os.path.join(local_base, subpath).rstrip("\\")
+        local_base = os.path.join(cls.APP_BASE_PATH, "data", cls.RAW_FOLDER, today_str)
+        return os.path.join(local_base, subpath).replace("\\", "/").rstrip("/")
+
+    @classmethod
+    def get_local_log_path(cls, filename: str = "") -> str:
+        """
+        Gera o caminho absoluto para salvar arquivos de log no ambiente local ou no Composer.
+
+        O caminho base é definido a partir da variável `APP_BASE_PATH`, que pode representar
+        o diretório atual (em desenvolvimento local) ou o path montado no Composer
+        (ex: /home/airflow/gcs/data/grupo-2).
+
+        Args:
+            filename (str): Nome do arquivo de log (opcional). Pode incluir subdiretórios.
+
+        Returns:
+            str: Caminho completo para o arquivo de log, com separadores de diretório padronizados.
+
+        Exemplo:
+            - Ambiente local:
+                APP_BASE_PATH = "."
+                LOGS_FOLDER = "logs"
+                get_local_log_path("ingest.log") → "./logs/ingest.log"
+
+            - Ambiente de produção (Composer):
+                APP_BASE_PATH = "/home/airflow/gcs/data/grupo-2"
+                LOGS_FOLDER = "logs"
+                get_local_log_path("pipeline/ingest.log") →
+                    "/home/airflow/gcs/data/grupo-2/logs/pipeline/ingest.log"
+        """
+        log_base = os.path.join(cls.APP_BASE_PATH, cls.LOGS_FOLDER)
+        return os.path.join(log_base, filename).replace("\\", "/").rstrip("/")
 
     @classmethod
     def get_raw_path(cls, subpath: str = "") -> str:
