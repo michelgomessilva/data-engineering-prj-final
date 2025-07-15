@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -75,7 +76,9 @@ class Settings:
         Returns:
             str: Caminho completo do arquivo ou diretório no bucket raw.
         """
-        return f"{cls.GCS_BASE_PATH}/{cls.RAW_FOLDER}/{subpath}".rstrip("/")
+        parsed = urlparse(cls.GCS_BASE_PATH)
+        base = parsed.path.strip("/")  # Ex: grupo-2
+        return f"{base}/{cls.RAW_FOLDER}/{subpath}".rstrip("/")
 
     @classmethod
     def get_staging_path(cls, subpath: str = "") -> str:
