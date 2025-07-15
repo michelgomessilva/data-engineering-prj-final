@@ -36,7 +36,6 @@ log_file = LOG_DIR / f"{datetime.now().strftime('%Y-%m-%d')}.log"
 
 # ----------------------------------------
 # Configuração do logger
-
 # Remove qualquer handler padrão do loguru para evitar logs duplicados
 logger.remove()
 
