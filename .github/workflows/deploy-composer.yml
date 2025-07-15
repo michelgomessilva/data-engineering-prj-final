@@ -18,6 +18,7 @@ env:
   CODE_PATH: grupo-2
   APP_ENV: production
   APP_BASE_PATH: /home/airflow/gcs/data/grupo-2
+  GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcloud/auth.json
 
 jobs:
 
@@ -41,18 +42,22 @@ jobs:
       - name: Instalar Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          export_default_credentials: false
+          project_id: ${{ env.GCP_PROJECT_ID }}
           install_components: gsutil
 
       - name: Criar credencial local do authorized_user
         run: |
-          mkdir -p "$HOME/.config/gcloud"
-          echo '${{ secrets.GCLOUD_AUTH_USER_JSON }}' > "$HOME/.config/gcloud/application_default_credentials.json"
+          mkdir -p "${{ github.workspace }}/gcloud"
+          echo '${{ secrets.GCLOUD_AUTH_USER_JSON }}' > "${{ github.workspace }}/gcloud/auth.json"
 
       - name: Autenticar e configurar projeto
         run: |
-          gcloud auth application-default print-access-token
+          gcloud auth application-default login --quiet --scopes=https://www.googleapis.com/auth/cloud-platform \
+            --client-id-file="${{ github.workspace }}/gcloud/auth.json" || true
+          gcloud auth activate-service-account --key-file="${{ github.workspace }}/gcloud/auth.json" || true
           gcloud config set project $GCP_PROJECT_ID
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcloud/auth.json
 
   upload-dag:
     name: Upload da DAG para o Composer
@@ -65,6 +70,8 @@ jobs:
       - name: Upload da DAG
         run: |
           gsutil cp dags/pipeline.py gs://$COMPOSER_BUCKET/dags/
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcloud/auth.json
 
   upload-source:
     name: Upload do código Python para o Composer
@@ -81,3 +88,5 @@ jobs:
           gsutil -m cp -r domain gs://$COMPOSER_BUCKET/data/$CODE_PATH/
           gsutil -m cp -r infrastructure gs://$COMPOSER_BUCKET/data/$CODE_PATH/
           gsutil -m cp -r app gs://$COMPOSER_BUCKET/data/$CODE_PATH/
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcloud/auth.json
