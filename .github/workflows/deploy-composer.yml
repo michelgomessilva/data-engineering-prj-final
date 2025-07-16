@@ -3,14 +3,6 @@ name: Deploy to Cloud Composer
 on:
   push:
     branches: [develop]
-    paths:
-      - 'app/**'
-      - 'application/**'
-      - 'configs/**'
-      - 'dags/**'
-      - 'domain/**'
-      - 'infrastructure/**'
-      - '.github/workflows/deploy-composer.yaml'
 
 env:
   GCP_PROJECT_ID: data-eng-dev-437916
