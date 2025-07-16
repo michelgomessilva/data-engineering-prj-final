@@ -62,7 +62,7 @@ jobs:
 
       - name: Upload da DAG
         run: |
-          gsutil cp dags/pipeline.py gs://$COMPOSER_BUCKET/dags/$CODE_PATH
+          gsutil cp dags/pipeline.py gs://$COMPOSER_BUCKET/dags/grupo_2
 
   upload-source:
     name: Upload do código Python para o Composer
