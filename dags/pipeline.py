@@ -27,7 +27,9 @@ from airflow.operators.python import PythonOperator
 from application.use_cases.ingest_vehicles import run_ingest_vehicles
 
 # Adiciona o caminho da raiz do projeto ao sys.path para permitir imports
-sys.path.append("/home/airflow/gcs/data")
+project_path = "/home/airflow/gcs/data/grupo-2"
+if project_path not in sys.path:
+    sys.path.insert(0, project_path)
 
 # Argumentos padrão para a DAG
 default_args = {
