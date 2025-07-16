@@ -51,9 +51,7 @@ with DAG(
 
     # Task de ingestão de dados
     ingest_task = PythonOperator(
-        task_id="ingest_vehicles",
-        python_callable=run_ingest_vehicles,
-        provide_context=False,
+        task_id="ingest_vehicles", python_callable=run_ingest_vehicles
     )
 
     # Futuras tasks (ex: transform_task, load_task) podem ser adicionadas aqui
