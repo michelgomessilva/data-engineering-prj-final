@@ -51,7 +51,7 @@ if (Command-Exists "poetry") {
 # ----------------------------------------
 # 3. Garantir que Poetry usa Python 3.10
 Write-Host "Garantindo que Poetry usa Python 3.10..." -ForegroundColor Cyan
-$pythonCmd = Get-Command python3.10 -ErrorAction SilentlyContinue
+$pythonCmd = Get-Command python -ErrorAction SilentlyContinue
 if ($null -ne $pythonCmd) {
     $pythonFullPath = $pythonCmd.Source
     Write-Host "Forçando Poetry a usar: $pythonFullPath" -ForegroundColor Yellow
