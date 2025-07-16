@@ -45,12 +45,22 @@ jobs:
   upload-dag:
     name: Upload da DAG para o Composer
     runs-on: ubuntu-latest
-    needs: auth
+    needs: checkout
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Upload do arquivo da DAG
+      - name: Autenticar via Service Account
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
+
+      - name: Instalar Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          install_components: gsutil
+
+      - name: Upload da DAG
         run: |
           gsutil cp dags/pipeline.py gs://$COMPOSER_BUCKET/dags/
 
@@ -61,6 +71,17 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
+
+      - name: Autenticar via Service Account
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
+
+      - name: Instalar Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          install_components: gsutil
 
       - name: Upload dos diretórios de código para o Composer
         run: |
@@ -77,6 +98,17 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
+
+      - name: Autenticar via Service Account
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
+
+      - name: Instalar Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          install_components: gsutil
 
       - name: Instalar Poetry
         run: pip install poetry
