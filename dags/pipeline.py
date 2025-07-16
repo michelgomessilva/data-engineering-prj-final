@@ -23,13 +23,13 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-# Importa a função de ingestão
-from application.use_cases.ingest_vehicles import run_ingest_vehicles
-
 # Adiciona o caminho da raiz do projeto ao sys.path para permitir imports
 project_path = "/home/airflow/gcs/data/grupo-2"
 if project_path not in sys.path:
     sys.path.insert(0, project_path)
+
+# Importa a função de ingestão
+from application.use_cases.ingest_vehicles import run_ingest_vehicles
 
 # Argumentos padrão para a DAG
 default_args = {
