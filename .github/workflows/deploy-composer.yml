@@ -92,7 +92,7 @@ jobs:
           gsutil -m cp -r app gs://$COMPOSER_BUCKET/data/$CODE_PATH/
 
   upload-requirements:
-    name: Exportar e enviar requirements.txt
+    name: Upload do requirements.txt
     runs-on: ubuntu-latest
     needs: auth
     steps:
@@ -110,13 +110,15 @@ jobs:
           project_id: ${{ env.GCP_PROJECT_ID }}
           install_components: gsutil
 
-      - name: Instalar Poetry
-        run: pip install poetry
+      - name: Instalar Poetry 1.8.2
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Exportar requirements.txt
         run: |
           poetry export -f requirements.txt --without-hashes -o requirements.txt
 
-      - name: Upload do requirements.txt
+      - name: Upload requirements.txt para Composer
         run: |
           gsutil cp requirements.txt gs://$COMPOSER_BUCKET/data/$CODE_PATH/
