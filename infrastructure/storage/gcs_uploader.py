@@ -1,9 +1,20 @@
 from pathlib import Path
+from urllib.parse import urlparse
 
 from google.cloud import storage
 
 from configs.settings import Settings
 from infrastructure.logging.logger import logger
+
+
+def parse_gcs_path(full_gcs_path: str) -> tuple[str, str]:
+    """
+    Converte um path tipo gs://bucket/path/to/blob em (bucket, path/to/blob).
+    """
+    parsed = urlparse(full_gcs_path)
+    bucket = parsed.netloc
+    path = parsed.path.lstrip("/")
+    return bucket, path
 
 
 class GCSUploader:
@@ -23,7 +34,7 @@ class GCSUploader:
         logger.info(f"Cliente GCS inicializado para o bucket: {self.bucket_name}")
         logger.info(f"Prefixo base configurado: {self.base_path}")
 
-    def upload_file(self, local_path: str, gcs_path: str) -> None:
+    def upload_file(self, local_path: str, full_gcs_path: str) -> None:
         """
         Faz o upload de um único arquivo para o GCS.
 
@@ -40,18 +51,19 @@ class GCSUploader:
             logger.error(f"Arquivo não encontrado: {local_path}")
             raise FileNotFoundError(f"Arquivo não encontrado: {local_path}")
 
-        # Normalize path para evitar problemas com barras no Windows
-        gcs_path_clean = gcs_path.strip("/").replace("\\", "/")
-        blob = self.bucket.blob(gcs_path_clean)
+        bucket_name, blob_path = parse_gcs_path(full_gcs_path)
 
-        logger.debug(
-            f"Preparando upload: local={local_path}, destino=gs://{self.bucket_name}/{gcs_path_clean}"
+        bucket = self.client.bucket(bucket_name)
+        blob = bucket.blob(blob_path)
+
+        logger.info(
+            f"Upload para gs://{bucket_name}/{blob_path} a partir de {local_path}"
         )
 
         try:
             blob.upload_from_filename(str(local_file))
             logger.info(
-                f"Upload realizado com sucesso: {local_path} → gs://{self.bucket_name}/{gcs_path_clean}"
+                f"Upload realizado com sucesso: {local_path} → gs://{bucket_name}/{blob_path}"
             )
         except Exception as e:
             logger.error(f"Erro ao fazer upload para o GCS: {e}")
@@ -92,9 +104,9 @@ class GCSUploader:
             relative_path = file.relative_to(local_dir_path).as_posix()
             full_gcs_path = f"{gcs_dir.strip('/')}/{relative_path}".replace("\\", "/")
             logger.debug(f"Arquivo relativo: {relative_path}")
-            logger.debug(f"Path final no GCS: gs://{self.bucket_name}/{full_gcs_path}")
+            logger.debug(f"Path final no GCS: {full_gcs_path}")
             self.upload_file(str(file), full_gcs_path)
 
         logger.success(
-            f"Upload de diretório finalizado: {local_folder} → {gcs_dir.strip('/')}/"
+            f"Upload de diretório finalizado: {local_folder} → {full_gcs_path.strip('/')}/"
         )
