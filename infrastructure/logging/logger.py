@@ -19,6 +19,7 @@ Uso:
     logger.error("Mensagem de erro")
 """
 
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -37,7 +38,7 @@ logger.add(
     level="INFO",  # nível mínimo INFO
     colorize=True,  # terminal com cor
 )
-environment = Settings.APP_ENV
+environment = os.getenv("APP_ENV", "dev")
 if environment == "dev":
     # ----------------------------------------
     # Diretório base para armazenar arquivos de log
