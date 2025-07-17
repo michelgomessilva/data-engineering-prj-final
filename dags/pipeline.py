@@ -39,18 +39,24 @@ setup_logger(Settings.get_local_log_path(), Settings.APP_ENV)
 
 # Argumentos padrão para a DAG
 default_args = {
-    "owner": "michel",
+    "owner": "michelsilva",
+    "depends_on_past": False,
+    "email": ["michel.gomes.silva@gmail.com"],
+    "email_on_failure": True,
+    "email_on_retry": False,
+    "retries": 2,
+    "retry_delay": timedelta(minutes=10),
     "start_date": datetime(2025, 7, 15),
-    "retries": 1,
-    "retry_delay": timedelta(minutes=5),
 }
 
 # Definição da DAG
 with DAG(
     dag_id="pipeline_dag",
     default_args=default_args,
-    schedule_interval=None,  # Altere para "@daily" se desejar execução periódica
+    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas, começando no minuto 12
     catchup=False,
+    max_active_runs=1,
+    concurrency=5,
     description="Pipeline principal: Ingestão de dados Carris - Grupo 2",
     tags=["pipeline", "vehicles", "grupo-2"],
 ) as dag:
