@@ -30,6 +30,12 @@ if project_path not in sys.path:
 
 # Importa a função de ingestão
 from application.use_cases.ingest_vehicles import run_ingest_vehicles
+from configs.settings import Settings
+from infrastructure.logging.logger import setup_logger
+
+# Inicializa o logger depois que Settings estiver carregado
+setup_logger(Settings.get_local_log_path(), Settings.APP_ENV)
+
 
 # Argumentos padrão para a DAG
 default_args = {

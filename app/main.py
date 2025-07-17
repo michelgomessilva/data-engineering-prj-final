@@ -20,15 +20,18 @@ import os
 import sys
 from datetime import datetime
 
-from loguru import logger
-
 # Importações dos use cases
 from application.use_cases.ingest_vehicles import IngestVehiclesService
+from configs.settings import Settings
+from infrastructure.logging.logger import logger, setup_logger
 
 # Adiciona o diretório raiz ao sys.path
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
+
+# Inicializa o logger depois que Settings estiver carregado
+setup_logger(Settings.get_local_log_path(), Settings.APP_ENV)
 
 
 def run_ingest_vehicles():

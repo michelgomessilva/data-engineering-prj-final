@@ -19,45 +19,47 @@ Uso:
     logger.error("Mensagem de erro")
 """
 
-import os
 from datetime import datetime
 from pathlib import Path
 
 from loguru import logger
 
-from configs.settings import Settings
 
-# ----------------------------------------
-# Configuração do logger
-# Remove qualquer handler padrão do loguru para evitar logs duplicados
-logger.remove()
-
-# Adiciona saída colorida no terminal (stdout)
-logger.add(
-    sink=lambda msg: print(msg, end=""),  # imprime no console
-    level="INFO",  # nível mínimo INFO
-    colorize=True,  # terminal com cor
-)
-environment = os.getenv("APP_ENV", "dev")
-if environment == "dev":
+def setup_logger(log_dir: str, environment: str = "dev") -> None:
+    """
+    Configura o loguru com diferentes comportamentos dependendo do ambiente.
+    """
     # ----------------------------------------
-    # Diretório base para armazenar arquivos de log
-    LOG_DIR = Path(Settings.get_local_log_path())
-    LOG_DIR.mkdir(exist_ok=True)
+    # Configuração do logger
+    # Remove qualquer handler padrão do loguru para evitar logs duplicados
+    logger.remove()
 
-    # Caminho completo do arquivo de log baseado na data atual
-    log_file = LOG_DIR / f"{datetime.now().strftime('%Y-%m-%d')}.log"
-    # Adiciona saída para arquivo com configurações de produção
+    # Adiciona saída colorida no terminal (stdout)
     logger.add(
-        str(log_file),
-        level="DEBUG",  # nível mínimo DEBUG (mais detalhado)
-        rotation="10 MB",  # rotaciona após 10 MB
-        retention="10 days",  # mantém arquivos por até 10 dias
-        compression="zip",  # compacta arquivos antigos
-        backtrace=True,  # imprime stacktrace completo para exceções
-        diagnose=True,  # inclui informações extras sobre variáveis em erro
-        encoding="utf-8",  # evita problemas com acentuação
+        sink=lambda msg: print(msg, end=""),  # imprime no console
+        level="INFO",  # nível mínimo INFO
+        colorize=True,  # terminal com cor
     )
 
-# ----------------------------------------
-logger.info("Logger inicializado com sucesso.")
+    if environment == "dev":
+        # ----------------------------------------
+        # Diretório base para armazenar arquivos de log
+        LOG_DIR = Path(log_dir)
+        LOG_DIR.mkdir(exist_ok=True)
+
+        # Caminho completo do arquivo de log baseado na data atual
+        log_file = LOG_DIR / f"{datetime.now().strftime('%Y-%m-%d')}.log"
+        # Adiciona saída para arquivo com configurações de produção
+        logger.add(
+            str(log_file),
+            level="DEBUG",  # nível mínimo DEBUG (mais detalhado)
+            rotation="10 MB",  # rotaciona após 10 MB
+            retention="10 days",  # mantém arquivos por até 10 dias
+            compression="zip",  # compacta arquivos antigos
+            backtrace=True,  # imprime stacktrace completo para exceções
+            diagnose=True,  # inclui informações extras sobre variáveis em erro
+            encoding="utf-8",  # evita problemas com acentuação
+        )
+
+    # ----------------------------------------
+    logger.info("Logger inicializado com sucesso.")
