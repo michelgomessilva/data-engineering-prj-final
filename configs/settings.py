@@ -117,9 +117,11 @@ class Settings:
         """
         parsed = urlparse(cls.GCS_BASE_PATH)
         logger.info(f"Parsed GCS base path: {parsed}")
+        bucket = parsed.netloc
+        logger.info(f"Bucket name: {bucket}")
         base = parsed.path.strip("/")
         logger.info(f"Base path for GCS: {base}")
-        complete_path = f"{base}/{cls.RAW_FOLDER}/{subpath}".rstrip("/")
+        complete_path = f"gs://{bucket}/{base}/{cls.RAW_FOLDER}/{subpath}".rstrip("/")
         logger.info(f"Complete raw path: {complete_path}")
         return complete_path
 
