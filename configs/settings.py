@@ -4,6 +4,8 @@ from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
+from infrastructure.logging.logger import logger
+
 load_dotenv()
 
 
@@ -26,7 +28,7 @@ class Settings:
     """
 
     # Diretório base do projeto (ajustável para local ou Composer)
-    APP_ENV = os.getenv("APP_ENV", "local")
+    APP_ENV: str = os.getenv("APP_ENV", "dev")
     APP_BASE_PATH = os.getenv("APP_BASE_PATH", ".")
 
     # Logs
@@ -114,8 +116,12 @@ class Settings:
             str: Caminho completo do arquivo ou diretório no bucket raw.
         """
         parsed = urlparse(cls.GCS_BASE_PATH)
-        base = parsed.path.strip("/")  # Ex: grupo-2
-        return f"{base}/{cls.RAW_FOLDER}/{subpath}".rstrip("/")
+        logger.info(f"Parsed GCS base path: {parsed}")
+        base = parsed.path.strip("/")
+        logger.info(f"Base path for GCS: {base}")
+        complete_path = f"{base}/{cls.RAW_FOLDER}/{subpath}".rstrip("/")
+        logger.info(f"Complete raw path: {complete_path}")
+        return complete_path
 
     @classmethod
     def get_staging_path(cls, subpath: str = "") -> str:

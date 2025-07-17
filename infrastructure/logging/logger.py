@@ -37,8 +37,8 @@ logger.add(
     level="INFO",  # nível mínimo INFO
     colorize=True,  # terminal com cor
 )
-
-if Settings.APP_ENV == "dev":
+environment = Settings.APP_ENV
+if environment == "dev":
     # ----------------------------------------
     # Diretório base para armazenar arquivos de log
     LOG_DIR = Path(Settings.get_local_log_path())
