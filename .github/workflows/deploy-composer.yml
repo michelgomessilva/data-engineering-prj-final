@@ -16,40 +16,42 @@ env:
 jobs:
 
   auth-build-push:
-    name: Autenticar, Buildar Docker e Fazer Push para Artifact Registry
+    name: Build e Push da Imagem Docker
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código
+      - name: 📦 Checkout do código
         uses: actions/checkout@v3
 
-      - name: Autenticar via Service Account
+      - name: 🔐 Autenticação via Service Account
         uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
 
-      - name: Setup Google Cloud SDK e Docker
+      - name: ⚙️ Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
-          install_components: gcloud,docker
 
-      - name: Configurar Docker para Artifact Registry
+      - name: 🐳 Configurar Docker para Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      - name: Pull da imagem existente (para cache)
+      - name: 📥 Tentar puxar imagem existente (para cache)
         run: |
           docker pull ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} || true
+        shell: bash
 
-      - name: Build da imagem Docker
+      - name: 🛠️ Build da imagem Docker com cache
         run: |
           docker build \
             --cache-from=${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} \
             -t ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} .
+        shell: bash
 
-      - name: Push da imagem Docker para Artifact Registry
+      - name: 🚀 Push da imagem para Artifact Registry
         run: |
           docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+        shell: bash
 
   upload-dag:
     name: Upload da DAG para o Composer
@@ -57,23 +59,23 @@ jobs:
     needs: auth-build-push
 
     steps:
-      - name: Checkout do código
+      - name: 📦 Checkout do código
         uses: actions/checkout@v3
 
-      - name: Autenticar via Service Account
+      - name: 🔐 Autenticação via Service Account
         uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
 
-      - name: Setup Google Cloud SDK com gsutil
+      - name: ⚙️ Setup Google Cloud SDK com gsutil
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
           install_components: gsutil
 
-      - name: Verificar arquivos da DAG
+      - name: 📂 Verificar arquivos da DAG
         run: ls -lah dags/
 
-      - name: Upload da DAG para o Composer
+      - name: ☁️ Upload da DAG para o Composer
         run: |
           gsutil cp dags/pipeline.py gs://$COMPOSER_BUCKET/dags/grupo_2/
