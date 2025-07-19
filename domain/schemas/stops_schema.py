@@ -12,7 +12,7 @@ stops_schema = StructType(
         StructField("longitude", StringType(), True),
         StructField("municipality_id", StringType(), True),
         StructField("municipality_name", StringType(), True),
-        StructField("name", StringType(), True),
+        StructField("stop_name", StringType(), True),
         StructField("operational_status", StringType(), True),
         StructField("parish_id", StringType(), True),
         StructField("parish_name", StringType(), True),
