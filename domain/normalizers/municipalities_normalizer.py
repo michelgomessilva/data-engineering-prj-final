@@ -23,8 +23,8 @@ class MunicipalitiesNormalizer:
             try:
                 normalized.append(
                     {
-                        "municipality_id": str(item.get("municipality_id", "")),
-                        "municipality_name": str(item.get("municipality_name", "")),
+                        "municipality_id": str(item.get("id", "")),
+                        "municipality_name": str(item.get("name", "")),
                         "prefix": str(item.get("prefix", "")),
                         "district_id": str(item.get("district_id", "")),
                         "district_name": str(item.get("district_name", "")),

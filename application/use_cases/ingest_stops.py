@@ -1,21 +1,21 @@
 """
-IngestVehiclesService
+IngestStopsService
 
 Classe responsável por orquestrar o processo de ingestão de dados brutos (raw)
-de veículos da API da Carris Metropolitana,
+de stops da API da Carris Metropolitana,
 normalizar os dados, convertê-los em DataFrame do Spark, e armazená-los em
 formato Parquet no Google Cloud Storage (GCS),
 organizados em partições diárias.
 
 Responsabilidades:
-- Buscar os dados da API externa definida no settings (endpoint de municípios).
+- Buscar os dados da API externa definida no settings (endpoint de paragens).
 - Normalizar os dados JSON em um formato tabular.
 - Converter para Spark DataFrame.
 - Adicionar metadados como a data de ingestão.
 - Salvar os dados particionados por data no bucket do GCS, na camada raw.
 
 Atributos:
-- self.api: instância da MunicipalitiesCarrisAPI (para chamadas HTTP).
+- self.api: instância da StopsCarrisAPI (para chamadas HTTP).
 - self.spark: sessão Spark obtida pela função `get_spark_session`.
 - self.repo: responsável por converter os dados normalizados em DataFrame.
 - self.storage: responsável por salvar o DataFrame no storage (Parquet + GCS).
@@ -27,8 +27,8 @@ Método principal:
 from pyspark.sql.functions import current_date
 
 from configs.settings import Settings
-from domain.normalizers.municipalities_normalizer import MunicipalitiesNormalizer
-from domain.schemas.municipalities_schema import municipalities_schema
+from domain.normalizers.stops_normalizer import StopsNormalizer
+from domain.schemas.stops_schema import stops_schema
 from domain.services.base_ingestion_services import IBaseIngestService
 from infrastructure.api.carris_client import CarrisAPIClient
 from infrastructure.logging.logger import logger
@@ -38,9 +38,9 @@ from infrastructure.storage.gcs_uploader import GCSUploader
 from infrastructure.storage.parquet_storage import ParquetStorage
 
 
-class IngestMunicipalitiesService(IBaseIngestService):
+class IngestStopsService(IBaseIngestService):
     def __init__(self):
-        logger.info("Inicializando IngestMunicipalitiesService...")
+        logger.info("Inicializando IngestStopsService...")
 
         self.api = CarrisAPIClient()
         logger.debug("Cliente da API Carris inicializado.")
@@ -48,21 +48,21 @@ class IngestMunicipalitiesService(IBaseIngestService):
         self.spark = get_spark_session()
         logger.debug("Sessão Spark obtida com sucesso.")
 
-        self.repo = GenericSparkRepository(self.spark, schema=municipalities_schema)
-        logger.debug("Repositório genérico com schema de municípios criado.")
+        self.repo = GenericSparkRepository(self.spark, schema=stops_schema)
+        logger.debug("Repositório genérico com schema de stops criado.")
 
         self.storage = ParquetStorage()
         logger.debug("Serviço de armazenamento Parquet instanciado.")
 
     def ingest(self):
-        logger.info("Iniciando pipeline de ingestão de municípios...")
+        logger.info("Iniciando pipeline de ingestão de stops...")
 
-        logger.info(f"Buscando dados do endpoint: {Settings.MUNICIPALITIES_ENDPOINT}")
-        raw_data = self.api.fetch(Settings.MUNICIPALITIES_ENDPOINT)
+        logger.info(f"Buscando dados do endpoint: {Settings.STOPS_ENDPOINT}")
+        raw_data = self.api.fetch(Settings.STOPS_ENDPOINT)
         logger.success(f"{len(raw_data)} registros brutos recebidos da API.")
 
         logger.info("Normalizando dados brutos...")
-        normalized = MunicipalitiesNormalizer.normalize(raw_data)
+        normalized = StopsNormalizer.normalize(raw_data)
         logger.success(f"Normalização concluída. Total de registros: {len(normalized)}")
 
         logger.info("🧪 Convertendo para DataFrame do Spark...")
@@ -75,32 +75,32 @@ class IngestMunicipalitiesService(IBaseIngestService):
         logger.debug("Coluna 'date' adicionada ao DataFrame.")
 
         # Define o caminho de destino no bucket
-        local_folder = Settings.get_local_raw_path(Settings.MUNICIPALITIES_ENDPOINT)
+        local_folder = Settings.get_local_raw_path(Settings.STOPS_ENDPOINT)
         logger.info(f"Caminho de destino: {local_folder}")
 
         # Salva localmente o parquet particionando por data
         logger.info("Salvando dados no GCS particionados por data...")
         self.storage.save(df, local_folder, partition_by=["date"])
-        logger.success("Dados de municípios salvos com sucesso no GCS!")
+        logger.success("Dados de stops salvos com sucesso no GCS!")
 
         # Faz o upload do arquivo Parquet para o GCS
         uploader = GCSUploader()
         uploader.upload_directory(
             local_folder=local_folder,
-            gcs_dir=Settings.get_raw_path(Settings.MUNICIPALITIES_ENDPOINT),
+            gcs_dir=Settings.get_raw_path(Settings.STOPS_ENDPOINT),
             file_extension=".parquet",
         )
 
 
-def run_ingest_municipalities():
+def run_ingest_stops():
     """
     Função utilizada como ponto de entrada para execução do pipeline de ingestão
-    de municípios. Ela instancia o serviço `IngestMunicipalitiesService` e executa o método
+    de stops. Ela instancia o serviço `IngestStopsService` e executa o método
     `ingest()`.
 
     Essa função é usada diretamente como `python_callable` na DAG do Airflow.
     """
-    logger.info("Iniciando use case: ingest_municipalities")
-    service = IngestMunicipalitiesService()
+    logger.info("Iniciando use case: ingest_stops")
+    service = IngestStopsService()
     service.ingest()
-    logger.success("Use case 'ingest_municipalities' finalizado com sucesso.")
+    logger.success("Use case 'ingest_stops' finalizado com sucesso.")

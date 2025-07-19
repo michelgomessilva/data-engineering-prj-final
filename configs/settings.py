@@ -50,6 +50,8 @@ class Settings:
         "CARRIS_API_BASE", "https://api.carrismetropolitana.pt/"
     )
     VEHICLES_ENDPOINT = os.getenv("VEHICLES_ENDPOINT", "vehicles")
+    MUNICIPALITIES_ENDPOINT = os.getenv("MUNICIPALITIES_ENDPOINT", "municipalities")
+    STOPS_ENDPOINT = os.getenv("STOPS_ENDPOINT", "stops")
 
     # ENV
     APP_ENV = os.getenv("APP_ENV", "dev")
