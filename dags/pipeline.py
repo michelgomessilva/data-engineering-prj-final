@@ -31,9 +31,7 @@ REGION = "europe-west1"
 REPO = "pipelines"
 IMAGE_NAME = "grupo-2-pipeline-app"
 DOCKER_TAG = "latest"
-ARTIFACT_IMAGE = (
-    f"{REGION}-docker.pkg.dev/{PROJECT_ID}/{REPO}/{IMAGE_NAME}:{DOCKER_TAG}"
-)
+ARTIFACT_IMAGE = f"ghcr.io/michelsilva/{IMAGE_NAME}:{DOCKER_TAG}"
 
 # Argumentos padrão para todas as tasks
 default_args = {

@@ -1,4 +1,4 @@
-name: Build & Deploy DAG with Docker
+name: Build & Deploy DAG with Docker via GHCR
 
 on:
   push:
@@ -8,55 +8,33 @@ env:
   GCP_PROJECT_ID: data-eng-dev-437916
   COMPOSER_BUCKET: europe-west1-airflow-196fdba9-bucket
   CODE_PATH: grupo-2
-  REGION: europe-west1
-  ARTIFACT_REPO: pipelines
   DOCKER_IMAGE_NAME: grupo-2-pipeline-app
   DOCKER_IMAGE_TAG: latest
+  GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/grupo-2-pipeline-app:latest
 
 jobs:
 
-  auth-build-push:
-    name: Build e Push da Imagem Docker
+  build-and-push:
+    name: Build e Push da Imagem para GHCR
     runs-on: ubuntu-latest
 
     steps:
       - name: 📦 Checkout do código
         uses: actions/checkout@v3
 
-      - name: 🔐 Autenticação via Service Account
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
+      - name: 🔐 Login no GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: ⚙️ Setup Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
+      - name: 🛠️ Build da imagem Docker
+        run: docker build -t ${{ env.GHCR_IMAGE }} .
 
-      - name: 🐳 Configurar Docker para Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
-
-      - name: 📥 Tentar puxar imagem existente (para cache)
-        run: |
-          docker pull ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} || true
-        shell: bash
-
-      - name: 🛠️ Build da imagem Docker com cache
-        run: |
-          docker build \
-            --cache-from=${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} \
-            -t ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} .
-        shell: bash
-
-      - name: 🚀 Push da imagem para Artifact Registry
-        run: |
-          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
-        shell: bash
+      - name: 🚀 Push para o GHCR
+        run: docker push ${{ env.GHCR_IMAGE }}
 
   upload-dag:
     name: Upload da DAG para o Composer
     runs-on: ubuntu-latest
-    needs: auth-build-push
+    needs: build-and-push
 
     steps:
       - name: 📦 Checkout do código
