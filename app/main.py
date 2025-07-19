@@ -78,9 +78,9 @@ def run_ingest_routes():
 USE_CASES = {
     "ingest_vehicles": run_ingest_vehicles,
     "ingest_municipalities": run_ingest_municipalities,
-    "ingest_vehicles": run_ingest_stops,
-    "ingest_municipalities": run_ingest_lines,
-    "ingest_vehicles": run_ingest_routes,
+    "ingest_lines": run_ingest_lines,
+    "ingest_routes": run_ingest_routes,
+    "ingest_stops": run_ingest_stops,
     # "ingest_inspections": run_ingest_inspections,
     # "generate_report": run_generate_report,
     "all": lambda: [
@@ -88,6 +88,9 @@ USE_CASES = {
         for func in [
             run_ingest_vehicles,
             run_ingest_municipalities,
+            run_ingest_lines,
+            run_ingest_routes,
+            run_ingest_stops,
             # run_ingest_inspections,
             # run_generate_report,
         ]
