@@ -28,10 +28,18 @@ class VehiclesNormalizer:
                         "latitude": float(item.get("lat", 0.0) or 0.0),
                         "longitude": float(item.get("lon", 0.0) or 0.0),
                         "timestamp": int(item.get("timestamp", 0) or 0),
-                        "CURRENT_STATUS": str(item.get("CURRENT_STATUS", "")),
+                        "current_status": str(item.get("current_status", "")),
                         "speed": float(item.get("speed", 0.0) or 0.0),
-                        "direction": int(item.get("direction", 0) or 0),
                         "trip_id": str(item.get("trip_id", "")),
+                        "stop_id": str(item.get("stop_id", "")),
+                        "bearing": int(item.get("bearing", "")),
+                        "block_id": str(item.get("block_id", "")),
+                        "pattern_id": str(item.get("pattern_id", "")),
+                        "route_id": str(item.get("route_id", "")),
+                        "schedule_relationship": str(
+                            item.get("schedule_relationship", "")
+                        ),
+                        "shift_id": str(item.get("shift_id", "")),
                     }
                 )
             except Exception as e:
