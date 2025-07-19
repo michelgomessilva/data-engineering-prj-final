@@ -23,7 +23,7 @@ RUN curl -sSL https://install.python-poetry.org | python3 - && \
 WORKDIR /app
 
 # Copia arquivos de dependência
-COPY pyproject.toml poetry.lock ./
+COPY poetry.lock pyproject.toml ./
 
 # Instala as dependências do projeto
 RUN poetry config virtualenvs.create false && \

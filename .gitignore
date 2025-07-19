@@ -33,7 +33,7 @@ var/
 *.whl
 
 # Poetry
-poetry.lock
+#poetry.lock
 
 # Installer logs
 pip-log.txt
