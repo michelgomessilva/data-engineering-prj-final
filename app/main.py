@@ -20,6 +20,8 @@ import os
 import sys
 from datetime import datetime
 
+from application.use_cases.ingest_municipalities import IngestMunicipalitiesService
+
 # Importações dos use cases
 from application.use_cases.ingest_vehicles import IngestVehiclesService
 from configs.settings import Settings
@@ -41,15 +43,24 @@ def run_ingest_vehicles():
     logger.success("Use case 'ingest_vehicles' finalizado com sucesso.")
 
 
+def run_ingest_municipalities():
+    logger.info("Iniciando use case: ingest_municipalities")
+    service = IngestMunicipalitiesService()
+    service.ingest()
+    logger.success("Use case 'ingest_municipalities' finalizado com sucesso.")
+
+
 # Mapeamento de use cases
 USE_CASES = {
     "ingest_vehicles": run_ingest_vehicles,
+    "ingest_municipalities": run_ingest_municipalities,
     # "ingest_inspections": run_ingest_inspections,
     # "generate_report": run_generate_report,
     "all": lambda: [
         func()
         for func in [
             run_ingest_vehicles,
+            run_ingest_municipalities,
             # run_ingest_inspections,
             # run_generate_report,
         ]
