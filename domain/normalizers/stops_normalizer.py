@@ -26,7 +26,7 @@ class StopsNormalizer:
                         "district_id": str(item.get("district_id", "")),
                         "district_name": str(item.get("district_name", "")),
                         "facilities": item.get("facilities", []),
-                        "id": str(item.get("id", "")),
+                        "stop_id": str(item.get("id", "")),
                         "latitude": str(item.get("lat", "")),
                         "lines": item.get("lines", []),
                         "locality": str(item.get("locality", "")),
@@ -42,7 +42,6 @@ class StopsNormalizer:
                         "region_name": str(item.get("region_name", "")),
                         "routes": item.get("routes", []),
                         "short_name": str(item.get("short_name", "")),
-                        "stop_id": str(item.get("stop_id", "")),
                         "tts_name": str(item.get("tts_name", "")),
                         "wheelchair_boarding": str(item.get("wheelchair_boarding", "")),
                     }

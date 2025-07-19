@@ -52,6 +52,8 @@ class Settings:
     VEHICLES_ENDPOINT = os.getenv("VEHICLES_ENDPOINT", "vehicles")
     MUNICIPALITIES_ENDPOINT = os.getenv("MUNICIPALITIES_ENDPOINT", "municipalities")
     STOPS_ENDPOINT = os.getenv("STOPS_ENDPOINT", "stops")
+    LINES_ENDPOINT = os.getenv("LINES_ENDPOINT", "lines")
+    ROUTES_ENDPOINT = os.getenv("ROUTES_ENDPOINT", "routes")
 
     # ENV
     APP_ENV = os.getenv("APP_ENV", "dev")

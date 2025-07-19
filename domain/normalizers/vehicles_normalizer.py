@@ -23,7 +23,7 @@ class VehiclesNormalizer:
             try:
                 normalized.append(
                     {
-                        "vehicle_id": str(item.get("vehicle_id", "")),
+                        "vehicle_id": str(item.get("id", "")),
                         "line_id": str(item.get("line_id", "")),
                         "latitude": float(item.get("latitude", 0.0) or 0.0),
                         "longitude": float(item.get("longitude", 0.0) or 0.0),

@@ -4,7 +4,7 @@ municipalities_schema = StructType(
     [
         StructField("district_id", StringType(), True),
         StructField("district_name", StringType(), True),
-        StructField("id", StringType(), True),
+        StructField("municipality_id", StringType(), True),
         StructField("name", StringType(), True),
         StructField("prefix", StringType(), True),
         StructField("region_id", StringType(), True),
