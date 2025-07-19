@@ -25,8 +25,8 @@ class VehiclesNormalizer:
                     {
                         "vehicle_id": str(item.get("id", "")),
                         "line_id": str(item.get("line_id", "")),
-                        "latitude": float(item.get("latitude", 0.0) or 0.0),
-                        "longitude": float(item.get("longitude", 0.0) or 0.0),
+                        "latitude": float(item.get("lat", 0.0) or 0.0),
+                        "longitude": float(item.get("lon", 0.0) or 0.0),
                         "timestamp": int(item.get("timestamp", 0) or 0),
                         "CURRENT_STATUS": str(item.get("CURRENT_STATUS", "")),
                         "speed": float(item.get("speed", 0.0) or 0.0),
