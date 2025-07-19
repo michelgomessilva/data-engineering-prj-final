@@ -21,6 +21,7 @@ import sys
 from datetime import datetime
 
 from application.use_cases.ingest_municipalities import IngestMunicipalitiesService
+from application.use_cases.ingest_stops import IngestStopsService
 
 # Importações dos use cases
 from application.use_cases.ingest_vehicles import IngestVehiclesService
@@ -50,10 +51,18 @@ def run_ingest_municipalities():
     logger.success("Use case 'ingest_municipalities' finalizado com sucesso.")
 
 
+def run_ingest_stops():
+    logger.info("Iniciando use case: ingest_stops")
+    service = IngestStopsService()
+    service.ingest()
+    logger.success("Use case 'ingest_stops' finalizado com sucesso.")
+
+
 # Mapeamento de use cases
 USE_CASES = {
     "ingest_vehicles": run_ingest_vehicles,
     "ingest_municipalities": run_ingest_municipalities,
+    "ingest_stops": run_ingest_stops,
     # "ingest_inspections": run_ingest_inspections,
     # "generate_report": run_generate_report,
     "all": lambda: [
@@ -61,6 +70,7 @@ USE_CASES = {
         for func in [
             run_ingest_vehicles,
             run_ingest_municipalities,
+            run_ingest_stops,
             # run_ingest_inspections,
             # run_generate_report,
         ]
