@@ -28,6 +28,8 @@ project_path = "/home/airflow/gcs/data/grupo-2"
 if project_path not in sys.path:
     sys.path.insert(0, project_path)
 
+from application.use_cases.ingest_municipalities import run_ingest_municipalities
+
 # Importa a função de ingestão
 from application.use_cases.ingest_vehicles import run_ingest_vehicles
 from configs.settings import Settings
@@ -62,10 +64,14 @@ with DAG(
 ) as dag:
 
     # Task de ingestão de dados
-    ingest_task = PythonOperator(
+    raw_vehicles_task = PythonOperator(
         task_id="ingest_vehicles", python_callable=run_ingest_vehicles
+    )
+
+    raw_municipalities_task = PythonOperator(
+        task_id="ingest_municipalities", python_callable=run_ingest_municipalities
     )
 
     # Futuras tasks (ex: transform_task, load_task) podem ser adicionadas aqui
 
-    ingest_task
+    [raw_vehicles_task, raw_municipalities_task]
