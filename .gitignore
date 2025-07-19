@@ -8,6 +8,8 @@ __pycache__/
 *.pyd
 *.dll
 
+gcp-key.json
+
 # Distribution / packaging
 .Python
 data/

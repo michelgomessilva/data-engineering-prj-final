@@ -1,4 +1,4 @@
-name: Deploy to Cloud Composer
+name: Build & Deploy DAG with Docker
 
 on:
   push:
@@ -8,22 +8,17 @@ env:
   GCP_PROJECT_ID: data-eng-dev-437916
   COMPOSER_BUCKET: europe-west1-airflow-196fdba9-bucket
   CODE_PATH: grupo-2
-  APP_ENV: production
-  APP_BASE_PATH: /home/airflow/gcs/data/grupo-2
+  REGION: europe-west1
+  ARTIFACT_REPO: pipelines
+  DOCKER_IMAGE_NAME: grupo-2-pipeline-app
+  DOCKER_IMAGE_TAG: latest
 
 jobs:
 
-  checkout:
-    name: Checkout do código
+  auth-build-push:
+    name: Autenticar, Buildar Docker e Fazer Push para Artifact Registry
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
 
-  auth:
-    name: Autenticação com Service Account
-    runs-on: ubuntu-latest
-    needs: checkout
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
@@ -33,41 +28,34 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
 
-      - name: Instalar Google Cloud SDK com gsutil
+      - name: Setup Google Cloud SDK e Docker
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
-          install_components: gsutil
+          install_components: gcloud,docker
 
-      - name: Verificar identidade do gcloud
-        run: gcloud auth list
+      - name: Configurar Docker para Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Pull da imagem existente (para cache)
+        run: |
+          docker pull ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} || true
+
+      - name: Build da imagem Docker
+        run: |
+          docker build \
+            --cache-from=${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} \
+            -t ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} .
+
+      - name: Push da imagem Docker para Artifact Registry
+        run: |
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REPO }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
 
   upload-dag:
     name: Upload da DAG para o Composer
     runs-on: ubuntu-latest
-    needs: auth
-    steps:
-      - uses: actions/checkout@v3
+    needs: auth-build-push
 
-      - name: Autenticar via Service Account
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
-
-      - name: Instalar Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
-          install_components: gsutil
-
-      - name: Upload da DAG
-        run: |
-          gsutil cp dags/pipeline.py gs://$COMPOSER_BUCKET/dags/grupo_2
-
-  upload-source:
-    name: Upload do código Python para o Composer
-    runs-on: ubuntu-latest
-    needs: auth
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
@@ -77,48 +65,15 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
 
-      - name: Instalar Google Cloud SDK
+      - name: Setup Google Cloud SDK com gsutil
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
           install_components: gsutil
 
-      - name: Upload dos diretórios de código para o Composer
+      - name: Verificar arquivos da DAG
+        run: ls -lah dags/
+
+      - name: Upload da DAG para o Composer
         run: |
-          gsutil -m cp -r application gs://$COMPOSER_BUCKET/data/$CODE_PATH/
-          gsutil -m cp -r configs gs://$COMPOSER_BUCKET/data/$CODE_PATH/
-          gsutil -m cp -r domain gs://$COMPOSER_BUCKET/data/$CODE_PATH/
-          gsutil -m cp -r infrastructure gs://$COMPOSER_BUCKET/data/$CODE_PATH/
-          gsutil -m cp -r app gs://$COMPOSER_BUCKET/data/$CODE_PATH/
-
-  upload-requirements:
-    name: Upload do requirements.txt
-    runs-on: ubuntu-latest
-    needs: auth
-    steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
-
-      - name: Autenticar via Service Account
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
-
-      - name: Instalar Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
-          install_components: gsutil
-
-      - name: Instalar Poetry 1.8.2
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 - --version 1.8.2
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Exportar requirements.txt
-        run: |
-          poetry export -f requirements.txt --without-hashes -o requirements.txt
-
-      - name: Upload requirements.txt para Composer
-        run: |
-          gsutil cp requirements.txt gs://$COMPOSER_BUCKET/data/$CODE_PATH/
+          gsutil cp dags/pipeline.py gs://$COMPOSER_BUCKET/dags/grupo_2/

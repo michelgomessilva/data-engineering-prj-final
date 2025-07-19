@@ -2,44 +2,40 @@
 pipeline.py
 
 DAG principal do Airflow para orquestrar o pipeline de ingestão de dados
-da Carris Metropolitana.
+da Carris Metropolitana, utilizando contêineres Docker executados via KubernetesPodOperator.
 
-Esta DAG executa uma tarefa de ingestão (`ingest_task`) que:
-- Consome dados da API da Carris.
-- Normaliza e transforma os dados com Spark.
-- Salva os dados em formato Parquet.
-- Faz o upload dos dados particionados para o GCS na camada `raw`.
-
-A DAG pode ser agendada de forma periódica ou executada sob demanda.
+Funcionalidades:
+- Cada tarefa representa um use case da aplicação e roda em um pod isolado.
+- As imagens Docker são geradas pelo CI/CD e publicadas no Artifact Registry.
+- Os pods são descartados após a execução (`is_delete_operator_pod=True`).
+- Organização visual no Composer via TaskGroup.
+- Possibilidade de execução de todos os use cases com uma única task (`--use-case all`).
 
 Pré-requisitos:
-- O código do projeto deve estar disponível no bucket do Composer (pasta `dags/` ou `data/`).
-- A pasta `/home/airflow/gcs/data` deve conter todo o projeto Python.
+- A imagem Docker da aplicação deve estar disponível em:
+  europe-west1-docker.pkg.dev/data-eng-dev-437916/pipelines/grupo-2-pipeline-app:latest
+- O DAG deve estar salvo no bucket do Composer em: gs://<COMPOSER_BUCKET>/dags/grupo_2/
 """
 
-import sys
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import (
+    KubernetesPodOperator,
+)
+from airflow.utils.task_group import TaskGroup
 
-# Adiciona o caminho da raiz do projeto ao sys.path para permitir imports
-project_path = "/home/airflow/gcs/data/grupo-2"
-if project_path not in sys.path:
-    sys.path.insert(0, project_path)
+# Configurações globais
+PROJECT_ID = "data-eng-dev-437916"
+REGION = "europe-west1"
+REPO = "pipelines"
+IMAGE_NAME = "grupo-2-pipeline-app"
+DOCKER_TAG = "latest"
+ARTIFACT_IMAGE = (
+    f"{REGION}-docker.pkg.dev/{PROJECT_ID}/{REPO}/{IMAGE_NAME}:{DOCKER_TAG}"
+)
 
-from application.use_cases.ingest_municipalities import run_ingest_municipalities
-
-# Importa a função de ingestão
-from application.use_cases.ingest_vehicles import run_ingest_vehicles
-from configs.settings import Settings
-from infrastructure.logging.logger import setup_logger
-
-# Inicializa o logger depois que Settings estiver carregado
-setup_logger(Settings.get_local_log_path(), Settings.APP_ENV)
-
-
-# Argumentos padrão para a DAG
+# Argumentos padrão para todas as tasks
 default_args = {
     "owner": "michelsilva",
     "depends_on_past": False,
@@ -51,27 +47,62 @@ default_args = {
     "start_date": datetime(2025, 7, 15),
 }
 
-# Definição da DAG
+# Criação da DAG principal
 with DAG(
     dag_id="pipeline_dag",
     default_args=default_args,
-    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas, começando no minuto 12
+    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas, minuto 12
     catchup=False,
     max_active_runs=1,
     concurrency=5,
-    description="Pipeline principal: Ingestão de dados Carris - Grupo 2",
-    tags=["pipeline", "vehicles", "grupo-2"],
+    description="Pipeline principal de ingestão Carris Metropolitana via Docker/K8s",
+    tags=["pipeline", "grupo-2", "kubernetes", "docker"],
 ) as dag:
 
-    # Task de ingestão de dados
-    raw_vehicles_task = PythonOperator(
-        task_id="ingest_vehicles", python_callable=run_ingest_vehicles
+    # TaskGroup: Use Cases Individuais
+    with TaskGroup(
+        "ingestion_tasks", tooltip="Ingestões individuais por dataset"
+    ) as ingestion_group:
+
+        ingest_vehicles = KubernetesPodOperator(
+            task_id="ingest_vehicles",
+            name="ingest-vehicles",
+            namespace="default",
+            image=ARTIFACT_IMAGE,
+            cmds=["python", "-m", "app.main"],
+            arguments=["--use-case", "ingest_vehicles"],
+            get_logs=True,
+            is_delete_operator_pod=True,
+            env_vars={"APP_ENV": "production"},
+        )
+
+        ingest_municipalities = KubernetesPodOperator(
+            task_id="ingest_municipalities",
+            name="ingest-municipalities",
+            namespace="default",
+            image=ARTIFACT_IMAGE,
+            cmds=["python", "-m", "app.main"],
+            arguments=["--use-case", "ingest_municipalities"],
+            get_logs=True,
+            is_delete_operator_pod=True,
+            env_vars={"APP_ENV": "production"},
+        )
+
+        # (futuro)
+        # ingest_stops = KubernetesPodOperator(...)
+
+    # Task: Executa todos os use-cases de uma só vez
+    ingest_all = KubernetesPodOperator(
+        task_id="ingest_all",
+        name="ingest-all",
+        namespace="default",
+        image=ARTIFACT_IMAGE,
+        cmds=["python", "-m", "app.main"],
+        arguments=["--use-case", "all"],
+        get_logs=True,
+        is_delete_operator_pod=True,
+        env_vars={"APP_ENV": "production"},
     )
 
-    raw_municipalities_task = PythonOperator(
-        task_id="ingest_municipalities", python_callable=run_ingest_municipalities
-    )
-
-    # Futuras tasks (ex: transform_task, load_task) podem ser adicionadas aqui
-
-    [raw_vehicles_task, raw_municipalities_task]
+    # Orquestração
+    ingest_all >> ingestion_group
