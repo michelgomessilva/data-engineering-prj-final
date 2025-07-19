@@ -10,7 +10,6 @@ env:
   CODE_PATH: grupo-2
   DOCKER_IMAGE_NAME: grupo-2-pipeline-app
   DOCKER_IMAGE_TAG: latest
-  GHCR_IMAGE: ghcr.io/${{ github.repository_owner }}/grupo-2-pipeline-app:latest
 
 jobs:
 
@@ -22,14 +21,19 @@ jobs:
       - name: 📦 Checkout do código
         uses: actions/checkout@v3
 
-      - name: 🔐 Login no GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: 🔐 Login no GitHub Container Registry (GHCR)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: 🛠️ Build da imagem Docker
-        run: docker build -t ${{ env.GHCR_IMAGE }} .
+        run: |
+          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}"
+          docker build -t "$IMAGE_NAME" .
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
       - name: 🚀 Push para o GHCR
-        run: docker push ${{ env.GHCR_IMAGE }}
+        run: |
+          docker push "$IMAGE_NAME"
 
   upload-dag:
     name: Upload da DAG para o Composer
@@ -40,7 +44,7 @@ jobs:
       - name: 📦 Checkout do código
         uses: actions/checkout@v3
 
-      - name: 🔐 Autenticação via Service Account
+      - name: 🔐 Autenticação via Service Account (GCP)
         uses: google-github-actions/auth@v1
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
