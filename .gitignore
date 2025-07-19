@@ -8,9 +8,6 @@ __pycache__/
 *.pyd
 *.dll
 
-# Bootstrap files
-bootstrap.ps1
-
 # Distribution / packaging
 .Python
 data/
