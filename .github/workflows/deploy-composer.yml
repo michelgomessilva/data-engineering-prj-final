@@ -67,3 +67,9 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           cat ~/.docker/config.json > docker_auth/config.json
           gsutil cp docker_auth/config.json gs://$COMPOSER_BUCKET/data/$CODE_PATH/docker_auth_config.json
+
+      - name: ☁️ Upload do config.json para o Composer (GCS)
+        run: |
+          mkdir -p .docker
+          echo "${{ secrets.DOCKER_AUTH_CONFIG_JSON }}" > .docker/config.json
+          gsutil cp .docker/config.json gs://${{ env.COMPOSER_BUCKET }}/data/$CODE_PATH/docker_auth/config.json
