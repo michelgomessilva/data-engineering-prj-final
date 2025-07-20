@@ -19,7 +19,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="pipeline_dag",
+    dag_id="grupo_2_pipeline",
     default_args=default_args,
     schedule_interval="12 */4 * * *",  # Executa a cada 4 horas
     catchup=False,
