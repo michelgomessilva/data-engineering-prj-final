@@ -2,11 +2,11 @@ from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
-from airflow.utils.task_group import TaskGroup
 
 # Imagem pública no Docker Hub (sem autenticação necessária)
 IMAGE_URI = "michelgomessilvax/grupo-2-pipeline-app:latest"
 
+# Parâmetros padrão para todas as tasks
 default_args = {
     "owner": "michelsilva",
     "depends_on_past": False,
@@ -18,10 +18,11 @@ default_args = {
     "start_date": datetime(2025, 7, 15),
 }
 
+# Definição da DAG
 with DAG(
     dag_id="grupo_2_pipeline",
     default_args=default_args,
-    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas
+    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas às 12min
     catchup=False,
     max_active_runs=1,
     concurrency=5,
@@ -29,34 +30,7 @@ with DAG(
     tags=["pipeline", "grupo-2"],
 ) as dag:
 
-    with TaskGroup(
-        "ingestion_tasks", tooltip="Ingestões individuais por dataset"
-    ) as ingestion_group:
-
-        ingest_vehicles = KubernetesPodOperator(
-            task_id="ingest_vehicles",
-            name="ingest-vehicles",
-            namespace="default",
-            image=IMAGE_URI,
-            cmds=["python", "-m", "app.main"],
-            arguments=["--use-case", "ingest_vehicles"],
-            get_logs=True,
-            is_delete_operator_pod=True,
-            env_vars={"APP_ENV": "production"},
-        )
-
-        ingest_municipalities = KubernetesPodOperator(
-            task_id="ingest_municipalities",
-            name="ingest-municipalities",
-            namespace="default",
-            image=IMAGE_URI,
-            cmds=["python", "-m", "app.main"],
-            arguments=["--use-case", "ingest_municipalities"],
-            get_logs=True,
-            is_delete_operator_pod=True,
-            env_vars={"APP_ENV": "production"},
-        )
-
+    # Task única que executa todos os use cases
     ingest_all = KubernetesPodOperator(
         task_id="ingest_all",
         name="ingest-all",
