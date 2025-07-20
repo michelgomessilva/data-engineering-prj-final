@@ -1,4 +1,4 @@
-name: Build & Deploy DAG with Docker via GHCR
+name: Build & Deploy DAG with Docker via Artifact Registry
 
 on:
   push:
@@ -8,34 +8,45 @@ env:
   GCP_PROJECT_ID: data-eng-dev-437916
   COMPOSER_BUCKET: europe-west1-airflow-196fdba9-bucket
   CODE_PATH: grupo-2
+  REGION: europe-west1
+  REPO_NAME: pipelines
   DOCKER_IMAGE_NAME: grupo-2-pipeline-app
   DOCKER_IMAGE_TAG: latest
+  FULL_IMAGE: europe-west1-docker.pkg.dev/data-eng-dev-437916/pipelines/grupo-2-pipeline-app:latest
 
 jobs:
   build-and-push:
-    name: Build e Push da Imagem para GHCR
+    name: Build e Push da Imagem para o Artifact Registry
     runs-on: ubuntu-latest
 
     steps:
       - name: 📦 Checkout do código
         uses: actions/checkout@v3
 
-      - name: 🔐 Login no GitHub Container Registry (GHCR)
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: 🔐 Autenticação no Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
+
+      - name: ⚙️ Setup do Google Cloud SDK com Docker
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          install_components: docker
+
+      - name: 🔐 Autenticação no Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
       - name: 🛠️ Build da imagem Docker
         run: |
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}"
-          docker build -t "$IMAGE_NAME" .
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          docker build -t ${{ env.FULL_IMAGE }} .
 
-      - name: 🚀 Push para o GHCR
+      - name: 🚀 Push da imagem para o Artifact Registry
         run: |
-          docker push "$IMAGE_NAME"
+          docker push ${{ env.FULL_IMAGE }}
 
   upload-dag:
-    name: Upload da DAG e Docker config para o Composer
+    name: Upload da DAG para o Composer
     runs-on: ubuntu-latest
     needs: build-and-push
 
@@ -54,22 +65,6 @@ jobs:
           project_id: ${{ env.GCP_PROJECT_ID }}
           install_components: gsutil
 
-      - name: 📂 Verificar arquivos da DAG
-        run: ls -lah dags/
-
       - name: ☁️ Upload da DAG para o Composer
         run: |
           gsutil cp dags/pipeline.py gs://$COMPOSER_BUCKET/dags/grupo_2/
-
-      - name: 🔄 Gerar Docker config e subir para o GCS
-        run: |
-          mkdir -p docker_auth
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          cat ~/.docker/config.json > docker_auth/config.json
-          gsutil cp docker_auth/config.json gs://$COMPOSER_BUCKET/data/$CODE_PATH/docker_auth_config.json
-
-      - name: ☁️ Upload do config.json para o Composer (GCS)
-        run: |
-          mkdir -p .docker
-          echo "${{ secrets.DOCKER_AUTH_CONFIG_JSON }}" > .docker/config.json
-          gsutil cp .docker/config.json gs://${{ env.COMPOSER_BUCKET }}/data/$CODE_PATH/docker_auth/config.json

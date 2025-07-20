@@ -4,14 +4,9 @@ from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.utils.task_group import TaskGroup
 
-# Configurações globais
-PROJECT_ID = "data-eng-dev-437916"
-REGION = "europe-west1"
-IMAGE_NAME = "grupo-2-pipeline-app"
-DOCKER_TAG = "latest"
-ARTIFACT_IMAGE = f"ghcr.io/michelsilva/{IMAGE_NAME}:{DOCKER_TAG}"
+# Imagem pública (ou privada, mas no Artifact Registry)
+IMAGE_URI = "europe-west1-docker.pkg.dev/data-eng-dev-437916/pipelines/grupo-2-pipeline-app:latest"
 
-# Argumentos padrão
 default_args = {
     "owner": "michelsilva",
     "depends_on_past": False,
@@ -42,39 +37,36 @@ with DAG(
             task_id="ingest_vehicles",
             name="ingest-vehicles",
             namespace="default",
-            image=ARTIFACT_IMAGE,
+            image=IMAGE_URI,
             cmds=["python", "-m", "app.main"],
             arguments=["--use-case", "ingest_vehicles"],
             get_logs=True,
             is_delete_operator_pod=True,
             env_vars={"APP_ENV": "production"},
-            image_pull_secrets=[{"name": "ghcr-docker-config"}],
         )
 
         ingest_municipalities = KubernetesPodOperator(
             task_id="ingest_municipalities",
             name="ingest-municipalities",
             namespace="default",
-            image=ARTIFACT_IMAGE,
+            image=IMAGE_URI,
             cmds=["python", "-m", "app.main"],
             arguments=["--use-case", "ingest_municipalities"],
             get_logs=True,
             is_delete_operator_pod=True,
             env_vars={"APP_ENV": "production"},
-            image_pull_secrets=[{"name": "ghcr-docker-config"}],
         )
 
     ingest_all = KubernetesPodOperator(
         task_id="ingest_all",
         name="ingest-all",
         namespace="default",
-        image=ARTIFACT_IMAGE,
+        image=IMAGE_URI,
         cmds=["python", "-m", "app.main"],
         arguments=["--use-case", "all"],
         get_logs=True,
         is_delete_operator_pod=True,
         env_vars={"APP_ENV": "production"},
-        image_pull_secrets=[{"name": "ghcr-docker-config"}],
     )
 
     ingest_all >> ingestion_group
