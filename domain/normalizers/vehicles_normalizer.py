@@ -29,7 +29,7 @@ class VehiclesNormalizer:
                         "pattern_id": str(item.get("pattern_id", "")),
                         "route_id": str(item.get("route_id", "")),
                         "shift_id": str(item.get("shift_id", "")),
-                        "stop_id": str(item.get("stop_id", "")),
+                        "stop_id": int(item.get("stop_id", "")),
                         "latitude": float(item.get("lat", 0.0) or 0.0),
                         "longitude": float(item.get("lon", 0.0) or 0.0),
                         "schedule_relationship": str(
