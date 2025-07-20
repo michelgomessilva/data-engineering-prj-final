@@ -12,35 +12,27 @@ env:
   REPO_NAME: pipelines
   DOCKER_IMAGE_NAME: grupo-2-pipeline-app
   DOCKER_IMAGE_TAG: latest
-  FULL_IMAGE: europe-west1-docker.pkg.dev/data-eng-dev-437916/pipelines/grupo-2-pipeline-app:latest
+  DOCKERHUB_REPO: michelgomessilvax/grupo-2-pipeline-app
+  FULL_IMAGE: michelgomessilvax/grupo-2-pipeline-app:latest
 
 jobs:
   build-and-push:
-    name: Build e Push da Imagem para o Artifact Registry
+    name: Build e Push da Imagem para o Docker Hub
     runs-on: ubuntu-latest
 
     steps:
       - name: 📦 Checkout do código
         uses: actions/checkout@v3
 
-      - name: 🔐 Autenticação no Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
-
-      - name: ⚙️ Setup do Google Cloud SDK com Docker
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
-
-      - name: 🔐 Autenticação no Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+      - name: 🔐 Login no Docker Hub
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: 🛠️ Build da imagem Docker
         run: |
           docker build -t ${{ env.FULL_IMAGE }} .
 
-      - name: 🚀 Push da imagem para o Artifact Registry
+      - name: 🚀 Push da imagem para o Docker Hub
         run: |
           docker push ${{ env.FULL_IMAGE }}
 

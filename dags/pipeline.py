@@ -4,8 +4,8 @@ from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from airflow.utils.task_group import TaskGroup
 
-# Imagem pública (ou privada, mas no Artifact Registry)
-IMAGE_URI = "europe-west1-docker.pkg.dev/data-eng-dev-437916/pipelines/grupo-2-pipeline-app:latest"
+# Imagem pública no Docker Hub (sem autenticação necessária)
+IMAGE_URI = "michelgomessilvax/grupo-2-pipeline-app:latest"
 
 default_args = {
     "owner": "michelsilva",
@@ -21,7 +21,7 @@ default_args = {
 with DAG(
     dag_id="pipeline_dag",
     default_args=default_args,
-    schedule_interval="12 */4 * * *",
+    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas
     catchup=False,
     max_active_runs=1,
     concurrency=5,

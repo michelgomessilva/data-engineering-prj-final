@@ -35,6 +35,8 @@ var/
 # Poetry
 #poetry.lock
 
+docker-hub-token.txt
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
