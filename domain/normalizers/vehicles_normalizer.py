@@ -24,12 +24,12 @@ class VehiclesNormalizer:
                 normalized.append(
                     {
                         "vehicle_id": str(item.get("id", "")),
-                        "line_id": str(item.get("line_id", "")),
+                        "line_id": int(item.get("line_id", 0)),
                         "trip_id": str(item.get("trip_id", "")),
                         "pattern_id": str(item.get("pattern_id", "")),
                         "route_id": str(item.get("route_id", "")),
                         "shift_id": str(item.get("shift_id", "")),
-                        "stop_id": int(item.get("stop_id", "")),
+                        "stop_id": int(item.get("stop_id", 0)),
                         "latitude": float(item.get("lat", 0.0) or 0.0),
                         "longitude": float(item.get("lon", 0.0) or 0.0),
                         "schedule_relationship": str(
