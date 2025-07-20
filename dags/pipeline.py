@@ -69,4 +69,4 @@ with DAG(
         env_vars={"APP_ENV": "production"},
     )
 
-    ingest_all >> ingestion_group
+    ingest_all
