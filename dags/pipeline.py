@@ -36,6 +36,7 @@ with DAG(
         name="ingest-all",
         namespace="default",
         image=IMAGE_URI,
+        image_pull_policy="Always",
         cmds=["python", "-m", "app.main"],
         arguments=["--use-case", "all"],
         get_logs=True,
