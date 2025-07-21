@@ -2,7 +2,6 @@ from pyspark.sql.types import ArrayType, StringType, StructField, StructType
 
 lines_schema = StructType(
     [
-        StructField("_corrupt_record", StringType(), True),
         StructField("color", StringType(), True),
         StructField("facilities", ArrayType(StringType(), True), True),
         StructField("line_id", StringType(), True),

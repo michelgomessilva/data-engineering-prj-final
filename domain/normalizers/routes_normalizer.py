@@ -33,7 +33,6 @@ class RoutesNormalizer:
                         "patterns": item.get("patterns", []),
                         "color": str(item.get("color", "")),
                         "text_color": str(item.get("text_color", "")),
-                        "_corrupt_record": str(item.get("_corrupt_record", "")),
                     }
                 )
             except Exception as e:
