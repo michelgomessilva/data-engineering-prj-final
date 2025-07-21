@@ -37,12 +37,25 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
 
     session = (
         SparkSession.builder.appName(app_name)
+        .config("spark.driver.memory", "4g")
         .config("spark.sql.session.timeZone", "UTC")
         .config("spark.hadoop.hadoop.security.authentication", "simple")
         .config(
             "spark.driver.extraJavaOptions",
             "--add-opens java.base/javax.security.auth=ALL-UNNAMED",
         )
+        .config("spark.sql.shuffle.partitions", "100")
+        .config("spark.sql.adaptive.enabled", "true")
+        .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "64MB")
+        .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
+        .config("spark.sql.parquet.compression.codec", "snappy")
+        .config("parquet.block.size", 134217728)  # 128MB
+        .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", "2")
+        .config(
+            "spark.speculation", "false"
+        )  # evita múltiplas tentativas que geram arquivos duplicados
+        .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+        .config("spark.kryoserializer.buffer.max", "512m")
         .getOrCreate()
     )
 

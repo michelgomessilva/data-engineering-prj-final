@@ -44,7 +44,7 @@ class ParquetStorage:
         relative_path: str,
         mode: str = "overwrite",
         partition_by: Optional[List[str]] = None,
-        coalesce: Optional[int] = 1,
+        coalesce: Optional[int] = None,
     ):
         """
         Salva um DataFrame como arquivo Parquet.
@@ -69,10 +69,16 @@ class ParquetStorage:
 
         try:
             start = time.time()
-            num_partitions = coalesce if coalesce is not None else 1
-            writer = df.coalesce(num_partitions).write.mode(mode)
+
+            if partition_by and coalesce is None:
+                df = df.repartition(*partition_by)
+            elif coalesce is not None:
+                df = df.coalesce(coalesce)
+
+            writer = df.write.mode(mode).option("compression", "snappy")
             if partition_by:
                 writer = writer.partitionBy(*partition_by)
+
             writer.parquet(full_path)
             duration = time.time() - start
             logger.info(f"DataFrame salvo com sucesso em {duration:.2f} segundos.")
