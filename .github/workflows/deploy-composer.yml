@@ -1,4 +1,4 @@
-name: Build & Deploy DAG with Docker via GHCR
+name: Build & Deploy DAG with Docker via Artifact Registry
 
 on:
   push:
@@ -8,32 +8,32 @@ env:
   GCP_PROJECT_ID: data-eng-dev-437916
   COMPOSER_BUCKET: europe-west1-airflow-196fdba9-bucket
   CODE_PATH: grupo-2
+  REGION: europe-west1
+  REPO_NAME: pipelines
   DOCKER_IMAGE_NAME: grupo-2-pipeline-app
   DOCKER_IMAGE_TAG: latest
+  DOCKERHUB_REPO: michelgomessilvax/grupo-2-pipeline-app
+  FULL_IMAGE: michelgomessilvax/grupo-2-pipeline-app:latest
 
 jobs:
-
   build-and-push:
-    name: Build e Push da Imagem para GHCR
+    name: Build e Push da Imagem para o Docker Hub
     runs-on: ubuntu-latest
 
     steps:
       - name: 📦 Checkout do código
         uses: actions/checkout@v3
 
-      - name: 🔐 Login no GitHub Container Registry (GHCR)
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: 🔐 Login no DockerHub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: 🛠️ Build da imagem Docker
         run: |
-          IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}"
-          docker build -t "$IMAGE_NAME" .
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          docker build -t ${{ env.FULL_IMAGE }} .
 
-      - name: 🚀 Push para o GHCR
+      - name: 🚀 Push da imagem para o Docker Hub
         run: |
-          docker push "$IMAGE_NAME"
+          docker push ${{ env.FULL_IMAGE }}
 
   upload-dag:
     name: Upload da DAG para o Composer
@@ -54,9 +54,6 @@ jobs:
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
           install_components: gsutil
-
-      - name: 📂 Verificar arquivos da DAG
-        run: ls -lah dags/
 
       - name: ☁️ Upload da DAG para o Composer
         run: |

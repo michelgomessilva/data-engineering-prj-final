@@ -54,10 +54,12 @@ class Settings:
     STOPS_ENDPOINT = os.getenv("STOPS_ENDPOINT", "stops")
     LINES_ENDPOINT = os.getenv("LINES_ENDPOINT", "lines")
     ROUTES_ENDPOINT = os.getenv("ROUTES_ENDPOINT", "routes")
+    GTFS_ENDPOINT = os.getenv("GTFS_ENDPOINT", "gtfs")
 
     # ENV
     APP_ENV = os.getenv("APP_ENV", "dev")
     APP_NAME = os.getenv("APP_NAME", "Group2FinalProject")
+    DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "./data/gtfs")
 
     @classmethod
     def get_local_raw_path(cls, subpath: str = "") -> str:
