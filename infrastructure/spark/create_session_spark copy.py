@@ -1,3 +1,21 @@
+"""
+Módulo responsável por configurar e retornar a SparkSession da aplicação.
+
+Este módulo centraliza as configurações necessárias para integração com o Google Cloud Storage (GCS),
+incluindo a utilização do conector GCS apropriado, além de parametrizar o nome da aplicação Spark.
+
+A configuração desativa o uso explícito de autenticação por service account
+(`spark.hadoop.google.cloud.auth.service.account.enable = false`),
+assumindo que as credenciais estão disponíveis no ambiente padrão (ADC - Application Default Credentials).
+
+A configuração padrão do pacote GCS conector utilizada aqui é:
+- com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.5
+
+Uso:
+    from infrastructure.spark.create_session_spark import get_spark_session
+    spark = get_spark_session()
+"""
+
 from pyspark.sql import SparkSession
 
 from configs.settings import Settings
@@ -8,22 +26,17 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
     """
     Cria e retorna uma SparkSession com configurações adequadas para integração com GCS.
 
-    Requer:
-    - Conector GCS instalado: com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.5
-    - Autenticação configurada via ADC (Application Default Credentials)
-    """
+    Args:
+        app_name (str): Nome da aplicação Spark (usado no UI e logs do Spark).
 
+    Returns:
+        SparkSession: Sessão Spark configurada.
+
+    """
     logger.info(f"SparkSession criada com nome: {app_name}")
 
     session = (
         SparkSession.builder.appName(app_name)
-        .config("spark.hadoop.fs.gs.auth.service.account.enable", "true")
-        # Configurações de integração com GCS
-        .config(
-            "spark.hadoop.google.cloud.auth.service.account.json.keyfile",
-            Settings.GOOGLE_APPLICATION_CREDENTIALS,
-        )
-        # Performance e memória
         .config("spark.driver.memory", "4g")
         .config("spark.sql.session.timeZone", "UTC")
         .config("spark.hadoop.hadoop.security.authentication", "simple")
@@ -36,27 +49,15 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
         .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "64MB")
         .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
         .config("spark.sql.parquet.compression.codec", "snappy")
-        .config("parquet.block.size", 134217728)
+        .config("parquet.block.size", 134217728)  # 128MB
         .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", "2")
-        .config("spark.speculation", "false")
+        .config(
+            "spark.speculation", "false"
+        )  # evita múltiplas tentativas que geram arquivos duplicados
         .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
         .config("spark.kryoserializer.buffer.max", "512m")
-        # GCS Integration
-        .config(
-            "spark.jars.packages",
-            "com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.5",
-        )
-        .config(
-            "spark.hadoop.fs.gs.impl",
-            "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem",
-        )
-        .config(
-            "spark.hadoop.fs.AbstractFileSystem.gs.impl",
-            "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS",
-        )
-        .config("spark.hadoop.google.cloud.auth.service.account.enable", "false")
         .getOrCreate()
     )
-    logger.info(f"Usando GCS com chave: {Settings.GOOGLE_APPLICATION_CREDENTIALS}")
+
     logger.info("SparkSession criada com sucesso")
     return session

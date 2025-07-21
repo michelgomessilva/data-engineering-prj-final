@@ -40,7 +40,10 @@ with DAG(
         arguments=["--use-case", "all"],
         get_logs=True,
         is_delete_operator_pod=True,
-        env_vars={"APP_ENV": "production"},
+        env_vars={
+            "APP_ENV": "production",
+            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
+        },
     )
 
     ingest_all

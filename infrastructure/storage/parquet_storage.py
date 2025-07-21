@@ -60,8 +60,10 @@ class ParquetStorage:
         Raises:
             Exception: Qualquer erro que ocorra durante o processo de gravação.
         """
-        # full_path = os.path.join(self.base_path, relative_path)
         full_path = relative_path
+        if not full_path.startswith("gs://") and not full_path.startswith("/"):
+            raise ValueError("Caminho inválido: informe um path local ou GCS (gs://)")
+
         logger.info(f"Iniciando salvamento do DataFrame no caminho: {full_path}")
         logger.debug(
             f"Modo: {mode} | PartitionBy: {partition_by} | Coalesce: {coalesce}"

@@ -36,30 +36,33 @@ FROM python:3.10-slim AS runtime
 
 # Instala Java no container final
 RUN apt-get update && \
-    apt-get install -y default-jdk && \
-    # Detecta e salva o JAVA_HOME dinamicamente
+    apt-get install -y default-jdk curl && \
     JAVA_PATH=$(readlink -f $(which java)) && \
     JAVA_HOME=$(dirname $(dirname "$JAVA_PATH")) && \
     echo "JAVA_HOME=$JAVA_HOME" >> /etc/environment && \
     echo "PATH=$JAVA_HOME/bin:$PATH" >> /etc/environment && \
     apt-get clean
 
-# Exporta JAVA_HOME em tempo de execução (reforço para Spark)
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
-# Define diretório de trabalho
+# Baixa e adiciona o JAR do conector do GCS
+RUN mkdir -p /opt/spark/jars && \
+    curl -o /opt/spark/jars/gcs-connector-hadoop3-2.2.5-shaded.jar \
+    https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.5/gcs-connector-hadoop3-2.2.5-shaded.jar
+
 WORKDIR /app
 
-# Copia as dependências instaladas no builder
+# Copia dependências e código
 COPY --from=builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
-
-# Copia o restante do projeto
 COPY . .
 
-# Variáveis de ambiente padrão
+# Copia credencial se existir
+ARG GCP_KEY_JSON_PATH=gcp-key.json
+COPY ${GCP_KEY_JSON_PATH} /app/gcp-key.json
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-key.json
+
 ENV PYTHONUNBUFFERED=1
 ENV APP_ENV=production
 
-# Ponto de entrada da aplicação
 ENTRYPOINT ["python", "-m", "app.entrypoint"]
