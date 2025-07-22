@@ -90,6 +90,16 @@ USE_CASES = {
     "ingest_routes": run_ingest_routes,
     "ingest_stops": run_ingest_stops,
     "ingest_gtfs": run_ingest_gtfs,
+    "endpoints": lambda: [
+        func()
+        for func in [
+            run_ingest_vehicles,
+            run_ingest_municipalities,
+            run_ingest_lines,
+            run_ingest_routes,
+            run_ingest_stops,
+        ]
+    ],
     "all": lambda: [
         func()
         for func in [

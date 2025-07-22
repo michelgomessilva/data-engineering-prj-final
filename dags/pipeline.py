@@ -30,14 +30,14 @@ with DAG(
 ) as dag:
 
     # Task única que executa todos os use cases
-    ingest_all = KubernetesPodOperator(
-        task_id="ingest_all",
+    ingest_endpoints = KubernetesPodOperator(
+        task_id="ingest_endpoints",
         name="ingest-all",
         namespace="default",
         image=IMAGE_URI,
         image_pull_policy="Always",
         cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "all"],
+        arguments=["--use-case", "endpoints"],
         get_logs=True,
         is_delete_operator_pod=True,
         env_vars={
@@ -46,4 +46,20 @@ with DAG(
         },
     )
 
-    ingest_all
+    ingest_gtfs = KubernetesPodOperator(
+        task_id="ingest_gtfs",
+        name="ingest-all",
+        namespace="default",
+        image=IMAGE_URI,
+        image_pull_policy="Always",
+        cmds=["python", "-m", "app.main"],
+        arguments=["--use-case", "ingest_gtfs"],
+        get_logs=True,
+        is_delete_operator_pod=True,
+        env_vars={
+            "APP_ENV": "production",
+            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
+        },
+    )
+
+    [ingest_endpoints, ingest_gtfs]
