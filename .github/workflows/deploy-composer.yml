@@ -14,13 +14,12 @@ env:
   DOCKER_IMAGE_TAG: latest
   DOCKERHUB_REPO: michelgomessilvax/grupo-2-pipeline-app
   DAG_PATH: dags/pipeline.py
-  FULL_IMAGE: michelgomessilvax/grupo-2-pipeline-app:latest
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      image_ref: ${{ steps.ref.outputs.image_ref }}
+      image_ref: ${{ steps.export.outputs.image_ref }}
     steps:
       - uses: actions/checkout@v4
 
@@ -52,8 +51,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Define referência final (usa sha curto)
-        id: ref
+      - name: Exporta referência final da imagem
+        id: export
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
           IMG_REF="${{ env.DOCKERHUB_REPO }}:${SHORT_SHA}"
