@@ -81,7 +81,7 @@ jobs:
           IMG="${{ needs.build-and-push.outputs.image_ref }}"
           sed -i "s|__IMAGE_PLACEHOLDER__|${IMG}|g" ${{ env.DAG_PATH }}
 
-      - name: Verifica DAG final
+      - name: Verifica DAG final (debug)
         run: cat ${{ env.DAG_PATH }}
 
       - name: Upload da DAG
