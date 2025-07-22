@@ -108,9 +108,88 @@ Tendo em conta a informação a analisar relativa a Stops e Trips, decidimos car
 
 ### 4.2 Data Cleansing
 
-- Remoção de duplicados e nulos
-- Padronização de campos (datas, texto, códigos)
-- Validação de chaves estrangeiras
+- **Fontes**: *Ficheiros parquet armazenados na raw layer*
+- **Frequência**: *diária, em batch*
+- **Ferramentas utilizadas**: *Spark, GCS*
+
+- A etapa de data cleansing tem como objectivos:
+    1. Seleção apropriada de colunas;
+    2. Remoção de valores nulos e duplicados;
+    3. Aplicação dos tipos de dados correctos a cada coluna;
+    4. Carregamento para a layer de Staging no BigQuery.
+
+#### 4.2.1 Tabelas
+
+Baseado nos ficheiros guardados na camada raw e com vistas a alimentar
+os modelos na camada mart, definiu-se as seguintes tabelas com suas
+estruturas para a camada staging:
+
+##### 4.2.1.1 Vehicles
+
+Tabela com informações relativas à posição dos veículos de acordo com sistema GPS a bordo.
+
+| Campo                   | Tipo     | Descrição                                     |
+|-------------------------|----------|-----------------------------------------------|
+| vehicle_id              | STRING   | Identificador único de veículos               |
+| line_id                 | INT      | FK para tabela Lines                          |
+| trip_id                 | STRING   | FK para tabela Trips                          |
+| pattern_id              | STRING   | FK para tabela Patterns                       |
+| route_id                | STRING   | FK para tabela Routes                         |
+| shift_id                | STRING   | FK para tabela Shift                          |
+| stop_id                 | INT      | FK para tabela Stops                          |
+| latitude                | FLOAT    | Posição do veículo no sistema de coordenadas  |
+| longitude               | FLOAT    | Posição do veículo no sistema de coordenadas  |
+| schedule_relationship   | STRING   |                                               |
+| current_status          | STRING   | Estado do veículo                             |
+| speed                   | FLOAT    | Velocidade em Km/h                            |
+| direction               | INT      |                                               |
+| date                    | DATE     |                                               |
+| timestamp               | INT      |                                               |
+
+
+##### 4.2.1.2 Municipality
+
+Informação a respeito da Área Metropolitana de Lisboa.
+
+| Campo               | Tipo     | Descrição                                     |
+|---------------------|----------|-----------------------------------------------|
+| municipality_id     | INT      | Identificador único de municípios             |
+| region_id           | STRING   | FK para tabela Region                         |
+| district_id         | INT      | FK para tabela District                       |
+| municipality_name   | STRING   | Nome do município                             |
+| region_name         | STRING   | Nome da região                                |
+| district_name       | STRING   | Nome do distrito                              |
+| prefix              | INT      |                                               |
+| date                | DATE     | Posição do veículo no sistema de coordenadas  |
+
+##### 4.2.1.3 Stops
+
+Informação das paragens da Carris
+
+| Campo               | Tipo     | Descrição                                     |
+|---------------------|----------|-----------------------------------------------|
+| stop_id             | INT      | Identificador único de paragens               |
+| district_id         | INT      | FK para tabela District                       |
+| municipality_id     | INT      | FK para tabela Município                      |
+| region_id           | STRING   | FK para tabela Region                         |
+| parish_id           | STRING   | FK para tabela Parish                         |
+| stop_name           | STRING   | Nome da paradagem                             |
+| district_name       | STRING   | Nome do distrito                              |
+| municipality_name   | STRING   | Nome do município                             |
+| region_name         | STRING   | Nome da região                                |
+| parish_name         | STRING   | Nome da Paróquia                              |
+| latitude            | FLOAT    | Posição em termos de latitude                 |
+| longitude           | FLOAT    | Posição em termos de longitude                |
+| facilities          | STRING   | Pontos na região da paragem                   |
+| lines               | STRING   | Linhas que passam na paragem                  |
+| locality            | STRING   |                                               |
+| operational_status  | STRING   |                                               |
+| patterns            | STRING   |                                               |
+| routes              | STRING   |                                               |
+| short_name          | STRING   |                                               |
+| tts_name            | STRING   |                                               |
+| wheelchair_boarding | INT      | Existência do elevador para cadeira de rodas  |
+| date                | DATE     |                                               |
 
 ### 4.3 Data Modelling
 
