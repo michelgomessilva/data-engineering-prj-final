@@ -17,11 +17,9 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
 
     session = (
         SparkSession.builder.appName(app_name)
-        .config(
-            "spark.jars",
-            "/opt/spark/jars/gcs-connector-hadoop3-2.2.20.jar,/opt/spark/jars/guava-32.1.3-jre.jar",
-        )
-        # Implementações do FS
+        # apenas o shaded
+        .config("spark.jars", "/opt/spark/jars/gcs-connector-hadoop3-2.2.20-shaded.jar")
+        # Implementações GCS
         .config(
             "spark.hadoop.fs.gs.impl",
             "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem",
@@ -30,13 +28,13 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
             "spark.hadoop.fs.AbstractFileSystem.gs.impl",
             "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS",
         )
-        # Autenticação via keyfile
-        .config("spark.hadoop.google.cloud.auth.service.account.enable", "true")
+        # Autenticação (use uma só variante; estas funcionam com o connector 2.x)
+        .config("spark.hadoop.fs.gs.auth.service.account.enable", "true")
         .config(
-            "spark.hadoop.google.cloud.auth.service.account.json.keyfile",
+            "spark.hadoop.fs.gs.auth.service.account.json.keyfile",
             Settings.GOOGLE_APPLICATION_CREDENTIALS,
         )
-        # Performance
+        # Performance (igual ao seu)
         .config("spark.driver.memory", "4g")
         .config("spark.sql.session.timeZone", "UTC")
         .config("spark.sql.shuffle.partitions", "100")
@@ -51,6 +49,25 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
         .config("spark.kryoserializer.buffer.max", "512m")
         .getOrCreate()
     )
+
     logger.info(f"Usando GCS com chave: {Settings.GOOGLE_APPLICATION_CREDENTIALS}")
+
+    hc = session._jsc.hadoopConfiguration()
+
+    logger.info("fs.gs.impl = %s", hc.get("fs.gs.impl"))
+    logger.info("spark.jars = %s", session.sparkContext.getConf().get("spark.jars"))
+
+    # Testa se a classe existe
+    try:
+        cls = session._jvm.java.lang.Class.forName(
+            "com.google.api.client.http.HttpRequestInitializer"
+        )
+        logger.info(
+            "HttpRequestInitializer FOUND at: %s",
+            cls.getProtectionDomain().getCodeSource().getLocation(),
+        )
+    except Exception as e:
+        logger.exception("HttpRequestInitializer MISSING: %s", e)
+
     logger.info("SparkSession criada com sucesso")
     return session
