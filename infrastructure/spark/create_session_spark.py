@@ -52,11 +52,6 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
 
     logger.info(f"Usando GCS com chave: {Settings.GOOGLE_APPLICATION_CREDENTIALS}")
 
-    hc = session._jsc.hadoopConfiguration()
-
-    logger.info("fs.gs.impl = %s", hc.get("fs.gs.impl"))
-    logger.info("spark.jars = %s", session.sparkContext.getConf().get("spark.jars"))
-
     # Testa se a classe existe
     try:
         cls = session._jvm.java.lang.Class.forName(

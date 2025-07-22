@@ -29,15 +29,78 @@ with DAG(
     tags=["pipeline", "grupo-2"],
 ) as dag:
 
-    # Task única que executa todos os use cases
-    ingest_endpoints = KubernetesPodOperator(
-        task_id="ingest_endpoints",
-        name="ingest-all",
+    ingest_vehicles = KubernetesPodOperator(
+        task_id="ingest_vehicles",
+        name="ingest_vehicles",
         namespace="default",
         image=IMAGE_URI,
         image_pull_policy="Always",
         cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "endpoints"],
+        arguments=["--use-case", "ingest_vehicles"],
+        get_logs=True,
+        is_delete_operator_pod=True,
+        env_vars={
+            "APP_ENV": "production",
+            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
+        },
+    )
+
+    ingest_municipalities = KubernetesPodOperator(
+        task_id="ingest_municipalities",
+        name="ingest_municipalities",
+        namespace="default",
+        image=IMAGE_URI,
+        image_pull_policy="Always",
+        cmds=["python", "-m", "app.main"],
+        arguments=["--use-case", "ingest_municipalities"],
+        get_logs=True,
+        is_delete_operator_pod=True,
+        env_vars={
+            "APP_ENV": "production",
+            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
+        },
+    )
+
+    ingest_lines = KubernetesPodOperator(
+        task_id="ingest_lines",
+        name="ingest_lines",
+        namespace="default",
+        image=IMAGE_URI,
+        image_pull_policy="Always",
+        cmds=["python", "-m", "app.main"],
+        arguments=["--use-case", "ingest_lines"],
+        get_logs=True,
+        is_delete_operator_pod=True,
+        env_vars={
+            "APP_ENV": "production",
+            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
+        },
+    )
+
+    ingest_routes = KubernetesPodOperator(
+        task_id="ingest_routes",
+        name="ingest_routes",
+        namespace="default",
+        image=IMAGE_URI,
+        image_pull_policy="Always",
+        cmds=["python", "-m", "app.main"],
+        arguments=["--use-case", "ingest_routes"],
+        get_logs=True,
+        is_delete_operator_pod=True,
+        env_vars={
+            "APP_ENV": "production",
+            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
+        },
+    )
+
+    ingest_stops = KubernetesPodOperator(
+        task_id="ingest_stops",
+        name="ingest_stops",
+        namespace="default",
+        image=IMAGE_URI,
+        image_pull_policy="Always",
+        cmds=["python", "-m", "app.main"],
+        arguments=["--use-case", "ingest_stops"],
         get_logs=True,
         is_delete_operator_pod=True,
         env_vars={
@@ -62,4 +125,11 @@ with DAG(
         },
     )
 
-    [ingest_endpoints, ingest_gtfs]
+    [
+        ingest_vehicles,
+        ingest_municipalities,
+        ingest_lines,
+        ingest_routes,
+        ingest_stops,
+        ingest_gtfs,
+    ]
