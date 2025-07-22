@@ -75,10 +75,22 @@ jobs:
           project_id: ${{ env.GCP_PROJECT_ID }}
           install_components: gsutil
 
+      - name: Verifica conteúdo original da DAG (antes do sed)
+        run: cat ${{ env.DAG_PATH }}
+
+      - name: Verifica IMAGE_URI original na DAG
+        run: grep IMAGE_URI ${{ env.DAG_PATH }}
+
+      - name: Verifica conteúdo com linha
+        run: cat -n ${{ env.DAG_PATH }}
+
       - name: Substitui IMAGE_URI no DAG
         run: |
           IMG="${{ needs.build-and-push.outputs.image_ref }}"
           sed -i "s|__IMAGE_PLACEHOLDER__|${IMG}|g" ${{ env.DAG_PATH }}
+
+      - name: Verifica substituição no DAG
+        run: grep IMAGE_URI ${{ env.DAG_PATH }}
 
       - name: Verifica DAG final (debug)
         run: cat ${{ env.DAG_PATH }}

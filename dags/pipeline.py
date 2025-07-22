@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 
-# Imagem pública no Docker Hub (sem autenticação necessária)
 IMAGE_URI = "__IMAGE_PLACEHOLDER__"
 
 # Parâmetros padrão para todas as tasks
