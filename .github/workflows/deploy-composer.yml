@@ -55,10 +55,10 @@ jobs:
         id: export
         run: |
           SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
-          IMG_REF="${{ env.DOCKERHUB_REPO }}:${SHORT_SHA}"
+          IMG_REF="${{ env.DOCKERHUB_REPO }}:sha-${SHORT_SHA}"
           echo "Substituindo na DAG: $IMG_REF"
           sed -i "s|__IMAGE_PLACEHOLDER__|$IMG_REF|g" ${{ env.DAG_PATH }}
-          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+          echo "image_ref=$IMG_REF" >> "$GITHUB_OUTPUT"
 
       - name: Verifica substituição
         run: grep IMAGE_URI ${{ env.DAG_PATH }}
