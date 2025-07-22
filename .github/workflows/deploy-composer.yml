@@ -79,7 +79,10 @@ jobs:
       - name: Substitui IMAGE_URI no DAG
         run: |
           IMG="${{ needs.build-and-push.outputs.image_ref }}"
-          sed -i "s|^IMAGE_URI = .*|IMAGE_URI = \"${IMG}\"|g" ${{ env.DAG_PATH }}
+          sed -i "s|__IMAGE_PLACEHOLDER__|${IMG}|g" ${{ env.DAG_PATH }}
+
+      - name: Verifica DAG final
+        run: cat ${{ env.DAG_PATH }}
 
       - name: Upload da DAG
         run: |
