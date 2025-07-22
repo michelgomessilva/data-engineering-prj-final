@@ -17,28 +17,20 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
 
     session = (
         SparkSession.builder.appName(app_name)
-        .config(
-            "spark.jars",
-            "/opt/spark/jars/gcs-connector-hadoop3-2.2.20.jar,/opt/spark/jars/guava-32.1.3-jre.jar",
-        )
-        # Implementações do FS
-        .config(
-            "spark.hadoop.fs.gs.impl",
-            "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem",
-        )
-        .config(
-            "spark.hadoop.fs.AbstractFileSystem.gs.impl",
-            "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS",
-        )
-        # Autenticação via keyfile
-        .config("spark.hadoop.google.cloud.auth.service.account.enable", "true")
+        .config("spark.hadoop.fs.gs.auth.service.account.enable", "true")
+        # Configurações de integração com GCS
         .config(
             "spark.hadoop.google.cloud.auth.service.account.json.keyfile",
             Settings.GOOGLE_APPLICATION_CREDENTIALS,
         )
-        # Performance
+        # Performance e memória
         .config("spark.driver.memory", "4g")
         .config("spark.sql.session.timeZone", "UTC")
+        .config("spark.hadoop.hadoop.security.authentication", "simple")
+        .config(
+            "spark.driver.extraJavaOptions",
+            "--add-opens java.base/javax.security.auth=ALL-UNNAMED",
+        )
         .config("spark.sql.shuffle.partitions", "100")
         .config("spark.sql.adaptive.enabled", "true")
         .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "64MB")
@@ -49,6 +41,19 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
         .config("spark.speculation", "false")
         .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
         .config("spark.kryoserializer.buffer.max", "512m")
+        # GCS Integration
+        .config(
+            "spark.jars.packages",
+            "com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.5",
+        )
+        .config(
+            "spark.hadoop.fs.gs.impl",
+            "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem",
+        )
+        .config(
+            "spark.hadoop.fs.AbstractFileSystem.gs.impl",
+            "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS",
+        )
         .getOrCreate()
     )
     logger.info(f"Usando GCS com chave: {Settings.GOOGLE_APPLICATION_CREDENTIALS}")

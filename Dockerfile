@@ -48,8 +48,12 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Baixa e adiciona o JAR do conector do GCS
 RUN mkdir -p /opt/spark/jars && \
-    curl -o /opt/spark/jars/gcs-connector-hadoop3-2.2.5-shaded.jar \
-    https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.5/gcs-connector-hadoop3-2.2.5-shaded.jar
+    curl -o /opt/spark/jars/gcs-connector-hadoop3-2.2.20.jar \
+    https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.20/gcs-connector-hadoop3-2.2.20.jar && \
+    curl -o /opt/spark/jars/guava-32.1.3-jre.jar \
+    https://repo1.maven.org/maven2/com/google/guava/guava/32.1.3-jre/guava-32.1.3-jre.jar && \
+    # Remove o guava velho do PySpark
+    rm -f /usr/local/lib/python3.10/site-packages/pyspark/jars/guava-*.jar
 
 WORKDIR /app
 
