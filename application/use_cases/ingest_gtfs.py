@@ -42,8 +42,8 @@ class IngestGTFSService(IBaseIngestService):
             "municipalities": 1,  # sempre 1 linha
             "periods": 1,  # sempre 1 linha
             "routes": 1,  # até algumas dezenas
-            "shapes": 4,  # moderada
-            "stop_times": 8,  # grande (~10k+ linhas)
+            "shapes": 8,  # moderada
+            "stop_times": 16,  # grande (~10k+ linhas)
             "stops": 1,  # ~500-1000 entradas
             "trips": 4,  # média (~5k-10k)
         }
@@ -84,7 +84,7 @@ class IngestGTFSService(IBaseIngestService):
             # Aplica número de coalesces dinâmico
             coalesce = GTFS_COALESCE_MAP.get(filename, 4)
 
-            if coalesce > 8:
+            if coalesce >= 8:
                 logger.info(f"Reparticionando {filename} em {coalesce} partições...")
                 # Reparticiona o DataFrame para otimizar o salvamento
                 df = df.repartition(coalesce)

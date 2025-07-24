@@ -42,7 +42,7 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
         .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "64MB")
         .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
         .config("spark.sql.parquet.compression.codec", "snappy")
-        .config("parquet.block.size", 134217728)
+        .config("spark.hadoop.parquet.block.size", "134217728")
         .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", "2")
         .config("spark.speculation", "false")
         .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
@@ -50,6 +50,7 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
         .config("spark.hadoop.fs.gs.outputstream.buffer.size", "8388608")
         .config("spark.hadoop.fs.gs.status.parallel.enable", "true")
         .config("spark.hadoop.fs.gs.status.parallel.max.threads", "16")
+        .config("spark.sql.files.maxPartitionBytes", "134217728")
         .getOrCreate()
     )
 
