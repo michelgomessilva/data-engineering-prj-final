@@ -76,12 +76,12 @@ class IngestRoutesService(IBaseIngestService):
         # Ajusta o número de partições com base no tamanho do DataFrame
         num_rows = df.count()
         coalesce = 1
-        if num_rows < 10_000:
+        if num_rows < 50000:
             coalesce = 1
-        elif num_rows < 100_000:
+        elif num_rows < 500000:
             coalesce = 4
         else:
-            df = df.repartition("date")
+            coalesce = 8
 
         # Define o caminho de destino no bucket
         logger.info("Salvando dados no GCS particionados por data...")

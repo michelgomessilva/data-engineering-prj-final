@@ -67,7 +67,6 @@ class IngestLinesService(IBaseIngestService):
         logger.info("🧪 Convertendo para DataFrame do Spark...")
         df = self.repo.to_dataframe(normalized)
         logger.debug("Esquema do DataFrame:")
-        df.printSchema()
 
         # Adiciona a coluna 'date' para particionamento por data
         df = df.withColumn("date", current_date())
@@ -76,12 +75,12 @@ class IngestLinesService(IBaseIngestService):
         # Ajusta o número de partições com base no tamanho do DataFrame
         num_rows = df.count()
         coalesce = 1
-        if num_rows < 10_000:
+        if num_rows < 50000:
             coalesce = 1
-        elif num_rows < 100_000:
+        elif num_rows < 500000:
             coalesce = 4
         else:
-            df = df.repartition("date")
+            coalesce = 8
 
         # Define o caminho de destino no bucket
         logger.info("Salvando dados no GCS particionados por data...")

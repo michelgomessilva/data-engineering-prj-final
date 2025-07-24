@@ -83,8 +83,12 @@ class IngestGTFSService(IBaseIngestService):
 
             # Aplica número de coalesces dinâmico
             coalesce = GTFS_COALESCE_MAP.get(filename, 4)
-            df = df.repartition(coalesce).persist()
-            logger.info(f"{filename}.txt → {coalesce} partições antes do save")
+
+            if coalesce > 8:
+                logger.info(f"Reparticionando {filename} em {coalesce} partições...")
+                # Reparticiona o DataFrame para otimizar o salvamento
+                df = df.repartition(coalesce)
+            logger.info(f"{filename} → {coalesce} partições antes do save")
 
             # 3.4 Caminho final no GCS
             gcs_path = posixpath.join(
