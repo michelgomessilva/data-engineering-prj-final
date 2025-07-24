@@ -47,6 +47,9 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
         .config("spark.speculation", "false")
         .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
         .config("spark.kryoserializer.buffer.max", "512m")
+        .config("spark.hadoop.fs.gs.outputstream.buffer.size", "8388608")
+        .config("spark.hadoop.fs.gs.status.parallel.enable", "true")
+        .config("spark.hadoop.fs.gs.status.parallel.max.threads", "16")
         .getOrCreate()
     )
 

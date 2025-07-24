@@ -30,6 +30,18 @@ class IngestGTFSService(IBaseIngestService):
     def ingest(self):
         logger.info("Iniciando processo de ingestão GTFS...")
 
+        # Mapeia quantas partições/coalesces usar para cada tipo de arquivo
+        COALESCE_MAP = {
+            "agency": 1,
+            "calendar": 1,
+            "calendar_dates": 1,
+            "routes": 2,
+            "shapes": 4,
+            "trips": 4,
+            "stops": 3,
+            "stop_times": 8,  # geralmente o maior
+        }
+
         # 1. Baixar o arquivo ZIP da API
         zip_path = self.api.download_zip(self.url, self.download_dir)
 
@@ -60,8 +72,13 @@ class IngestGTFSService(IBaseIngestService):
                 logger.warning(f"Nenhum dado encontrado no arquivo {filename}.txt")
                 continue
 
-            # 3.3 Adicionar metadado de ingestão e particionar por data
-            df = df.withColumn("date", current_date()).repartition("date").persist()
+            # Aplica metadata + particionamento dinâmico
+            df = df.withColumn("date", current_date())
+
+            # Aplica número de coalesces dinâmico
+            coalesce = COALESCE_MAP.get(filename, 4)
+            df = df.repartition(coalesce).persist()
+            logger.debug(f"{filename}.txt → {coalesce} partições antes do save")
 
             # 3.4 Caminho final no GCS
             gcs_path = posixpath.join(
