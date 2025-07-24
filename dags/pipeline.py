@@ -12,7 +12,7 @@ default_args = {
     "email": ["michel.gomes.silva@gmail.com"],
     "email_on_failure": True,
     "email_on_retry": False,
-    "retries": 2,
+    "retries": 5,
     "retry_delay": timedelta(minutes=5),
     "start_date": datetime(2025, 7, 15),
 }
