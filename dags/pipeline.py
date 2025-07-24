@@ -40,7 +40,6 @@ with DAG(
         get_logs=True,
         is_delete_operator_pod=True,
         log_events_on_failure=True,
-        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -58,7 +57,6 @@ with DAG(
         get_logs=True,
         is_delete_operator_pod=True,
         log_events_on_failure=True,
-        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -76,7 +74,6 @@ with DAG(
         get_logs=True,
         is_delete_operator_pod=True,
         log_events_on_failure=True,
-        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -94,7 +91,6 @@ with DAG(
         get_logs=True,
         is_delete_operator_pod=True,
         log_events_on_failure=True,
-        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -112,7 +108,6 @@ with DAG(
         get_logs=True,
         is_delete_operator_pod=True,
         log_events_on_failure=True,
-        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -130,7 +125,6 @@ with DAG(
         get_logs=True,
         is_delete_operator_pod=True,
         log_events_on_failure=True,
-        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
