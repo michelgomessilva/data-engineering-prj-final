@@ -39,6 +39,8 @@ with DAG(
         arguments=["--use-case", "ingest_vehicles"],
         get_logs=True,
         is_delete_operator_pod=True,
+        log_events_on_failure=True,
+        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -55,6 +57,8 @@ with DAG(
         arguments=["--use-case", "ingest_municipalities"],
         get_logs=True,
         is_delete_operator_pod=True,
+        log_events_on_failure=True,
+        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -71,6 +75,8 @@ with DAG(
         arguments=["--use-case", "ingest_lines"],
         get_logs=True,
         is_delete_operator_pod=True,
+        log_events_on_failure=True,
+        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -87,6 +93,8 @@ with DAG(
         arguments=["--use-case", "ingest_routes"],
         get_logs=True,
         is_delete_operator_pod=True,
+        log_events_on_failure=True,
+        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -103,6 +111,8 @@ with DAG(
         arguments=["--use-case", "ingest_stops"],
         get_logs=True,
         is_delete_operator_pod=True,
+        log_events_on_failure=True,
+        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -119,6 +129,8 @@ with DAG(
         arguments=["--use-case", "ingest_gtfs"],
         get_logs=True,
         is_delete_operator_pod=True,
+        log_events_on_failure=True,
+        pod_log_options={"container": "base"},
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
