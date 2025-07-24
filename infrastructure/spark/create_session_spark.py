@@ -56,16 +56,16 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
     logger.info(f"Usando GCS com chave: {Settings.GOOGLE_APPLICATION_CREDENTIALS}")
 
     # Testa se a classe existe
-    try:
-        cls = session._jvm.java.lang.Class.forName(
-            "com.google.api.client.http.HttpRequestInitializer"
-        )
-        logger.info(
-            "HttpRequestInitializer FOUND at: %s",
-            cls.getProtectionDomain().getCodeSource().getLocation(),
-        )
-    except Exception as e:
-        logger.exception("HttpRequestInitializer MISSING: %s", e)
+    # try:
+    #    cls = session._jvm.java.lang.Class.forName(
+    #        "com.google.api.client.http.HttpRequestInitializer"
+    #    )
+    #    logger.info(
+    #        "HttpRequestInitializer FOUND at: %s",
+    #        cls.getProtectionDomain().getCodeSource().getLocation(),
+    #    )
+    # except Exception as e:
+    #    logger.exception("HttpRequestInitializer MISSING: %s", e)
 
     logger.info("SparkSession criada com sucesso")
     return session
