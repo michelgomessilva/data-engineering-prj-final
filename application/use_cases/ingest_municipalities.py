@@ -73,6 +73,16 @@ class IngestMunicipalitiesService(IBaseIngestService):
         df = df.withColumn("date", current_date())
         logger.debug("Coluna 'date' adicionada ao DataFrame.")
 
+        # Ajusta o número de partições com base no tamanho do DataFrame
+        num_rows = df.count()
+        coalesce = 1
+        if num_rows < 10_000:
+            coalesce = 1
+        elif num_rows < 100_000:
+            coalesce = 4
+        else:
+            df = df.repartition("date")
+
         # Define o caminho de destino no bucket
         logger.info("Salvando dados no GCS particionados por data...")
         gcs_path = Settings.get_raw_path(Settings.MUNICIPALITIES_ENDPOINT)
@@ -80,7 +90,7 @@ class IngestMunicipalitiesService(IBaseIngestService):
         # Salva o DataFrame no GCS particionado por data
         logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
         self.storage.save(
-            df, gcs_path, mode="overwrite", partition_by=["date"], coalesce=1
+            df, gcs_path, mode="overwrite", partition_by=["date"], coalesce=coalesce
         )
         logger.success("Dados de municipalities salvos com sucesso no GCS!")
 

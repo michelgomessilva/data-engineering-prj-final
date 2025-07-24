@@ -69,9 +69,10 @@ class GenericSparkRepository:
 
         try:
             start = time.time()
-            num_partitions = max(100, len(data) // 1000)
-            logger.info(f"Usando {num_partitions} slices para paralelização.")
-            rdd = self.spark.sparkContext.parallelize(data, numSlices=num_partitions)
+            # num_partitions = max(100, len(data) // 1000)
+            # logger.info(f"Usando {num_partitions} slices para paralelização.")
+            # rdd = self.spark.sparkContext.parallelize(data, numSlices=num_partitions)
+            rdd = self.spark.sparkContext.parallelize(data)
             df = self.spark.createDataFrame(rdd, self.schema)
             duration = time.time() - start
             logger.info(f"DataFrame criado com sucesso em {duration:.2f} segundos.")
