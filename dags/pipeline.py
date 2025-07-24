@@ -12,7 +12,7 @@ default_args = {
     "email": ["michel.gomes.silva@gmail.com"],
     "email_on_failure": True,
     "email_on_retry": False,
-    "retries": 5,
+    "retries": 2,
     "retry_delay": timedelta(minutes=5),
     "start_date": datetime(2025, 7, 15),
 }
@@ -24,7 +24,7 @@ with DAG(
     schedule_interval="12 */4 * * *",  # Executa a cada 4 horas às 12min
     catchup=False,
     max_active_runs=1,
-    concurrency=2,
+    concurrency=10,
     description="Grupo 2: Pipeline principal de ingestão Carris Metropolitana",
     tags=["pipeline", "grupo-2"],
 ) as dag:
