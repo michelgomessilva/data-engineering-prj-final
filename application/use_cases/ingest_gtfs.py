@@ -31,15 +31,23 @@ class IngestGTFSService(IBaseIngestService):
         logger.info("Iniciando processo de ingestão GTFS...")
 
         # Mapeia quantas partições/coalesces usar para cada tipo de arquivo
-        COALESCE_MAP = {
-            "agency": 1,
-            "calendar": 1,
-            "calendar_dates": 1,
-            "routes": 2,
-            "shapes": 4,
-            "trips": 4,
-            "stops": 3,
-            "stop_times": 8,  # geralmente o maior
+        GTFS_COALESCE_MAP = {
+            "agency": 1,  # pequena (1-2 linhas)
+            "calendar": 1,  # pequena
+            "calendar_dates": 1,  # pequena
+            "routes": 1,  # até algumas dezenas
+            "shapes": 4,  # moderada
+            "stops": 1,  # ~500-1000 entradas
+            "stop_times": 8,  # grande (~10k+ linhas)
+            "trips": 4,  # média (~5k-10k)
+            "fare_attributes": 1,  # pequena
+            "fare_rules": 1,  # pequena
+            "frequencies": 1,  # pequena
+            "transfers": 1,  # pequena
+            "pathways": 1,  # pequena
+            "levels": 1,  # pequena
+            "translations": 1,  # pequena
+            "feed_info": 1,  # sempre 1 linha
         }
 
         # 1. Baixar o arquivo ZIP da API
@@ -76,9 +84,9 @@ class IngestGTFSService(IBaseIngestService):
             df = df.withColumn("date", current_date())
 
             # Aplica número de coalesces dinâmico
-            coalesce = COALESCE_MAP.get(filename, 4)
+            coalesce = GTFS_COALESCE_MAP.get(filename, 4)
             df = df.repartition(coalesce).persist()
-            logger.debug(f"{filename}.txt → {coalesce} partições antes do save")
+            logger.info(f"{filename}.txt → {coalesce} partições antes do save")
 
             # 3.4 Caminho final no GCS
             gcs_path = posixpath.join(
@@ -86,6 +94,8 @@ class IngestGTFSService(IBaseIngestService):
             )
             logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
             # 3.5 Salvar como Parquet particionado por data
-            self.storage.save(df, gcs_path, mode="overwrite", partition_by=["date"])
+            self.storage.save(
+                df, gcs_path, mode="overwrite", partition_by=["date"], coalesce=coalesce
+            )
 
             logger.success(f"Ingestão de {filename}.txt concluída com sucesso.")
