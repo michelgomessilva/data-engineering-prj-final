@@ -33,21 +33,19 @@ class IngestGTFSService(IBaseIngestService):
         # Mapeia quantas partições/coalesces usar para cada tipo de arquivo
         GTFS_COALESCE_MAP = {
             "agency": 1,  # pequena (1-2 linhas)
-            "calendar": 1,  # pequena
+            "archives": 1,
             "calendar_dates": 1,  # pequena
-            "routes": 1,  # até algumas dezenas
-            "shapes": 4,  # moderada
-            "stops": 1,  # ~500-1000 entradas
-            "stop_times": 8,  # grande (~10k+ linhas)
-            "trips": 4,  # média (~5k-10k)
+            "dates": 1,  # pequena
             "fare_attributes": 1,  # pequena
             "fare_rules": 1,  # pequena
-            "frequencies": 1,  # pequena
-            "transfers": 1,  # pequena
-            "pathways": 1,  # pequena
-            "levels": 1,  # pequena
-            "translations": 1,  # pequena
             "feed_info": 1,  # sempre 1 linha
+            "municipalities": 1,  # sempre 1 linha
+            "periods": 1,  # sempre 1 linha
+            "routes": 1,  # até algumas dezenas
+            "shapes": 4,  # moderada
+            "stop_times": 8,  # grande (~10k+ linhas)
+            "stops": 1,  # ~500-1000 entradas
+            "trips": 4,  # média (~5k-10k)
         }
 
         # 1. Baixar o arquivo ZIP da API
