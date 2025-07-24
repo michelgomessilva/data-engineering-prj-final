@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
-from airflow.models.baseoperator import Resources
 
 IMAGE_URI = "__IMAGE_PLACEHOLDER__"
 
@@ -126,10 +125,7 @@ with DAG(
         get_logs=True,
         is_delete_operator_pod=True,
         log_events_on_failure=True,
-        resources=Resources(
-            cpus=8,
-            ram=16384,  # 16 GB
-        ),
+        resources={"cpus": 8, "ram": 16384},  # 16 GB
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
