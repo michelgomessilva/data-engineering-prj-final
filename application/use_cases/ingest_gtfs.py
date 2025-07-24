@@ -42,8 +42,8 @@ class IngestGTFSService(IBaseIngestService):
             "municipalities": 1,  # sempre 1 linha
             "periods": 1,  # sempre 1 linha
             "routes": 1,  # até algumas dezenas
-            "shapes": 8,  # moderada
-            "stop_times": 16,  # grande (~10k+ linhas)
+            "shapes": 16,  # moderada
+            "stop_times": 32,  # grande (~10k+ linhas)
             "stops": 1,  # ~500-1000 entradas
             "trips": 4,  # média (~5k-10k)
         }

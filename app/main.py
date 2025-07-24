@@ -18,6 +18,7 @@ Uso:
 import argparse
 import os
 import sys
+import time
 from datetime import datetime
 
 from application.use_cases.ingest_gtfs import IngestGTFSService
@@ -118,7 +119,7 @@ def main():
     logger.info("=" * 60)
     logger.info("🚀 Projeto de Engenharia de Dados iniciado")
     logger.info(f"📅 Data/Hora: {datetime.now().isoformat()}")
-
+    start = time.time()
     parser = argparse.ArgumentParser(description="Executor de use cases da pipeline.")
     parser.add_argument(
         "--use-case",
@@ -131,6 +132,12 @@ def main():
 
     logger.info(f"🔧 Executando use case: {args.use_case}")
     USE_CASES[args.use_case]()
+
+    # Exibir em minutos e segundos (por exemplo: 2m 34s)
+    duration = time.time() - start
+    minutes = int(duration // 60)
+    seconds = duration % 60
+    logger.info(f"Processamento executado com sucesso em {minutes}m {seconds:.2f}s.")
     logger.info("✅ Execução finalizada.")
     logger.info("=" * 60)
 
