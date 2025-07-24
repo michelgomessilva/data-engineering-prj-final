@@ -9,7 +9,7 @@ from domain.schemas.gtfs_schemas import GTFS_SCHEMAS
 from domain.services.base_ingestion_services import IBaseIngestService
 from infrastructure.api.carris_client import CarrisAPIClient
 from infrastructure.logging.logger import logger
-from infrastructure.spark.create_session_spark import get_spark_session
+from infrastructure.spark.spark_singleton import get_spark_session
 from infrastructure.storage.parquet_storage import ParquetStorage
 from infrastructure.storage.zip_storage import ZipExtractor
 
