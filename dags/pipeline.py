@@ -128,7 +128,7 @@ with DAG(
         log_events_on_failure=True,
         resources=Resources(
             cpus=8,
-            ram="12Gi",
+            ram=16384,  # 16 GB
         ),
         env_vars={
             "APP_ENV": "production",
