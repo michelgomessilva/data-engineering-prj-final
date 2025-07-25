@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+from kubernetes.client import V1ResourceRequirements
 
 IMAGE_URI = "__IMAGE_PLACEHOLDER__"
 
@@ -116,7 +117,7 @@ with DAG(
 
     ingest_gtfs = KubernetesPodOperator(
         task_id="ingest_gtfs",
-        name="ingest-all",
+        name="ingest-gtfs",
         namespace="default",
         image=IMAGE_URI,
         image_pull_policy="Always",
@@ -125,11 +126,14 @@ with DAG(
         get_logs=True,
         is_delete_operator_pod=True,
         log_events_on_failure=False,
-        resources={"cpus": 8, "ram": 16384},  # 16 GB
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
         },
+        pod_resources=V1ResourceRequirements(
+            requests={"memory": "8Gi", "cpu": "4"},
+            limits={"memory": "16Gi", "cpu": "8"},
+        ),
     )
 
     [
