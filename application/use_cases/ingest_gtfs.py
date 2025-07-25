@@ -86,8 +86,16 @@ class IngestGTFSService(IBaseIngestService):
 
             if coalesce >= 8:
                 logger.info(f"Reparticionando {filename} em {coalesce} partições...")
+                if filename == "stop_times":
+                    # Se for stop_times com muitas linhas ou coalesce alto
+                    df = df.repartition(coalesce, "trip_id")
+                elif filename == "shapes":
+                    # Se for shapes, reparticiona por shape_id
+                    df = df.repartition(coalesce, "shape_id")
+            else:
                 # Reparticiona o DataFrame para otimizar o salvamento
                 df = df.repartition(coalesce)
+
             logger.info(f"{filename} → {coalesce} partições antes do save")
 
             # 3.4 Caminho final no GCS
@@ -96,6 +104,8 @@ class IngestGTFSService(IBaseIngestService):
             )
             logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
             # 3.5 Salvar como Parquet particionado por data
-            self.storage.save(df, gcs_path, mode="overwrite", coalesce=coalesce)
+            self.storage.save(
+                df, gcs_path, mode="overwrite", partition_by=["date"], coalesce=coalesce
+            )
 
             logger.success(f"Ingestão de {filename}.txt concluída com sucesso.")
