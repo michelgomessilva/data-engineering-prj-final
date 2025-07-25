@@ -130,7 +130,7 @@ with DAG(
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
         },
-        resources=V1ResourceRequirements(
+        container_resources=V1ResourceRequirements(
             requests={"memory": "8Gi", "cpu": "4"},
             limits={"memory": "16Gi", "cpu": "8"},
         ),
@@ -142,5 +142,4 @@ with DAG(
         ingest_lines,
         ingest_routes,
         ingest_stops,
-        ingest_gtfs,
-    ]
+    ] >> ingest_gtfs
