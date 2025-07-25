@@ -1,0 +1,56 @@
+Etapas completas no Windows com PowerShell
+🧩 1. Descobrir o seu SPARK_HOME
+Se você instalou o Spark localmente, deve ter uma pasta tipo:
+
+makefile
+Copy
+Edit
+C:\spark\spark-3.5.1-bin-hadoop3
+Essa pasta é o SPARK_HOME.
+
+Se você estiver usando o PySpark instalado via pip, o caminho pode ser algo como:
+
+php-template
+Copy
+Edit
+C:\Users\<seu_usuario>\AppData\Local\pypoetry\Cache\virtualenvs\<seu-venv>\Lib\site-packages\pyspark
+➡️ Verifique onde está a instalação com:
+
+powershell
+Copy
+Edit
+python -c "import pyspark; print(pyspark.__path__)"
+Você verá um caminho que termina com pyspark. Vamos chamar isso de SPARK_HOME.
+
+📦 2. Criar a pasta jars (se ainda não existir)
+powershell
+Copy
+Edit
+mkdir "$env:SPARK_HOME\jars" -Force
+Isso cria a pasta onde o Spark procura os conectores.
+
+🌐 3. Baixar o conector GCS
+Execute no PowerShell:
+
+powershell
+Copy
+Edit
+Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.5/gcs-connector-hadoop3-2.2.5-shaded.jar" -OutFile "$env:SPARK_HOME\jars\gcs-connector-hadoop3-2.2.5-shaded.jar"
+Se der erro por variável, use o caminho manual:
+
+powershell
+Copy
+Edit
+Invoke-WebRequest -Uri "https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.5/gcs-connector-hadoop3-2.2.5-shaded.jar" -OutFile "C:\caminho\para\SPARK_HOME\jars\gcs-connector-hadoop3-2.2.5-shaded.jar"
+🔒 4. (Opcional, mas recomendado) Validar se o JAR foi baixado corretamente
+powershell
+Copy
+Edit
+Get-ChildItem "$env:SPARK_HOME\jars\gcs-connector-hadoop3-2.2.5-shaded.jar"
+
+
+Confirmar variavel de ambiente
+echo $env:GOOGLE_APPLICATION_CREDENTIALS
+
+Gerar imagem docker localmente
+docker build -t grupo-2-pipeline-app:local .

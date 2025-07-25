@@ -20,6 +20,12 @@ import os
 import sys
 from datetime import datetime
 
+from application.use_cases.ingest_gtfs import IngestGTFSService
+from application.use_cases.ingest_lines import IngestLinesService
+from application.use_cases.ingest_municipalities import IngestMunicipalitiesService
+from application.use_cases.ingest_routes import IngestRoutesService
+from application.use_cases.ingest_stops import IngestStopsService
+
 # Importações dos use cases
 from application.use_cases.ingest_vehicles import IngestVehiclesService
 from configs.settings import Settings
@@ -41,17 +47,58 @@ def run_ingest_vehicles():
     logger.success("Use case 'ingest_vehicles' finalizado com sucesso.")
 
 
+def run_ingest_municipalities():
+    logger.info("Iniciando use case: ingest_municipalities")
+    service = IngestMunicipalitiesService()
+    service.ingest()
+    logger.success("Use case 'ingest_municipalities' finalizado com sucesso.")
+
+
+def run_ingest_lines():
+    logger.info("Iniciando use case: ingest_lines")
+    service = IngestLinesService()
+    service.ingest()
+    logger.success("Use case 'ingest_lines' finalizado com sucesso.")
+
+
+def run_ingest_stops():
+    logger.info("Iniciando use case: ingest_stops")
+    service = IngestStopsService()
+    service.ingest()
+    logger.success("Use case 'ingest_stops' finalizado com sucesso.")
+
+
+def run_ingest_routes():
+    logger.info("Iniciando use case: ingest_routes")
+    service = IngestRoutesService()
+    service.ingest()
+    logger.success("Use case 'ingest_routes' finalizado com sucesso.")
+
+
+def run_ingest_gtfs():
+    logger.info("Iniciando use case: ingest_gtfs")
+    service = IngestGTFSService()
+    service.ingest()
+    logger.success("Use case 'ingest_gtfs' finalizado com sucesso.")
+
+
 # Mapeamento de use cases
 USE_CASES = {
     "ingest_vehicles": run_ingest_vehicles,
-    # "ingest_inspections": run_ingest_inspections,
-    # "generate_report": run_generate_report,
+    "ingest_municipalities": run_ingest_municipalities,
+    "ingest_lines": run_ingest_lines,
+    "ingest_routes": run_ingest_routes,
+    "ingest_stops": run_ingest_stops,
+    "ingest_gtfs": run_ingest_gtfs,
     "all": lambda: [
         func()
         for func in [
             run_ingest_vehicles,
-            # run_ingest_inspections,
-            # run_generate_report,
+            run_ingest_municipalities,
+            run_ingest_lines,
+            run_ingest_routes,
+            run_ingest_stops,
+            run_ingest_gtfs,
         ]
     ],
 }

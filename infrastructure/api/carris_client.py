@@ -1,3 +1,5 @@
+import os
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 import requests  # type: ignore
@@ -87,3 +89,21 @@ class CarrisAPIClient:
             raise ValueError(
                 f"Erro ao processar resposta JSON para endpoint {endpoint}: {str(e)}"
             )
+
+    def download_zip(self, url: str, download_dir: str) -> str:
+        response = requests.get(url)
+        if response.status_code != 200:
+            raise Exception(f"Erro ao baixar arquivo: {response.status_code}")
+
+        # Gera timestamp no formato yyyy-mm-dd-hh-mm-ss
+        timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        filename = f"gtfs-{timestamp}.zip"
+
+        # Caminho final com timestamp
+        zip_path = os.path.join(download_dir, filename)
+        os.makedirs(download_dir, exist_ok=True)  # Garante que o diretório existe
+
+        with open(zip_path, "wb") as f:
+            f.write(response.content)
+
+        return zip_path
