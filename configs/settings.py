@@ -161,3 +161,7 @@ class Settings:
             str: Caminho completo do arquivo ou diretório no bucket gold.
         """
         return f"{cls.GCS_BASE_PATH}/{cls.GOLD_FOLDER}/{subpath}".rstrip("/")
+
+    @staticmethod
+    def get_bq_dataset() -> str:
+        return "data-eng-dev-437916.applied_project_staging_grupo_2"

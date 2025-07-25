@@ -136,10 +136,31 @@ with DAG(
         ),
     )
 
-    [
-        ingest_vehicles,
-        ingest_municipalities,
-        ingest_lines,
-        ingest_routes,
-        ingest_stops,
-    ] >> ingest_gtfs
+    cleanse_lines = KubernetesPodOperator(
+        task_id="cleanse_lines",
+        name="cleanse-lines",
+        namespace="default",
+        image=IMAGE_URI,
+        image_pull_policy="Always",
+        cmds=["python", "-m", "app.main"],
+        arguments=["--use-case", "cleanse_lines"],
+        get_logs=True,
+        is_delete_operator_pod=True,
+        log_events_on_failure=False,
+        env_vars={
+            "APP_ENV": "production",
+            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
+        },
+    )
+
+    (
+        [
+            ingest_vehicles,
+            ingest_municipalities,
+            ingest_lines,
+            ingest_routes,
+            ingest_stops,
+        ]
+        >> ingest_gtfs
+        >> cleanse_lines
+    )

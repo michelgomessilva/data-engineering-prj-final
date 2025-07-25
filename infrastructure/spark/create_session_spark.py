@@ -18,7 +18,11 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
     session = (
         SparkSession.builder.appName(app_name)
         # apenas o shaded
-        .config("spark.jars", "/opt/spark/jars/gcs-connector-hadoop3-2.2.20-shaded.jar")
+        .config(
+            "spark.jars",
+            "/opt/spark/jars/gcs-connector-hadoop3-2.2.20-shaded.jar,"
+            "/opt/spark/jars/spark-bigquery-with-dependencies_2.12-0.36.1.jar",
+        )
         # Implementações GCS
         .config(
             "spark.hadoop.fs.gs.impl",
@@ -28,7 +32,7 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
             "spark.hadoop.fs.AbstractFileSystem.gs.impl",
             "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS",
         )
-        # Autenticação (use uma só variante; estas funcionam com o connector 2.x)
+        # Autenticação (uma só variante; estas funcionam com o connector 2.x)
         .config("spark.hadoop.fs.gs.auth.service.account.enable", "true")
         .config(
             "spark.hadoop.fs.gs.auth.service.account.json.keyfile",
@@ -55,18 +59,5 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
     )
 
     logger.info(f"Usando GCS com chave: {Settings.GOOGLE_APPLICATION_CREDENTIALS}")
-
-    # Testa se a classe existe
-    # try:
-    #    cls = session._jvm.java.lang.Class.forName(
-    #        "com.google.api.client.http.HttpRequestInitializer"
-    #    )
-    #    logger.info(
-    #        "HttpRequestInitializer FOUND at: %s",
-    #        cls.getProtectionDomain().getCodeSource().getLocation(),
-    #    )
-    # except Exception as e:
-    #    logger.exception("HttpRequestInitializer MISSING: %s", e)
-
     logger.info("SparkSession criada com sucesso")
     return session

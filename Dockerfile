@@ -49,11 +49,39 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 # Baixa e adiciona o JAR do conector do GCS
 RUN set -eux; \
     mkdir -p /opt/spark/jars; \
+    # GCS connector
     curl -L -o /opt/spark/jars/gcs-connector-hadoop3-2.2.20-shaded.jar \
       https://repo1.maven.org/maven2/com/google/cloud/bigdataoss/gcs-connector/hadoop3-2.2.20/gcs-connector-hadoop3-2.2.20-shaded.jar; \
-    # remove conectores/guava que vêm com o PySpark
+    # BigQuery connector
+    curl -L -o /opt/spark/jars/spark-bigquery-with-dependencies_2.12-0.36.1.jar \
+      https://repo1.maven.org/maven2/com/google/cloud/spark/spark-bigquery-with-dependencies_2.12/0.36.1/spark-bigquery-with-dependencies_2.12-0.36.1.jar; \
+    # remove conectores/guava que vêm com o PySpark para evitar conflitos
     rm -f /usr/local/lib/python3.10/site-packages/pyspark/jars/gcs-connector-*.jar; \
     rm -f /usr/local/lib/python3.10/site-packages/pyspark/jars/guava-*.jar
+
+ENV SPARK_JARS_DIR=/opt/spark/jars
+ENV PYSPARK_SUBMIT_ARGS="--jars /opt/spark/jars/gcs-connector-hadoop3-2.2.20-shaded.jar,/opt/spark/jars/spark-bigquery-with-dependencies_2.12-0.36.1.jar pyspark-shell"
+
+ENV HADOOP_CONF_DIR=/opt/spark/conf
+RUN mkdir -p /opt/spark/conf && \
+    echo '<configuration>' > /opt/spark/conf/core-site.xml && \
+    echo '  <property>' >> /opt/spark/conf/core-site.xml && \
+    echo '    <name>fs.gs.impl</name>' >> /opt/spark/conf/core-site.xml && \
+    echo '    <value>com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem</value>' >> /opt/spark/conf/core-site.xml && \
+    echo '  </property>' >> /opt/spark/conf/core-site.xml && \
+    echo '  <property>' >> /opt/spark/conf/core-site.xml && \
+    echo '    <name>fs.AbstractFileSystem.gs.impl</name>' >> /opt/spark/conf/core-site.xml && \
+    echo '    <value>com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS</value>' >> /opt/spark/conf/core-site.xml && \
+    echo '  </property>' >> /opt/spark/conf/core-site.xml && \
+    echo '  <property>' >> /opt/spark/conf/core-site.xml && \
+    echo '    <name>google.cloud.auth.service.account.enable</name>' >> /opt/spark/conf/core-site.xml && \
+    echo '    <value>true</value>' >> /opt/spark/conf/core-site.xml && \
+    echo '  </property>' >> /opt/spark/conf/core-site.xml && \
+    echo '  <property>' >> /opt/spark/conf/core-site.xml && \
+    echo '    <name>google.cloud.auth.service.account.json.keyfile</name>' >> /opt/spark/conf/core-site.xml && \
+    echo '    <value>/app/gcp-key.json</value>' >> /opt/spark/conf/core-site.xml && \
+    echo '  </property>' >> /opt/spark/conf/core-site.xml && \
+    echo '</configuration>' >> /opt/spark/conf/core-site.xml
 
 WORKDIR /app
 

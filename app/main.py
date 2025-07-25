@@ -1,125 +1,14 @@
-"""
-Main module
-
-Este módulo serve como ponto de entrada principal da aplicação de engenharia de dados.
-Ele permite a execução via linha de comando de diferentes use cases de forma modular.
-
-Funcionalidades:
-- Ingestão de dados de veículos via API externa (Carris Metropolitana).
-- Estrutura pronta para adicionar múltiplos use cases.
-- Logging com loguru.
-- Suporte a execução individual ou total dos pipelines.
-
-Uso:
-    python main.py --use-case ingest_vehicles
-    python main.py --use-case all
-"""
-
 import argparse
-import os
-import sys
-import time
-from datetime import datetime
 
-from application.use_cases.ingest_gtfs import IngestGTFSService
-from application.use_cases.ingest_lines import IngestLinesService
-from application.use_cases.ingest_municipalities import IngestMunicipalitiesService
-from application.use_cases.ingest_routes import IngestRoutesService
-from application.use_cases.ingest_stops import IngestStopsService
-
-# Importações dos use cases
-from application.use_cases.ingest_vehicles import IngestVehiclesService
+from app.core.registry import USE_CASES
+from app.core.runner import run_use_case
 from configs.settings import Settings
-from infrastructure.logging.logger import logger, setup_logger
-
-# Adiciona o diretório raiz ao sys.path
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
-
-# Inicializa o logger depois que Settings estiver carregado
-setup_logger(Settings.get_local_log_path(), Settings.APP_ENV)
-
-
-def run_ingest_vehicles():
-    logger.info("Iniciando use case: ingest_vehicles")
-    service = IngestVehiclesService()
-    service.ingest()
-    logger.success("Use case 'ingest_vehicles' finalizado com sucesso.")
-
-
-def run_ingest_municipalities():
-    logger.info("Iniciando use case: ingest_municipalities")
-    service = IngestMunicipalitiesService()
-    service.ingest()
-    logger.success("Use case 'ingest_municipalities' finalizado com sucesso.")
-
-
-def run_ingest_lines():
-    logger.info("Iniciando use case: ingest_lines")
-    service = IngestLinesService()
-    service.ingest()
-    logger.success("Use case 'ingest_lines' finalizado com sucesso.")
-
-
-def run_ingest_stops():
-    logger.info("Iniciando use case: ingest_stops")
-    service = IngestStopsService()
-    service.ingest()
-    logger.success("Use case 'ingest_stops' finalizado com sucesso.")
-
-
-def run_ingest_routes():
-    logger.info("Iniciando use case: ingest_routes")
-    service = IngestRoutesService()
-    service.ingest()
-    logger.success("Use case 'ingest_routes' finalizado com sucesso.")
-
-
-def run_ingest_gtfs():
-    logger.info("Iniciando use case: ingest_gtfs")
-    service = IngestGTFSService()
-    service.ingest()
-    logger.success("Use case 'ingest_gtfs' finalizado com sucesso.")
-
-
-# Mapeamento de use cases
-USE_CASES = {
-    "ingest_vehicles": run_ingest_vehicles,
-    "ingest_municipalities": run_ingest_municipalities,
-    "ingest_lines": run_ingest_lines,
-    "ingest_routes": run_ingest_routes,
-    "ingest_stops": run_ingest_stops,
-    "ingest_gtfs": run_ingest_gtfs,
-    "endpoints": lambda: [
-        func()
-        for func in [
-            run_ingest_vehicles,
-            run_ingest_municipalities,
-            run_ingest_lines,
-            run_ingest_routes,
-            run_ingest_stops,
-        ]
-    ],
-    "all": lambda: [
-        func()
-        for func in [
-            run_ingest_vehicles,
-            run_ingest_municipalities,
-            run_ingest_lines,
-            run_ingest_routes,
-            run_ingest_stops,
-            run_ingest_gtfs,
-        ]
-    ],
-}
+from infrastructure.logging.logger import setup_logger
 
 
 def main():
-    logger.info("=" * 60)
-    logger.info("🚀 Projeto de Engenharia de Dados iniciado")
-    logger.info(f"📅 Data/Hora: {datetime.now().isoformat()}")
-    start = time.time()
+    setup_logger(Settings.get_local_log_path(), Settings.APP_ENV)
+
     parser = argparse.ArgumentParser(description="Executor de use cases da pipeline.")
     parser.add_argument(
         "--use-case",
@@ -129,17 +18,7 @@ def main():
         help="Nome do use case a ser executado. Ex: ingest_vehicles ou all",
     )
     args = parser.parse_args()
-
-    logger.info(f"🔧 Executando use case: {args.use_case}")
-    USE_CASES[args.use_case]()
-
-    # Exibir em minutos e segundos (por exemplo: 2m 34s)
-    duration = time.time() - start
-    minutes = int(duration // 60)
-    seconds = duration % 60
-    logger.info(f"Processamento executado com sucesso em {minutes}m {seconds:.2f}s.")
-    logger.info("✅ Execução finalizada.")
-    logger.info("=" * 60)
+    run_use_case(args.use_case, USE_CASES)
 
 
 if __name__ == "__main__":
