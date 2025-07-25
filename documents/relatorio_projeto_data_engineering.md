@@ -204,7 +204,7 @@ Informação das linhas da Carris
 | facilities          | STRING   | Facilities por onde passa a linha             |
 | localities          | STRING   | Localidades por onde passa a linha            |
 | routes              | STRING   | Código rotas                                  |
-| patterns            | STRING   | Nome do distrito                              |
+| patterns            | STRING   |                                               |
 | date                | DATE     | Data de extraão dos dados                     |
 
 ### 4.3 Data Modelling
