@@ -1,5 +1,4 @@
 import time
-from typing import Dict, List, Optional
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.types import StructType
@@ -19,7 +18,7 @@ class GenericSparkRepository:
         schema (StructType): Esquema Spark que define a estrutura do DataFrame.
     """
 
-    def __init__(self, spark: SparkSession, schema: Optional[StructType] = None):
+    def __init__(self, spark: SparkSession, schema: StructType):
         """
         Inicializa o repositório genérico com uma sessão Spark e um schema específico.
 
@@ -29,19 +28,11 @@ class GenericSparkRepository:
         """
         self.spark = spark
         self.schema = schema
-        if self.schema:
-            logger.debug(
-                f"GenericSparkRepository inicializado com schema: {self.schema.simpleString()}"
-            )
-        else:
-            logger.warning(
-                "GenericSparkRepository inicializado sem schema fixo. Será necessário "
-                "passar schema dinamicamente no método to_dataframe."
-            )
+        logger.info(
+            f"GenericSparkRepository inicializado com schema: {self.schema.simpleString()}"
+        )
 
-    def to_dataframe(
-        self, data: List[Dict], schema: Optional[StructType] = None
-    ) -> DataFrame:
+    def to_dataframe(self, data: list) -> DataFrame:
         """
         Converte uma lista de dicionários em um DataFrame Spark com o schema especificado.
 
@@ -63,23 +54,16 @@ class GenericSparkRepository:
             )
             raise ValueError("A lista de dados fornecida está vazia.")
 
-        effective_schema = schema or self.schema
-        if not effective_schema:
-            raise ValueError("Nenhum schema fornecido.")
-
         try:
             start = time.time()
-            num_partitions = max(100, len(data) // 1000)
-            logger.info(f"Usando {num_partitions} slices para paralelização.")
-            rdd = self.spark.sparkContext.parallelize(data, numSlices=num_partitions)
+            rdd = self.spark.sparkContext.parallelize(data)
             df = self.spark.createDataFrame(rdd, self.schema)
             duration = time.time() - start
             logger.info(f"DataFrame criado com sucesso em {duration:.2f} segundos.")
             return df
         except Exception as e:
-            schema_str = self.schema.simpleString() if self.schema else "None"
             logger.error(
-                f"Erro ao converter dados para DataFrame com schema: {schema_str}"
+                f"Erro ao converter dados para DataFrame com schema: {self.schema.simpleString()}"
             )
             logger.exception(e)
             raise ValueError(f"Falha na conversão para DataFrame: {str(e)}")

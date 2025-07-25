@@ -10,18 +10,13 @@ from pyspark.sql.types import (
 vehicle_schema = StructType(
     [
         StructField("vehicle_id", StringType(), True),
-        StructField("line_id", IntegerType(), True),
-        StructField("trip_id", StringType(), True),
-        StructField("pattern_id", StringType(), True),
-        StructField("route_id", StringType(), True),
-        StructField("shift_id", StringType(), True),
-        StructField("stop_id", IntegerType(), True),
+        StructField("line_id", StringType(), True),
         StructField("latitude", DoubleType(), True),
         StructField("longitude", DoubleType(), True),
-        StructField("schedule_relationship", StringType(), True),
-        StructField("current_status", StringType(), True),
+        StructField("timestamp", LongType(), True),
+        StructField("CURRENT_STATUS", StringType(), True),
         StructField("speed", DoubleType(), True),
         StructField("direction", IntegerType(), True),
-        StructField("timestamp", LongType(), True),
+        StructField("trip_id", StringType(), True),
     ]
 )

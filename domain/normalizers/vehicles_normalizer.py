@@ -23,22 +23,15 @@ class VehiclesNormalizer:
             try:
                 normalized.append(
                     {
-                        "vehicle_id": str(item.get("id", "")),
-                        "line_id": int(item.get("line_id", 0)),
-                        "trip_id": str(item.get("trip_id", "")),
-                        "pattern_id": str(item.get("pattern_id", "")),
-                        "route_id": str(item.get("route_id", "")),
-                        "shift_id": str(item.get("shift_id", "")),
-                        "stop_id": int(item.get("stop_id", 0)),
-                        "latitude": float(item.get("lat", 0.0) or 0.0),
-                        "longitude": float(item.get("lon", 0.0) or 0.0),
-                        "schedule_relationship": str(
-                            item.get("schedule_relationship", "")
-                        ),
-                        "current_status": str(item.get("current_status", "")),
+                        "vehicle_id": str(item.get("vehicle_id", "")),
+                        "line_id": str(item.get("line_id", "")),
+                        "latitude": float(item.get("latitude", 0.0) or 0.0),
+                        "longitude": float(item.get("longitude", 0.0) or 0.0),
+                        "timestamp": int(item.get("timestamp", 0) or 0),
+                        "CURRENT_STATUS": str(item.get("CURRENT_STATUS", "")),
                         "speed": float(item.get("speed", 0.0) or 0.0),
                         "direction": int(item.get("direction", 0) or 0),
-                        "timestamp": int(item.get("timestamp", 0) or 0),
+                        "trip_id": str(item.get("trip_id", "")),
                     }
                 )
             except Exception as e:
