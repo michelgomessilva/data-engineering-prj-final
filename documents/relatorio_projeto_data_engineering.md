@@ -160,7 +160,7 @@ Informação a respeito da Área Metropolitana de Lisboa.
 | region_name         | STRING   | Nome da região                                |
 | district_name       | STRING   | Nome do distrito                              |
 | prefix              | INT      |                                               |
-| date                | DATE     | Posição do veículo no sistema de coordenadas  |
+| date                | DATE     |                                               |
 
 ##### 4.2.1.3 Stops
 
@@ -190,6 +190,22 @@ Informação das paragens da Carris
 | tts_name            | STRING   |                                               |
 | wheelchair_boarding | INT      | Existência do elevador para cadeira de rodas  |
 | date                | DATE     |                                               |
+
+##### 4.2.1.4 Lines
+
+Informação das linhas da Carris
+
+| Campo               | Tipo     | Descrição                                     |
+|---------------------|----------|-----------------------------------------------|
+| line_id             | INT      | Identificador único de linhas                 |
+| short_name          | INT      |                                               |
+| long_name           | STRING   | Nome completo da linha                        |
+| municipalities      | STRING   | Código dos municípios por onde a linha passa  |
+| facilities          | STRING   | Facilities por onde passa a linha             |
+| localities          | STRING   | Localidades por onde passa a linha            |
+| routes              | STRING   | Código rotas                                  |
+| patterns            | STRING   |                                               |
+| date                | DATE     | Data de extracão dos dados                     |
 
 ### 4.3 Data Modelling
 
