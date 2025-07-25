@@ -34,6 +34,7 @@ from infrastructure.api.carris_client import CarrisAPIClient
 from infrastructure.logging.logger import logger
 from infrastructure.repositories.generic_spark_repository import GenericSparkRepository
 from infrastructure.spark.create_session_spark import get_spark_session
+from infrastructure.storage.gcs_uploader import GCSUploader
 from infrastructure.storage.parquet_storage import ParquetStorage
 
 
@@ -74,12 +75,21 @@ class IngestVehiclesService(IBaseIngestService):
         logger.debug("Coluna 'date' adicionada ao DataFrame.")
 
         # Define o caminho de destino no bucket
+        local_folder = Settings.get_local_raw_path(Settings.VEHICLES_ENDPOINT)
+        logger.info(f"Caminho de destino: {local_folder}")
+
+        # Salva localmente o parquet particionando por data
         logger.info("Salvando dados no GCS particionados por data...")
-        gcs_path = Settings.get_raw_path(Settings.VEHICLES_ENDPOINT)
-        logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
-        self.storage.save(df, gcs_path, mode="overwrite", partition_by=["date"])
+        self.storage.save(df, local_folder, partition_by=["date"])
         logger.success("Dados de veículos salvos com sucesso no GCS!")
-        logger.info("Pipeline de ingestão de veículos concluído com sucesso.")
+
+        # Faz o upload do arquivo Parquet para o GCS
+        uploader = GCSUploader()
+        uploader.upload_directory(
+            local_folder=local_folder,
+            gcs_dir=Settings.get_raw_path(Settings.VEHICLES_ENDPOINT),
+            file_extension=".parquet",
+        )
 
 
 def run_ingest_vehicles():

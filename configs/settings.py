@@ -43,11 +43,6 @@ class Settings:
 
     # GCP
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    if GOOGLE_APPLICATION_CREDENTIALS and GOOGLE_APPLICATION_CREDENTIALS.startswith(
-        "."
-    ):
-        GOOGLE_APPLICATION_CREDENTIALS = os.path.abspath(GOOGLE_APPLICATION_CREDENTIALS)
-
     GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID", "data-eng-dev-437916")
 
     # API
@@ -55,16 +50,10 @@ class Settings:
         "CARRIS_API_BASE", "https://api.carrismetropolitana.pt/"
     )
     VEHICLES_ENDPOINT = os.getenv("VEHICLES_ENDPOINT", "vehicles")
-    MUNICIPALITIES_ENDPOINT = os.getenv("MUNICIPALITIES_ENDPOINT", "municipalities")
-    STOPS_ENDPOINT = os.getenv("STOPS_ENDPOINT", "stops")
-    LINES_ENDPOINT = os.getenv("LINES_ENDPOINT", "lines")
-    ROUTES_ENDPOINT = os.getenv("ROUTES_ENDPOINT", "routes")
-    GTFS_ENDPOINT = os.getenv("GTFS_ENDPOINT", "gtfs")
 
     # ENV
     APP_ENV = os.getenv("APP_ENV", "dev")
     APP_NAME = os.getenv("APP_NAME", "Group2FinalProject")
-    DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "./data/gtfs")
 
     @classmethod
     def get_local_raw_path(cls, subpath: str = "") -> str:

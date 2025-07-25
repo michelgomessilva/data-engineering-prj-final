@@ -8,8 +8,6 @@ __pycache__/
 *.pyd
 *.dll
 
-gcp-key.json
-
 # Distribution / packaging
 .Python
 data/
@@ -33,9 +31,7 @@ var/
 *.whl
 
 # Poetry
-#poetry.lock
-
-docker-hub-token.txt
+poetry.lock
 
 # Installer logs
 pip-log.txt

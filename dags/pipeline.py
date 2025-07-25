@@ -1,12 +1,43 @@
+"""
+pipeline.py
+
+DAG principal do Airflow para orquestrar o pipeline de ingestão de dados
+da Carris Metropolitana.
+
+Esta DAG executa uma tarefa de ingestão (`ingest_task`) que:
+- Consome dados da API da Carris.
+- Normaliza e transforma os dados com Spark.
+- Salva os dados em formato Parquet.
+- Faz o upload dos dados particionados para o GCS na camada `raw`.
+
+A DAG pode ser agendada de forma periódica ou executada sob demanda.
+
+Pré-requisitos:
+- O código do projeto deve estar disponível no bucket do Composer (pasta `dags/` ou `data/`).
+- A pasta `/home/airflow/gcs/data` deve conter todo o projeto Python.
+"""
+
+import sys
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
+from airflow.operators.python import PythonOperator
 
-# Imagem pública no Docker Hub (sem autenticação necessária)
-IMAGE_URI = "michelgomessilvax/grupo-2-pipeline-app:latest"
+# Adiciona o caminho da raiz do projeto ao sys.path para permitir imports
+project_path = "/home/airflow/gcs/data/grupo-2"
+if project_path not in sys.path:
+    sys.path.insert(0, project_path)
 
-# Parâmetros padrão para todas as tasks
+# Importa a função de ingestão
+from application.use_cases.ingest_vehicles import run_ingest_vehicles
+from configs.settings import Settings
+from infrastructure.logging.logger import setup_logger
+
+# Inicializa o logger depois que Settings estiver carregado
+setup_logger(Settings.get_local_log_path(), Settings.APP_ENV)
+
+
+# Argumentos padrão para a DAG
 default_args = {
     "owner": "michelsilva",
     "depends_on_past": False,
@@ -20,31 +51,21 @@ default_args = {
 
 # Definição da DAG
 with DAG(
-    dag_id="grupo_2_pipeline",
+    dag_id="pipeline_dag",
     default_args=default_args,
-    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas às 12min
+    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas, começando no minuto 12
     catchup=False,
     max_active_runs=1,
     concurrency=5,
-    description="Grupo 2: Pipeline principal de ingestão Carris Metropolitana",
-    tags=["pipeline", "grupo-2"],
+    description="Pipeline principal: Ingestão de dados Carris - Grupo 2",
+    tags=["pipeline", "vehicles", "grupo-2"],
 ) as dag:
 
-    # Task única que executa todos os use cases
-    ingest_all = KubernetesPodOperator(
-        task_id="ingest_all",
-        name="ingest-all",
-        namespace="default",
-        image=IMAGE_URI,
-        image_pull_policy="Always",
-        cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "all"],
-        get_logs=True,
-        is_delete_operator_pod=True,
-        env_vars={
-            "APP_ENV": "production",
-            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
-        },
+    # Task de ingestão de dados
+    ingest_task = PythonOperator(
+        task_id="ingest_vehicles", python_callable=run_ingest_vehicles
     )
 
-    ingest_all
+    # Futuras tasks (ex: transform_task, load_task) podem ser adicionadas aqui
+
+    ingest_task
