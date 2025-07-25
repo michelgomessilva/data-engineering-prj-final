@@ -83,6 +83,13 @@ def run_ingest_gtfs():
     logger.success("Use case 'ingest_gtfs' finalizado com sucesso.")
 
 
+def run_staging_vehicles():
+    logger.info("Iniciando use case: staging_vehicles")
+    service = IngestGTFSService()
+    service.ingest()
+    logger.success("Use case 'ingest_gtfs' finalizado com sucesso.")
+
+
 # Mapeamento de use cases
 USE_CASES = {
     "ingest_vehicles": run_ingest_vehicles,
