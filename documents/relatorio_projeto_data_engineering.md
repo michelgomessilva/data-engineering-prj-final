@@ -205,7 +205,7 @@ Informação das linhas da Carris
 | localities          | STRING   | Localidades por onde passa a linha            |
 | routes              | STRING   | Código rotas                                  |
 | patterns            | STRING   |                                               |
-| date                | DATE     | Data de extraão dos dados                     |
+| date                | DATE     | Data de extracão dos dados                     |
 
 ### 4.3 Data Modelling
 

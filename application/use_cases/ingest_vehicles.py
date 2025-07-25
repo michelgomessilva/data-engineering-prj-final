@@ -33,7 +33,7 @@ from domain.services.base_ingestion_services import IBaseIngestService
 from infrastructure.api.carris_client import CarrisAPIClient
 from infrastructure.logging.logger import logger
 from infrastructure.repositories.generic_spark_repository import GenericSparkRepository
-from infrastructure.spark.create_session_spark import get_spark_session
+from infrastructure.spark.spark_singleton import get_spark_session
 from infrastructure.storage.parquet_storage import ParquetStorage
 
 
@@ -73,11 +73,21 @@ class IngestVehiclesService(IBaseIngestService):
         df = df.withColumn("date", current_date())
         logger.debug("Coluna 'date' adicionada ao DataFrame.")
 
+        # Ajusta o número de partições com base no tamanho do DataFrame
+        num_rows = df.count()
+        coalesce = 1
+        if num_rows < 50000:
+            coalesce = 1
+        elif num_rows < 500000:
+            coalesce = 4
+        else:
+            coalesce = 8
+
         # Define o caminho de destino no bucket
         logger.info("Salvando dados no GCS particionados por data...")
         gcs_path = Settings.get_raw_path(Settings.VEHICLES_ENDPOINT)
         logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
-        self.storage.save(df, gcs_path, mode="overwrite", partition_by=["date"])
+        self.storage.save(df, gcs_path, mode="overwrite", coalesce=coalesce)
         logger.success("Dados de veículos salvos com sucesso no GCS!")
         logger.info("Pipeline de ingestão de veículos concluído com sucesso.")
 

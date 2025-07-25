@@ -17,9 +17,35 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
 
     session = (
         SparkSession.builder.appName(app_name)
-        # apenas o shaded
-        .config("spark.jars", "/opt/spark/jars/gcs-connector-hadoop3-2.2.20-shaded.jar")
-        # Implementações GCS
+        .config("spark.hadoop.fs.gs.auth.service.account.enable", "true")
+        # Configurações de integração com GCS
+        .config(
+            "spark.hadoop.google.cloud.auth.service.account.json.keyfile",
+            Settings.GOOGLE_APPLICATION_CREDENTIALS,
+        )
+        # Performance e memória
+        .config("spark.driver.memory", "4g")
+        .config("spark.sql.session.timeZone", "UTC")
+        .config("spark.hadoop.hadoop.security.authentication", "simple")
+        .config(
+            "spark.driver.extraJavaOptions",
+            "--add-opens java.base/javax.security.auth=ALL-UNNAMED",
+        )
+        .config("spark.sql.shuffle.partitions", "100")
+        .config("spark.sql.adaptive.enabled", "true")
+        .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "64MB")
+        .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
+        .config("spark.sql.parquet.compression.codec", "snappy")
+        .config("parquet.block.size", 134217728)
+        .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", "2")
+        .config("spark.speculation", "false")
+        .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+        .config("spark.kryoserializer.buffer.max", "512m")
+        # GCS Integration
+        .config(
+            "spark.jars.packages",
+            "com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.5",
+        )
         .config(
             "spark.hadoop.fs.gs.impl",
             "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem",
@@ -28,45 +54,8 @@ def get_spark_session(app_name: str = Settings.APP_NAME) -> SparkSession:
             "spark.hadoop.fs.AbstractFileSystem.gs.impl",
             "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS",
         )
-        # Autenticação (use uma só variante; estas funcionam com o connector 2.x)
-        .config("spark.hadoop.fs.gs.auth.service.account.enable", "true")
-        .config(
-            "spark.hadoop.fs.gs.auth.service.account.json.keyfile",
-            Settings.GOOGLE_APPLICATION_CREDENTIALS,
-        )
-        # Performance (igual ao seu)
-        .config("spark.driver.memory", "4g")
-        .config("spark.sql.session.timeZone", "UTC")
-        .config("spark.sql.shuffle.partitions", "100")
-        .config("spark.sql.adaptive.enabled", "true")
-        .config("spark.sql.adaptive.advisoryPartitionSizeInBytes", "64MB")
-        .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
-        .config("spark.sql.parquet.compression.codec", "snappy")
-        .config("spark.hadoop.parquet.block.size", "134217728")
-        .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", "2")
-        .config("spark.speculation", "false")
-        .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-        .config("spark.kryoserializer.buffer.max", "512m")
-        .config("spark.hadoop.fs.gs.outputstream.buffer.size", "8388608")
-        .config("spark.hadoop.fs.gs.status.parallel.enable", "true")
-        .config("spark.hadoop.fs.gs.status.parallel.max.threads", "16")
-        .config("spark.sql.files.maxPartitionBytes", "134217728")
         .getOrCreate()
     )
-
     logger.info(f"Usando GCS com chave: {Settings.GOOGLE_APPLICATION_CREDENTIALS}")
-
-    # Testa se a classe existe
-    # try:
-    #    cls = session._jvm.java.lang.Class.forName(
-    #        "com.google.api.client.http.HttpRequestInitializer"
-    #    )
-    #    logger.info(
-    #        "HttpRequestInitializer FOUND at: %s",
-    #        cls.getProtectionDomain().getCodeSource().getLocation(),
-    #    )
-    # except Exception as e:
-    #    logger.exception("HttpRequestInitializer MISSING: %s", e)
-
     logger.info("SparkSession criada com sucesso")
     return session

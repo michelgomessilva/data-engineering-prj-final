@@ -9,7 +9,7 @@ from domain.schemas.gtfs_schemas import GTFS_SCHEMAS
 from domain.services.base_ingestion_services import IBaseIngestService
 from infrastructure.api.carris_client import CarrisAPIClient
 from infrastructure.logging.logger import logger
-from infrastructure.spark.create_session_spark import get_spark_session
+from infrastructure.spark.spark_singleton import get_spark_session
 from infrastructure.storage.parquet_storage import ParquetStorage
 from infrastructure.storage.zip_storage import ZipExtractor
 
@@ -29,6 +29,24 @@ class IngestGTFSService(IBaseIngestService):
 
     def ingest(self):
         logger.info("Iniciando processo de ingestão GTFS...")
+
+        # Mapeia quantas partições/coalesces usar para cada tipo de arquivo
+        GTFS_COALESCE_MAP = {
+            "agency": 1,  # pequena (1-2 linhas)
+            "archives": 1,
+            "calendar_dates": 1,  # pequena
+            "dates": 1,  # pequena
+            "fare_attributes": 1,  # pequena
+            "fare_rules": 1,  # pequena
+            "feed_info": 1,  # sempre 1 linha
+            "municipalities": 1,  # sempre 1 linha
+            "periods": 1,  # sempre 1 linha
+            "routes": 1,  # até algumas dezenas
+            "shapes": 16,  # moderada
+            "stop_times": 32,  # grande (~10k+ linhas)
+            "stops": 1,  # ~500-1000 entradas
+            "trips": 4,  # média (~5k-10k)
+        }
 
         # 1. Baixar o arquivo ZIP da API
         zip_path = self.api.download_zip(self.url, self.download_dir)
@@ -60,8 +78,25 @@ class IngestGTFSService(IBaseIngestService):
                 logger.warning(f"Nenhum dado encontrado no arquivo {filename}.txt")
                 continue
 
-            # 3.3 Adicionar metadado de ingestão e particionar por data
-            df = df.withColumn("date", current_date()).repartition("date").persist()
+            # Aplica metadata + particionamento dinâmico
+            df = df.withColumn("date", current_date())
+
+            # Aplica número de coalesces dinâmico
+            coalesce = GTFS_COALESCE_MAP.get(filename, 4)
+
+            if coalesce >= 8:
+                logger.info(f"Reparticionando {filename} em {coalesce} partições...")
+                if filename == "stop_times":
+                    # Se for stop_times com muitas linhas ou coalesce alto
+                    df = df.repartition(coalesce, "trip_id")
+                elif filename == "shapes":
+                    # Se for shapes, reparticiona por shape_id
+                    df = df.repartition(coalesce, "shape_id")
+            else:
+                # Reparticiona o DataFrame para otimizar o salvamento
+                df = df.repartition(coalesce)
+
+            logger.info(f"{filename} → {coalesce} partições antes do save")
 
             # 3.4 Caminho final no GCS
             gcs_path = posixpath.join(
@@ -69,6 +104,8 @@ class IngestGTFSService(IBaseIngestService):
             )
             logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
             # 3.5 Salvar como Parquet particionado por data
-            self.storage.save(df, gcs_path, mode="overwrite", partition_by=["date"])
+            self.storage.save(
+                df, gcs_path, mode="overwrite", partition_by=["date"], coalesce=coalesce
+            )
 
             logger.success(f"Ingestão de {filename}.txt concluída com sucesso.")

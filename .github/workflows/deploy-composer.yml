@@ -13,51 +13,88 @@ env:
   DOCKER_IMAGE_NAME: grupo-2-pipeline-app
   DOCKER_IMAGE_TAG: latest
   DOCKERHUB_REPO: michelgomessilvax/grupo-2-pipeline-app
-  FULL_IMAGE: michelgomessilvax/grupo-2-pipeline-app:latest
+  DAG_PATH: dags/pipeline.py
 
 jobs:
   build-and-push:
-    name: Build e Push da Imagem para o Docker Hub
     runs-on: ubuntu-latest
-
+    outputs:
+      short_sha: ${{ steps.export.outputs.short_sha }}
     steps:
-      - name: 📦 Checkout do código
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: 📝 Salvar gcp-key.json
+      - name: Save gcp-key.json
         run: echo '${{ secrets.GCP_SA_KEY_JSON }}' > gcp-key.json
 
-      - name: 🔐 Login no DockerHub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Login no DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 🛠️ Build da imagem Docker
-        run: |
-          docker build -t ${{ env.FULL_IMAGE }} .
+      - name: Gerar metadados da imagem (tags e labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKERHUB_REPO }}
+          tags: |
+            type=sha,format=short
+            type=ref,event=branch
+            type=raw,value=latest
 
-      - name: 🚀 Push da imagem para o Docker Hub
+      - name: Build & Push
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Substitui IMAGE_URI no DAG
+        id: export
         run: |
-          docker push ${{ env.FULL_IMAGE }}
+          SHORT_SHA=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          IMG_REF="${{ env.DOCKERHUB_REPO }}:sha-${SHORT_SHA}"
+          echo "Substituindo na DAG: $IMG_REF"
+          sed -i "s|__IMAGE_PLACEHOLDER__|$IMG_REF|g" ${{ env.DAG_PATH }}
+          echo "image_ref=$IMG_REF" >> "$GITHUB_OUTPUT"
+
+      - name: Verifica substituição
+        run: grep IMAGE_URI ${{ env.DAG_PATH }}
+
+      - name: Upload DAG modificada como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dag-pipeline
+          path: ${{ env.DAG_PATH }}
 
   upload-dag:
-    name: Upload da DAG para o Composer
     runs-on: ubuntu-latest
     needs: build-and-push
-
     steps:
-      - name: 📦 Checkout do código
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: 🔐 Autenticação via Service Account (GCP)
-        uses: google-github-actions/auth@v1
+      - name: Baixa DAG modificada
+        uses: actions/download-artifact@v4
+        with:
+          name: dag-pipeline
+          path: dags/
+
+      - name: Autentica no GCP
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY_JSON }}'
 
-      - name: ⚙️ Setup Google Cloud SDK com gsutil
-        uses: google-github-actions/setup-gcloud@v1
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
           install_components: gsutil
 
-      - name: ☁️ Upload da DAG para o Composer
+      - name: Verifica DAG final (debug)
+        run: cat dags/pipeline.py
+
+      - name: Upload da DAG para o Composer
         run: |
-          gsutil cp dags/pipeline.py gs://$COMPOSER_BUCKET/dags/grupo_2/
+          gsutil cp dags/pipeline.py gs://${{ env.COMPOSER_BUCKET }}/dags/grupo_2/

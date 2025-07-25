@@ -69,13 +69,24 @@ class GenericSparkRepository:
 
         try:
             start = time.time()
-            num_partitions = max(100, len(data) // 1000)
-            logger.info(f"Usando {num_partitions} slices para paralelização.")
-            rdd = self.spark.sparkContext.parallelize(data, numSlices=num_partitions)
-            df = self.spark.createDataFrame(rdd, self.schema)
+            # Define número de slices com base no volume
+            num_rows = len(data)
+            num_slices = 1  # padrão
+            if num_rows < 50000:
+                num_slices = 1
+            elif num_rows < 500000:
+                num_slices = 4
+            else:
+                num_slices = 8
+
+            logger.info(f"Usando {num_slices} slices para paralelização inicial.")
+
+            rdd = self.spark.sparkContext.parallelize(data, numSlices=num_slices)
+            df = self.spark.createDataFrame(rdd, effective_schema)
             duration = time.time() - start
             logger.info(f"DataFrame criado com sucesso em {duration:.2f} segundos.")
             return df
+
         except Exception as e:
             schema_str = self.schema.simpleString() if self.schema else "None"
             logger.error(

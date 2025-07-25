@@ -72,11 +72,6 @@ class ParquetStorage:
         try:
             start = time.time()
 
-            if partition_by and coalesce is None:
-                df = df.repartition(*partition_by)
-            elif coalesce is not None:
-                df = df.coalesce(coalesce)
-
             writer = df.write.mode(mode).option("compression", "snappy")
             if partition_by:
                 writer = writer.partitionBy(*partition_by)
