@@ -130,7 +130,7 @@ with DAG(
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
         },
-        pod_resources=V1ResourceRequirements(
+        resources=V1ResourceRequirements(
             requests={"memory": "8Gi", "cpu": "4"},
             limits={"memory": "16Gi", "cpu": "8"},
         ),
