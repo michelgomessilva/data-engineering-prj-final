@@ -39,7 +39,7 @@ with DAG(
         arguments=["--use-case", "ingest_vehicles"],
         get_logs=True,
         is_delete_operator_pod=True,
-        log_events_on_failure=True,
+        log_events_on_failure=False,
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -56,7 +56,7 @@ with DAG(
         arguments=["--use-case", "ingest_municipalities"],
         get_logs=True,
         is_delete_operator_pod=True,
-        log_events_on_failure=True,
+        log_events_on_failure=False,
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -73,7 +73,7 @@ with DAG(
         arguments=["--use-case", "ingest_lines"],
         get_logs=True,
         is_delete_operator_pod=True,
-        log_events_on_failure=True,
+        log_events_on_failure=False,
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -90,7 +90,7 @@ with DAG(
         arguments=["--use-case", "ingest_routes"],
         get_logs=True,
         is_delete_operator_pod=True,
-        log_events_on_failure=True,
+        log_events_on_failure=False,
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -107,7 +107,7 @@ with DAG(
         arguments=["--use-case", "ingest_stops"],
         get_logs=True,
         is_delete_operator_pod=True,
-        log_events_on_failure=True,
+        log_events_on_failure=False,
         env_vars={
             "APP_ENV": "production",
             "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
@@ -124,7 +124,7 @@ with DAG(
         arguments=["--use-case", "ingest_gtfs"],
         get_logs=True,
         is_delete_operator_pod=True,
-        log_events_on_failure=True,
+        log_events_on_failure=False,
         resources={"cpus": 8, "ram": 16384},  # 16 GB
         env_vars={
             "APP_ENV": "production",
