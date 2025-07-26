@@ -1,4 +1,4 @@
-from pyspark.sql.types import ArrayType, StringType, StructField, StructType
+from pyspark.sql.types import ArrayType, DateType, StringType, StructField, StructType
 
 lines_schema = StructType(
     [
@@ -12,5 +12,7 @@ lines_schema = StructType(
         StructField("routes", ArrayType(StringType(), True), True),
         StructField("short_name", StringType(), True),
         StructField("text_color", StringType(), True),
+        StructField("ingestion_date", DateType(), True),
+        StructField("partition_date", DateType(), True),
     ]
 )

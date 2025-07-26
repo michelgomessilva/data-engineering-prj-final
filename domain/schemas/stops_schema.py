@@ -1,4 +1,4 @@
-from pyspark.sql.types import ArrayType, StringType, StructField, StructType
+from pyspark.sql.types import ArrayType, DateType, StringType, StructField, StructType
 
 stops_schema = StructType(
     [
@@ -23,5 +23,7 @@ stops_schema = StructType(
         StructField("short_name", StringType(), True),
         StructField("tts_name", StringType(), True),
         StructField("wheelchair_boarding", StringType(), True),
+        StructField("ingestion_date", DateType(), True),
+        StructField("partition_date", DateType(), True),
     ]
 )

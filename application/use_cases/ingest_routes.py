@@ -71,6 +71,7 @@ class IngestRoutesService(IBaseIngestService):
 
         # Adiciona a coluna 'date' para particionamento por data
         df = df.withColumn("ingestion_date", current_date())
+        df = df.withColumn("partition_date", current_date())
         logger.debug("Coluna 'date' adicionada ao DataFrame.")
 
         # Ajusta o número de partições com base no tamanho do DataFrame

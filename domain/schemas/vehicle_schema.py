@@ -1,4 +1,5 @@
 from pyspark.sql.types import (
+    DateType,
     DoubleType,
     IntegerType,
     LongType,
@@ -23,5 +24,7 @@ vehicle_schema = StructType(
         StructField("speed", DoubleType(), True),
         StructField("direction", IntegerType(), True),
         StructField("timestamp", LongType(), True),
+        StructField("ingestion_date", DateType(), True),
+        StructField("partition_date", DateType(), True),
     ]
 )

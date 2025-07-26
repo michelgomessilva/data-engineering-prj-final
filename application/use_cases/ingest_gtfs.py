@@ -80,6 +80,7 @@ class IngestGTFSService(IBaseIngestService):
 
             # Aplica metadata + particionamento dinâmico
             df = df.withColumn("ingestion_date", current_date())
+            df = df.withColumn("partition_date", current_date())
 
             # Aplica número de coalesces dinâmico
             coalesce = GTFS_COALESCE_MAP.get(filename, 4)

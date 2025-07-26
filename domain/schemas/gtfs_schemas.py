@@ -1,4 +1,4 @@
-from pyspark.sql.types import StringType, StructField, StructType
+from pyspark.sql.types import DateType, StringType, StructField, StructType
 
 GTFS_SCHEMAS = {
     "agency": StructType(
@@ -11,6 +11,8 @@ GTFS_SCHEMAS = {
             StructField("agency_phone", StringType(), True),
             StructField("agency_timezone", StringType(), True),
             StructField("agency_url", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "archives": StructType(
@@ -19,6 +21,8 @@ GTFS_SCHEMAS = {
             StructField("archive_id", StringType(), True),
             StructField("archive_start_date", StringType(), True),
             StructField("operator_id", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "calendar_dates": StructType(
@@ -29,6 +33,8 @@ GTFS_SCHEMAS = {
             StructField("holiday", StringType(), True),
             StructField("period", StringType(), True),
             StructField("service_id", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "dates": StructType(
@@ -38,6 +44,8 @@ GTFS_SCHEMAS = {
             StructField("holiday", StringType(), True),
             StructField("notes", StringType(), True),
             StructField("period", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "fare_attributes": StructType(
@@ -47,12 +55,16 @@ GTFS_SCHEMAS = {
             StructField("payment_method", StringType(), True),
             StructField("price", StringType(), True),
             StructField("transfers", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "fare_rules": StructType(
         [
             StructField("fare_id", StringType(), True),
             StructField("route_id", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "feed_info": StructType(
@@ -65,6 +77,8 @@ GTFS_SCHEMAS = {
             StructField("feed_publisher_url", StringType(), True),
             StructField("feed_start_date", StringType(), True),
             StructField("feed_version", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "municipalities": StructType(
@@ -76,12 +90,16 @@ GTFS_SCHEMAS = {
             StructField("municipality_prefix", StringType(), True),
             StructField("region_id", StringType(), True),
             StructField("region_name", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "periods": StructType(
         [
             StructField("period_id", StringType(), True),
             StructField("period_name", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "routes": StructType(
@@ -100,6 +118,8 @@ GTFS_SCHEMAS = {
             StructField("route_text_color", StringType(), True),
             StructField("route_type", StringType(), True),
             StructField("school", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "shapes": StructType(
@@ -109,6 +129,8 @@ GTFS_SCHEMAS = {
             StructField("shape_pt_lat", StringType(), True),
             StructField("shape_pt_lon", StringType(), True),
             StructField("shape_pt_sequence", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "stop_times": StructType(
@@ -123,6 +145,8 @@ GTFS_SCHEMAS = {
             StructField("timepoint", StringType(), True),
             StructField("trip_id", StringType(), True),
             StructField("line_id", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "stops": StructType(
@@ -207,6 +231,8 @@ GTFS_SCHEMAS = {
             StructField("bike_sharing", StringType(), True),
             StructField("bike_parking", StringType(), True),
             StructField("car_parking", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
     "trips": StructType(
@@ -219,6 +245,8 @@ GTFS_SCHEMAS = {
             StructField("shape_id", StringType(), True),
             StructField("trip_headsign", StringType(), True),
             StructField("trip_id", StringType(), True),
+            StructField("ingestion_date", DateType(), True),
+            StructField("partition_date", DateType(), True),
         ]
     ),
 }

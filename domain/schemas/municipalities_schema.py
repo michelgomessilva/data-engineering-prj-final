@@ -1,4 +1,4 @@
-from pyspark.sql.types import StringType, StructField, StructType
+from pyspark.sql.types import DateType, StringType, StructField, StructType
 
 municipalities_schema = StructType(
     [
@@ -9,5 +9,7 @@ municipalities_schema = StructType(
         StructField("prefix", StringType(), True),
         StructField("region_id", StringType(), True),
         StructField("region_name", StringType(), True),
+        StructField("ingestion_date", DateType(), True),
+        StructField("partition_date", DateType(), True),
     ]
 )
