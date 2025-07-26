@@ -30,7 +30,7 @@ def cleanse_municipalities_df(spark: SparkSession, input_path: str) -> DataFrame
         upper(trim(col("district_name"))),
         upper(trim(col("region_name"))),
         col("prefix"),
-        col("date"),
+        col("ingestion_date"),
     ).dropDuplicates(["municipality_id"])
 
     logger.success("✅ Cleansing do municipalities concluído.")
