@@ -33,10 +33,10 @@ def cleanse_gtfs_shapes_df(spark: SparkSession, input_path: str) -> DataFrame:
     ).dropDuplicates(
         [
             "shape_id",
-            "shape_pt_lat",
-            "shape_pt_lon",
-            "shape_dist_traveled",
-            "shape_pt_sequence",
+            "latitude",
+            "longitude",
+            "distance",
+            "sequence",
         ]
     )
 
