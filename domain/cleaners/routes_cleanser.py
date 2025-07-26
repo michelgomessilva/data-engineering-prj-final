@@ -23,13 +23,13 @@ def cleanse_routes_df(spark: SparkSession, input_path: str) -> DataFrame:
 
     logger.info("🧹 Limpando e padronizando colunas...")
     cleansed_df = df.select(
-        trim(col("route_id")),
-        trim(col("line_id")),
+        trim(col("route_id")).alias("route_id"),
+        trim(col("line_id")).alias("line_id"),
         trim(col("short_name")).alias("route_code"),
         upper(trim(col("long_name"))).alias("route_name"),
-        upper(trim(col("color"))),
-        upper(trim(col("text_color"))),
-        upper(trim(col("localities"))),
+        upper(trim(col("color"))).alias("color"),
+        upper(trim(col("text_color"))).alias("text_color"),
+        upper(trim(col("localities"))).alias("localities"),
         col("municipalities"),
         col("patterns"),
         col("facilities"),
