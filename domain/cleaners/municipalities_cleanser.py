@@ -23,12 +23,12 @@ def cleanse_municipalities_df(spark: SparkSession, input_path: str) -> DataFrame
 
     logger.info("🧹 Limpando e padronizando colunas...")
     cleansed_df = df.select(
-        trim(col("municipality_id")),
-        upper(trim(col("municipality_name"))),
-        trim(col("district_id")),
-        trim(col("region_id")),
-        upper(trim(col("district_name"))),
-        upper(trim(col("region_name"))),
+        trim(col("municipality_id")).alias("municipality_id"),
+        upper(trim(col("municipality_name"))).alias("municipality_name"),
+        trim(col("district_id")).alias("district_id"),
+        trim(col("region_id")).alias("region_id"),
+        upper(trim(col("district_name"))).alias("district_name"),
+        upper(trim(col("region_name"))).alias("region_name"),
         col("prefix"),
         col("ingestion_date"),
         col("partition_date"),
