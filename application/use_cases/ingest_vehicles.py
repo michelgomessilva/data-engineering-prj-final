@@ -70,7 +70,7 @@ class IngestVehiclesService(IBaseIngestService):
         df.printSchema()
 
         # Adiciona a coluna 'date' para particionamento por data
-        df = df.withColumn("date", current_date())
+        df = df.withColumn("ingestion_date", current_date())
         logger.debug("Coluna 'date' adicionada ao DataFrame.")
 
         # Ajusta o número de partições com base no tamanho do DataFrame
@@ -87,7 +87,13 @@ class IngestVehiclesService(IBaseIngestService):
         logger.info("Salvando dados no GCS particionados por data...")
         gcs_path = Settings.get_raw_path(Settings.VEHICLES_ENDPOINT)
         logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
-        self.storage.save(df, gcs_path, mode="overwrite", coalesce=coalesce)
+        self.storage.save(
+            df,
+            gcs_path,
+            mode="overwrite",
+            partition_by=["partition_date"],
+            coalesce=coalesce,
+        )
         logger.success("Dados de veículos salvos com sucesso no GCS!")
         logger.info("Pipeline de ingestão de veículos concluído com sucesso.")
 

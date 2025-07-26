@@ -79,7 +79,7 @@ class IngestGTFSService(IBaseIngestService):
                 continue
 
             # Aplica metadata + particionamento dinâmico
-            df = df.withColumn("date", current_date())
+            df = df.withColumn("ingestion_date", current_date())
 
             # Aplica número de coalesces dinâmico
             coalesce = GTFS_COALESCE_MAP.get(filename, 4)
@@ -104,6 +104,12 @@ class IngestGTFSService(IBaseIngestService):
             )
             logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
             # 3.5 Salvar como Parquet particionado por data
-            self.storage.save(df, gcs_path, mode="overwrite", coalesce=coalesce)
+            self.storage.save(
+                df,
+                gcs_path,
+                mode="overwrite",
+                partition_by=["partition_date"],
+                coalesce=coalesce,
+            )
 
             logger.success(f"Ingestão de {filename}.txt concluída com sucesso.")

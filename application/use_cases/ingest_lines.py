@@ -69,7 +69,7 @@ class IngestLinesService(IBaseIngestService):
         logger.debug("Esquema do DataFrame:")
 
         # Adiciona a coluna 'date' para particionamento por data
-        df = df.withColumn("date", current_date())
+        df = df.withColumn("ingestion_date", current_date())
         logger.debug("Coluna 'date' adicionada ao DataFrame.")
 
         # Ajusta o número de partições com base no tamanho do DataFrame
@@ -88,7 +88,13 @@ class IngestLinesService(IBaseIngestService):
 
         # Salva o DataFrame no GCS particionado por data
         logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
-        self.storage.save(df, gcs_path, mode="overwrite", coalesce=coalesce)
+        self.storage.save(
+            df,
+            gcs_path,
+            mode="overwrite",
+            partition_by=["partition_date"],
+            coalesce=coalesce,
+        )
         logger.success("Dados de lines salvos com sucesso no GCS!")
 
 
