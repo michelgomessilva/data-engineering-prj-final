@@ -29,7 +29,6 @@ def cleanse_routes_df(spark: SparkSession, input_path: str) -> DataFrame:
         upper(trim(col("long_name"))).alias("route_name"),
         upper(trim(col("color"))).alias("color"),
         upper(trim(col("text_color"))).alias("text_color"),
-        col("localities"),
         col("municipalities"),
         col("patterns"),
         col("facilities"),
