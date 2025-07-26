@@ -4,16 +4,16 @@ from pyspark.sql.functions import col, trim, upper
 from infrastructure.logging.logger import logger
 
 
-def cleanse_lines_df(spark: SparkSession, input_path: str) -> DataFrame:
+def cleanse_routes_df(spark: SparkSession, input_path: str) -> DataFrame:
     """
-    Realiza o cleansing do dataset lines a partir dos dados raw em Parquet.
+    Realiza o cleansing do dataset routes a partir dos dados raw em Parquet.
 
     Aplica limpeza nas colunas principais, removendo espaços e aplicando
     formatação consistente (ex: UPPERCASE para nomes).
 
     Args:
         spark (SparkSession): Sessão Spark ativa.
-        input_path (str): Caminho no GCS para o arquivo Parquet de lines.
+        input_path (str): Caminho no GCS para o arquivo Parquet de routes.
 
     Returns:
         DataFrame: DataFrame transformado pronto para ser salvo no BigQuery.
@@ -23,18 +23,18 @@ def cleanse_lines_df(spark: SparkSession, input_path: str) -> DataFrame:
 
     logger.info("🧹 Limpando e padronizando colunas...")
     cleansed_df = df.select(
+        trim(col("route_id")).alias("route_id"),
         trim(col("line_id")).alias("line_id"),
-        upper(trim(col("short_name"))).alias("line_code"),
-        upper(trim(col("long_name"))).alias("line_name"),
-        trim(col("color")).alias("color"),
-        trim(col("text_color")).alias("text_color"),
+        trim(col("short_name")).alias("route_code"),
+        upper(trim(col("long_name"))).alias("route_name"),
+        upper(trim(col("color"))).alias("color"),
+        upper(trim(col("text_color"))).alias("text_color"),
         col("localities"),
         col("municipalities"),
-        col("routes"),
         col("patterns"),
         col("ingestion_date"),
         col("partition_date"),
-    ).dropDuplicates(["line_id"])
+    ).dropDuplicates(["route_id"])
 
-    logger.success("✅ Cleansing do lines concluído.")
+    logger.success("✅ Cleansing do routes concluído.")
     return cleansed_df
