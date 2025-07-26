@@ -122,6 +122,7 @@ GTFS_SCHEMAS = {
             StructField("stop_sequence", StringType(), True),
             StructField("timepoint", StringType(), True),
             StructField("trip_id", StringType(), True),
+            StructField("line_id", StringType(), True),
         ]
     ),
     "stops": StructType(

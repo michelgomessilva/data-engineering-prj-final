@@ -104,8 +104,6 @@ class IngestGTFSService(IBaseIngestService):
             )
             logger.info(f"Salvando DataFrame no GCS: {gcs_path}")
             # 3.5 Salvar como Parquet particionado por data
-            self.storage.save(
-                df, gcs_path, mode="overwrite", partition_by=["date"], coalesce=coalesce
-            )
+            self.storage.save(df, gcs_path, mode="overwrite", coalesce=coalesce)
 
             logger.success(f"Ingestão de {filename}.txt concluída com sucesso.")
