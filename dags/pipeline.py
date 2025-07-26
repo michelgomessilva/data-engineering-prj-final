@@ -153,6 +153,27 @@ with DAG(
         },
     )
 
+    dbt_run = KubernetesPodOperator(
+        task_id="dbt_run",
+        name="dbt-run",
+        namespace="default",
+        image=IMAGE_URI,
+        image_pull_policy="Always",
+        cmds=["dbt"],
+        arguments=["run", "--project-dir", "/app/dbt", "--profiles-dir", "/app/dbt"],
+        get_logs=True,
+        is_delete_operator_pod=True,
+        log_events_on_failure=False,
+        env_vars={
+            "APP_ENV": "production",
+            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
+        },
+        container_resources=V1ResourceRequirements(
+            requests={"memory": "2Gi", "cpu": "1"},
+            limits={"memory": "4Gi", "cpu": "2"},
+        ),
+    )
+
     (
         [
             ingest_vehicles,
@@ -163,4 +184,5 @@ with DAG(
         ]
         >> ingest_gtfs
         >> cleanse_lines
+        >> dbt_run
     )

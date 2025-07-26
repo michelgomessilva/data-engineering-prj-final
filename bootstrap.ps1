@@ -115,6 +115,27 @@ Write-Host "Instalando hooks do pre-commit..." -ForegroundColor Cyan
 pre-commit install
 
 # ----------------------------------------
+# 7.5 Instalar DBT (core + BigQuery adapter)
+Write-Host "Verificando se dbt-core e dbt-bigquery estão instalados..." -ForegroundColor Cyan
+
+$hasDbtCore = poetry show | Select-String "dbt-core"
+$hasDbtBQ = poetry show | Select-String "dbt-bigquery"
+
+if (-not $hasDbtCore -or -not $hasDbtBQ) {
+    Write-Host "Instalando dbt-core e dbt-bigquery via Poetry..." -ForegroundColor Yellow
+    poetry add dbt-core dbt-bigquery
+    Write-Host "DBT (core + BigQuery adapter) instalado com sucesso." -ForegroundColor Green
+} else {
+    Write-Host "dbt-core e dbt-bigquery já estão instalados." -ForegroundColor Green
+}
+
+# ----------------------------------------
+# 7.6 Criar alias dbt para usar com Poetry
+Write-Host "Criando alias 'dbt' para 'poetry run dbt'" -ForegroundColor Cyan
+Set-Alias dbt "poetry run dbt"
+
+
+# ----------------------------------------
 # 8. Configurar variáveis para compatibilidade com Spark
 $pythonPath = Join-Path $venvPath "Scripts\python.exe"
 $env:PYSPARK_PYTHON = $pythonPath

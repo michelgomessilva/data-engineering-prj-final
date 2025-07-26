@@ -87,6 +87,7 @@ WORKDIR /app
 
 # Copia dependências e código
 COPY --from=builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
+COPY --from=builder /usr/local/bin /usr/local/bin
 COPY . .
 
 # Copia credencial se existir
@@ -97,4 +98,4 @@ ENV GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-key.json
 ENV PYTHONUNBUFFERED=1
 ENV APP_ENV=production
 
-ENTRYPOINT ["python", "-m", "app.entrypoint"]
+#ENTRYPOINT ["python", "-m", "app.entrypoint"]
