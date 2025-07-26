@@ -32,7 +32,6 @@ def cleanse_lines_df(spark: SparkSession, input_path: str) -> DataFrame:
         col("municipalities"),
         col("routes"),
         col("patterns"),
-        col("facilities"),
         col("ingestion_date"),
         col("partition_date"),
     ).dropDuplicates(["line_id"])
