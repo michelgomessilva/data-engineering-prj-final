@@ -33,7 +33,7 @@ def cleanse_routes_df(spark: SparkSession, input_path: str) -> DataFrame:
         col("municipalities"),
         col("patterns"),
         col("facilities"),
-        col("date"),
+        col("ingestion_date"),
     ).dropDuplicates(["line_id"])
 
     logger.success("✅ Cleansing do routes concluído.")
