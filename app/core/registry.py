@@ -1,6 +1,11 @@
 from typing import Callable
 
 from application.use_cases.cleansing.cleanse_lines import run_cleanse_lines
+from application.use_cases.cleansing.cleanse_municipalities import (
+    run_cleanse_municipalities,
+)
+from application.use_cases.cleansing.cleanse_routes import run_cleanse_routes
+from application.use_cases.cleansing.cleanse_stops import run_cleanse_stops
 from application.use_cases.ingest_gtfs import IngestGTFSService
 from application.use_cases.ingest_lines import IngestLinesService
 from application.use_cases.ingest_municipalities import IngestMunicipalitiesService
@@ -33,6 +38,9 @@ def run_all():
     run_endpoints()
     USE_CASES["ingest_gtfs"]()
     USE_CASES["cleanse_lines"]()
+    USE_CASES["cleanse_municipalities"]()
+    USE_CASES["cleanse_stops"]()
+    USE_CASES["cleanse_routes"]()
 
 
 USE_CASES: dict[str, Callable[[], None]] = {
@@ -45,6 +53,9 @@ USE_CASES: dict[str, Callable[[], None]] = {
     "ingest_stops": wrap_ingestion(IngestStopsService, "ingest_stops"),
     "ingest_gtfs": wrap_ingestion(IngestGTFSService, "ingest_gtfs"),
     "cleanse_lines": run_cleanse_lines,
+    "cleanse_municipalities": run_cleanse_municipalities,
+    "cleanse_stops": run_cleanse_stops,
+    "cleanse_routes": run_cleanse_routes,
     "endpoints": run_endpoints,
     "all": run_all,
 }
