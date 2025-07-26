@@ -45,6 +45,7 @@ def cleanse_stops_df(spark: SparkSession, input_path: str) -> DataFrame:
         upper(trim(col("tts_name"))),
         col("wheelchair_boarding"),
         col("ingestion_date"),
+        col("partition_date"),
     ).dropDuplicates(["stop_id"])
 
     logger.success("✅ Cleansing do stops concluído.")
