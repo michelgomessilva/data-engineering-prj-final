@@ -1,0 +1,55 @@
+# Evita incluir dados brutos e gerados
+data/
+logs/
+__pycache__/
+*.py[cod]
+*.log
+
+# Ignora arquivos de testes
+tests/
+*.test.*
+*.spec.*
+.coverage
+htmlcov/
+coverage.xml
+
+# Ignora arquivos e pastas temporárias
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+*.egg-info/
+.mypy_cache/
+pytest_cache/
+.cache/
+
+# Poetry e virtualenvs locais
+.poetry/
+venv/
+.env.local
+.env.dev
+env-local-instructions.txt
+
+# Git e configs editor
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Airflow
+airflow.db
+airflow-webserver.pid
+
+# DBT artefatos
+dbt_project/target/
+dbt_project/dbt_modules/
+dbt_project/logs/
+dbt_project/.dbt/
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Outras ferramentas
+.pre-commit-config.yaml
+flake.lock
