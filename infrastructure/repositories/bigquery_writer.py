@@ -19,7 +19,11 @@ def write_to_bigquery(df, dataset: str, table: str) -> None:
     try:
         df.write.format("bigquery").option("table", full_table).option(
             "writeMethod", "direct"
-        ).option("parentProject", "data-eng-dev-437916").mode("overwrite").save()
+        ).option("writeDisposition", "WRITE_TRUNCATE").option(
+            "parentProject", "data-eng-dev-437916"
+        ).mode(
+            "overwrite"
+        ).save()
 
         logger.success(f"Escrita concluída com sucesso: {full_table}")
 

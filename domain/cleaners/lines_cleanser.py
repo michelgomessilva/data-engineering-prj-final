@@ -34,6 +34,7 @@ def cleanse_lines_df(spark: SparkSession, input_path: str) -> DataFrame:
         col("patterns"),
         col("facilities"),
         col("ingestion_date"),
+        col("partition_date"),
     ).dropDuplicates(["line_id"])
 
     logger.success("✅ Cleansing do lines concluído.")
