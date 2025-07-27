@@ -65,6 +65,22 @@ with DAG(
 
     # 3. Limpeza e normalização dos dados
     cleanse_lines = create_task("cleanse_lines", "cleanse_lines", IMAGE_URI, ENV_VARS)
+    cleanse_municipalities = create_task(
+        "cleanse_municipalities", "cleanse_municipalities", IMAGE_URI, ENV_VARS
+    )
+    cleanse_stops = create_task("cleanse_stops", "cleanse_stops", IMAGE_URI, ENV_VARS)
+    cleanse_routes = create_task(
+        "cleanse_routes", "cleanse_routes", IMAGE_URI, ENV_VARS
+    )
+    cleanse_gtfs_stops = create_task(
+        "cleanse_gtfs_stops", "cleanse_gtfs_stops", IMAGE_URI, ENV_VARS
+    )
+    cleanse_gtfs_stop_times = create_task(
+        "cleanse_gtfs_stop_times", "cleanse_gtfs_stop_times", IMAGE_URI, ENV_VARS
+    )
+    cleanse_gtfs_shapes = create_task(
+        "cleanse_gtfs_shapes", "cleanse_gtfs_shapes", IMAGE_URI, ENV_VARS
+    )
 
     # 4. Execução do dbt para transformação final dos dados
     dbt_run = create_dbt_run_task(IMAGE_URI, ENV_VARS)
@@ -79,6 +95,14 @@ with DAG(
             ingest_stops,
         ]
         >> ingest_gtfs
-        >> cleanse_lines
+        >> [
+            cleanse_lines,
+            cleanse_municipalities,
+            cleanse_stops,
+            cleanse_routes,
+            cleanse_gtfs_stops,
+        ]
+        >> cleanse_gtfs_stop_times
+        >> cleanse_gtfs_shapes
         >> dbt_run
     )
