@@ -13,9 +13,8 @@ Executada automaticamente a cada 4 horas, aos 12 minutos.
 from datetime import datetime, timedelta
 
 from airflow import DAG
-
-from .tasks.dbt_create_task import create_dbt_run_task
-from .tasks.generic_create_task import create_task
+from grupo_2.tasks.dbt_create_task import create_dbt_run_task
+from grupo_2.tasks.generic_create_task import create_task
 
 # Imagem Docker publicada com todos os pacotes necessários (Spark, DBT etc.)
 IMAGE_URI = "__IMAGE_PLACEHOLDER__"
