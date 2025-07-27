@@ -1,8 +1,26 @@
+"""
+Módulo responsável por criar operadores KubernetesPodOperator
+padronizados para execução de use-cases Python no Airflow.
+"""
+
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from kubernetes.client import V1ResourceRequirements
 
 
 def create_task(task_id, use_case, image, env_vars):
+    """
+    Cria uma task do Airflow baseada no KubernetesPodOperator para executar
+    um use-case Python com argumentos e recursos pré-definidos.
+
+    Args:
+        task_id (str): Identificador único da task no Airflow.
+        use_case (str): Nome do use-case a ser passado como argumento para a aplicação.
+        image (str): Imagem Docker que será usada no container.
+        env_vars (dict): Variáveis de ambiente a serem passadas para o container.
+
+    Returns:
+        KubernetesPodOperator: Instância configurada da task para uso na DAG.
+    """
     return KubernetesPodOperator(
         task_id=task_id,
         name=task_id.replace("_", "-"),

@@ -1,16 +1,32 @@
+"""
+Grupo 2: Pipeline principal de ingestão e transformação de dados da Carris Metropolitana.
+
+Esta DAG realiza a orquestração das seguintes etapas:
+1. Ingestão de múltiplas fontes (vehicles, municipalities, lines, routes, stops).
+2. Ingestão consolidada do pacote GTFS.
+3. Limpeza (cleanse) dos dados ingeridos.
+4. Execução do dbt para modelagem e transformação.
+
+Executada automaticamente a cada 4 horas, aos 12 minutos.
+"""
+
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from tasks.dbt_create_task import create_dbt_run_task
-from tasks.generic_create_task import create_task
 
+from .tasks.dbt_create_task import create_dbt_run_task
+from .tasks.generic_create_task import create_task
+
+# Imagem Docker publicada com todos os pacotes necessários (Spark, DBT etc.)
 IMAGE_URI = "__IMAGE_PLACEHOLDER__"
+
+# Variáveis de ambiente padrão para todas as tasks
 ENV_VARS = {
     "APP_ENV": "production",
     "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
 }
 
-# Parâmetros padrão para todas as tasks
+# Argumentos padrão usados por todas as tasks
 default_args = {
     "owner": "michelsilva",
     "depends_on_past": False,
@@ -22,19 +38,19 @@ default_args = {
     "start_date": datetime(2025, 7, 15),
 }
 
-# Definição da DAG
+# Instância da DAG
 with DAG(
     dag_id="grupo_2_pipeline",
     default_args=default_args,
-    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas às 12min
+    schedule_interval="12 */4 * * *",  # Executa a cada 4 horas, aos 12 minutos
     catchup=False,
     max_active_runs=1,
     concurrency=10,
-    description="Grupo 2: Pipeline principal.",
+    description="Grupo 2: Pipeline principal de ingestão e transformação da Carris Metropolitana.",
     tags=["pipeline", "grupo-2"],
 ) as dag:
 
-    # Tarefas de ingestão
+    # 1. Tarefas de ingestão de dados brutos por tipo
     ingest_vehicles = create_task(
         "ingest_vehicles", "ingest_vehicles", IMAGE_URI, ENV_VARS
     )
@@ -44,12 +60,17 @@ with DAG(
     ingest_lines = create_task("ingest_lines", "ingest_lines", IMAGE_URI, ENV_VARS)
     ingest_routes = create_task("ingest_routes", "ingest_routes", IMAGE_URI, ENV_VARS)
     ingest_stops = create_task("ingest_stops", "ingest_stops", IMAGE_URI, ENV_VARS)
+
+    # 2. Ingestão consolidada via GTFS
     ingest_gtfs = create_task("ingest_gtfs", "ingest_gtfs", IMAGE_URI, ENV_VARS)
 
-    # Tarefa de limpeza
+    # 3. Limpeza e normalização dos dados
     cleanse_lines = create_task("cleanse_lines", "cleanse_lines", IMAGE_URI, ENV_VARS)
+
+    # 4. Execução do dbt para transformação final dos dados
     dbt_run = create_dbt_run_task(IMAGE_URI, ENV_VARS)
 
+    # Encadeamento das tarefas
     (
         [
             ingest_vehicles,

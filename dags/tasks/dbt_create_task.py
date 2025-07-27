@@ -1,8 +1,24 @@
+"""
+Módulo responsável por criar uma task do Airflow para execução do comando `dbt run`
+dentro de um container Kubernetes no Composer.
+"""
+
 from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
 from kubernetes.client import V1ResourceRequirements
 
 
 def create_dbt_run_task(image, env_vars):
+    """
+    Cria uma task do Airflow baseada no KubernetesPodOperator para executar
+    o comando `dbt run` dentro de um container com imagem pré-configurada.
+
+    Args:
+        image (str): Imagem Docker contendo o dbt instalado.
+        env_vars (dict): Variáveis de ambiente, incluindo as credenciais GCP.
+
+    Returns:
+        KubernetesPodOperator: Task configurada para execução do dbt.
+    """
     return KubernetesPodOperator(
         task_id="dbt_run",
         name="dbt-run",
