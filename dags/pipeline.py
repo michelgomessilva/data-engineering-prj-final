@@ -1,10 +1,14 @@
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.contrib.operators.kubernetes_pod_operator import KubernetesPodOperator
-from kubernetes.client import V1ResourceRequirements
+from tasks.dbt_create_task import create_dbt_run_task
+from tasks.generic_create_task import create_task
 
 IMAGE_URI = "__IMAGE_PLACEHOLDER__"
+ENV_VARS = {
+    "APP_ENV": "production",
+    "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
+}
 
 # Parâmetros padrão para todas as tasks
 default_args = {
@@ -26,153 +30,25 @@ with DAG(
     catchup=False,
     max_active_runs=1,
     concurrency=10,
-    description="Grupo 2: Pipeline principal de ingestão Carris Metropolitana",
+    description="Grupo 2: Pipeline principal.",
     tags=["pipeline", "grupo-2"],
 ) as dag:
 
-    ingest_vehicles = KubernetesPodOperator(
-        task_id="ingest_vehicles",
-        name="ingest_vehicles",
-        namespace="default",
-        image=IMAGE_URI,
-        image_pull_policy="Always",
-        cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "ingest_vehicles"],
-        get_logs=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=False,
-        env_vars={
-            "APP_ENV": "production",
-            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
-        },
+    # Tarefas de ingestão
+    ingest_vehicles = create_task(
+        "ingest_vehicles", "ingest_vehicles", IMAGE_URI, ENV_VARS
     )
+    ingest_municipalities = create_task(
+        "ingest_municipalities", "ingest_municipalities", IMAGE_URI, ENV_VARS
+    )
+    ingest_lines = create_task("ingest_lines", "ingest_lines", IMAGE_URI, ENV_VARS)
+    ingest_routes = create_task("ingest_routes", "ingest_routes", IMAGE_URI, ENV_VARS)
+    ingest_stops = create_task("ingest_stops", "ingest_stops", IMAGE_URI, ENV_VARS)
+    ingest_gtfs = create_task("ingest_gtfs", "ingest_gtfs", IMAGE_URI, ENV_VARS)
 
-    ingest_municipalities = KubernetesPodOperator(
-        task_id="ingest_municipalities",
-        name="ingest_municipalities",
-        namespace="default",
-        image=IMAGE_URI,
-        image_pull_policy="Always",
-        cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "ingest_municipalities"],
-        get_logs=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=False,
-        env_vars={
-            "APP_ENV": "production",
-            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
-        },
-    )
-
-    ingest_lines = KubernetesPodOperator(
-        task_id="ingest_lines",
-        name="ingest_lines",
-        namespace="default",
-        image=IMAGE_URI,
-        image_pull_policy="Always",
-        cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "ingest_lines"],
-        get_logs=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=False,
-        env_vars={
-            "APP_ENV": "production",
-            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
-        },
-    )
-
-    ingest_routes = KubernetesPodOperator(
-        task_id="ingest_routes",
-        name="ingest_routes",
-        namespace="default",
-        image=IMAGE_URI,
-        image_pull_policy="Always",
-        cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "ingest_routes"],
-        get_logs=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=False,
-        env_vars={
-            "APP_ENV": "production",
-            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
-        },
-    )
-
-    ingest_stops = KubernetesPodOperator(
-        task_id="ingest_stops",
-        name="ingest_stops",
-        namespace="default",
-        image=IMAGE_URI,
-        image_pull_policy="Always",
-        cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "ingest_stops"],
-        get_logs=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=False,
-        env_vars={
-            "APP_ENV": "production",
-            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
-        },
-    )
-
-    ingest_gtfs = KubernetesPodOperator(
-        task_id="ingest_gtfs",
-        name="ingest-gtfs",
-        namespace="default",
-        image=IMAGE_URI,
-        image_pull_policy="Always",
-        cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "ingest_gtfs"],
-        get_logs=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=False,
-        env_vars={
-            "APP_ENV": "production",
-            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
-        },
-        container_resources=V1ResourceRequirements(
-            requests={"memory": "8Gi", "cpu": "4"},
-            limits={"memory": "16Gi", "cpu": "8"},
-        ),
-    )
-
-    cleanse_lines = KubernetesPodOperator(
-        task_id="cleanse_lines",
-        name="cleanse-lines",
-        namespace="default",
-        image=IMAGE_URI,
-        image_pull_policy="Always",
-        cmds=["python", "-m", "app.main"],
-        arguments=["--use-case", "cleanse_lines"],
-        get_logs=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=False,
-        env_vars={
-            "APP_ENV": "production",
-            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
-        },
-    )
-
-    dbt_run = KubernetesPodOperator(
-        task_id="dbt_run",
-        name="dbt-run",
-        namespace="default",
-        image=IMAGE_URI,
-        image_pull_policy="Always",
-        cmds=["dbt"],
-        arguments=["run", "--project-dir", "/app/dbt", "--profiles-dir", "/app/dbt"],
-        get_logs=True,
-        is_delete_operator_pod=True,
-        log_events_on_failure=False,
-        env_vars={
-            "APP_ENV": "production",
-            "GOOGLE_APPLICATION_CREDENTIALS": "/app/gcp-key.json",
-        },
-        container_resources=V1ResourceRequirements(
-            requests={"memory": "2Gi", "cpu": "1"},
-            limits={"memory": "4Gi", "cpu": "2"},
-        ),
-    )
+    # Tarefa de limpeza
+    cleanse_lines = create_task("cleanse_lines", "cleanse_lines", IMAGE_URI, ENV_VARS)
+    dbt_run = create_dbt_run_task(IMAGE_URI, ENV_VARS)
 
     (
         [
