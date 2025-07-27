@@ -98,3 +98,4 @@ jobs:
       - name: Upload da DAG para o Composer
         run: |
           gsutil cp dags/pipeline.py gs://${{ env.COMPOSER_BUCKET }}/dags/grupo_2/
+          gsutil -m cp -r dags/tasks gs://${{ env.COMPOSER_BUCKET }}/dags/grupo_2/
