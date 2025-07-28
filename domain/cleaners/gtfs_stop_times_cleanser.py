@@ -1,5 +1,6 @@
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, trim, upper
+from pyspark.sql.functions import col, row_number, trim, upper
+from pyspark.sql.window import Window
 
 from infrastructure.logging.logger import logger
 
@@ -22,29 +23,52 @@ def cleanse_gtfs_stop_times_df(spark: SparkSession, input_path: str) -> DataFram
     df = spark.read.parquet(input_path)
 
     logger.info("🧹 Limpando e padronizando colunas...")
-    cleansed_df = df.select(
+    # 1. Seleção e limpeza das colunas
+    cleaned_df = df.select(
         trim(col("stop_id")).alias("stop_id"),
-        upper(trim(col("stop_name"))).alias("stop_name"),
-        upper(trim(col("stop_name_new"))).alias("stop_name_new"),
-        upper(trim(col("stop_short_name"))).alias("stop_short_name"),
-        trim(col("stop_lat")).alias("latitude"),
-        trim(col("stop_lon")).alias("longitude"),
-        upper(trim(col("operational_status"))).alias("operational_status"),
-        trim(col("region_id")).alias("region_id"),
-        upper(trim(col("region_name"))).alias("region_name"),
-        trim(col("district_id")).alias("district_id"),
-        upper(trim(col("district_name"))).alias("district_name"),
-        trim(col("municipality_id")).alias("municipality_id"),
-        upper(trim(col("municipality_name"))).alias("municipality_name"),
-        upper(trim(col("locality"))).alias("localities"),
-        trim(col("stop_code")).alias("stop_code"),
-        upper(trim(col("tts_stop_name"))).alias("tts_stop_name"),
-        upper(trim(col("location_type"))).alias("location_type"),
-        upper(trim(col("near_hospital"))).alias("near_hospital"),
-        upper(trim(col("near_school"))).alias("near_school"),
+        upper(trim(col("trip_id"))).alias("trip_id"),
+        col("arrival_time"),
+        col("departure_time"),
+        col("drop_off_type"),
+        col("pickup_type"),
+        col("shape_dist_traveled"),
+        col("stop_sequence"),
+        col("timepoint"),
+        col(
+            "line_id"
+        ),  # possivelmente necessário para joins futuros, mas é preciso verificar
         col("ingestion_date"),
         col("partition_date"),
-    ).dropDuplicates(["stop_id"])
+    )
 
-    logger.success("✅ Cleansing do gtfs_stop_times concluído.")
+    logger.info(
+        "Após selecionar e limpar colunas, temos {} registros.".format(
+            cleaned_df.count()
+        )
+    )
+
+    # 2. Definição da janela para deduplicar
+    window_spec = Window.partitionBy("stop_id", "trip_id", "stop_sequence").orderBy(
+        col("ingestion_date").desc()
+    )
+
+    logger.info(
+        "Após definir a janela, temos {} partições.".format(window_spec.partitionBy)
+    )
+
+    # 3. Gera ranking por partição
+    ranked_df = cleaned_df.withColumn("row_num", row_number().over(window_spec))
+
+    logger.info("Após aplicar o ranking, temos {} registros.".format(ranked_df.count()))
+
+    # 4. Mantém apenas a primeira ocorrência (mais recente)
+    cleansed_df = ranked_df.filter(col("row_num") == 1).drop("row_num")
+
+    logger.info(
+        "Após filtrar por ocorrências únicas, temos {} registros.".format(
+            cleansed_df.count()
+        )
+    )
+
+    logger.success("✅ Cleansing do gtfs_stops concluído.")
     return cleansed_df
