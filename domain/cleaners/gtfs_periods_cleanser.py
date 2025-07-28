@@ -27,7 +27,7 @@ def cleanse_gtfs_periods_df(spark: SparkSession, input_path: str) -> DataFrame:
         upper(trim(col("period_name"))).alias("period_name"),
         col("ingestion_date"),
         col("partition_date"),
-    ).dropDuplicates(["trip_id", "route_id", "pattern_id", "shape_id", "service_id"])
+    ).dropDuplicates()
 
     logger.success("✅ Cleansing do gtfs_periods concluído.")
     return cleansed_df
