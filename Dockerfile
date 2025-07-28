@@ -29,6 +29,12 @@ COPY poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false && \
     poetry install --no-root --only main
 
+# Copia o projeto DBT para dentro da imagem
+COPY dbt/ /app/dbt/
+
+# Executa dbt deps para baixar os pacotes do packages.yml
+RUN dbt deps --project-dir /app/dbt
+
 # -------------------
 # Stage 2: Runtime
 # -------------------
