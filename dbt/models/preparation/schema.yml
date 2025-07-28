@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: stg_municipalities
+    config:
+      contract:
+        enforced: true
+    description: >
+      Dimension table about the municipalities where Carris Metropolitana has service.
+    columns:
+      - name: municipality_id
+        description: Unique identifier for municipality.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: municipality_name
+        description: Name of municipality.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_id
+        description: Unique identifier for district.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_name
+        description: Name of district.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_id
+        description: Unique identifier for region.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_name
+        description: Name of region.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_prefix
+        description: Prefix municipality.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
