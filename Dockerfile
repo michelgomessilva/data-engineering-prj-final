@@ -29,6 +29,12 @@ COPY poetry.lock pyproject.toml ./
 RUN poetry config virtualenvs.create false && \
     poetry install --no-root --only main
 
+# Copia o projeto DBT para dentro da imagem
+COPY dbt/ /app/dbt/
+
+# Executa dbt deps para baixar os pacotes do packages.yml
+RUN dbt deps --project-dir /app/dbt
+
 # -------------------
 # Stage 2: Runtime
 # -------------------
@@ -85,6 +91,8 @@ RUN mkdir -p /opt/spark/conf && \
 
 WORKDIR /app
 
+# Copia os pacotes dbt instalados
+COPY --from=builder /app/dbt/dbt_packages /app/dbt/dbt_packages
 # Copia dependências e código
 COPY --from=builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
 COPY --from=builder /usr/local/bin /usr/local/bin
