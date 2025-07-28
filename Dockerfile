@@ -91,6 +91,8 @@ RUN mkdir -p /opt/spark/conf && \
 
 WORKDIR /app
 
+# Copia os pacotes dbt instalados
+COPY --from=builder /app/dbt/dbt_packages /app/dbt/dbt_packages
 # Copia dependências e código
 COPY --from=builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
 COPY --from=builder /usr/local/bin /usr/local/bin
