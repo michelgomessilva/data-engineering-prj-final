@@ -16,7 +16,41 @@ env:
   DAG_PATH: dags/pipeline.py
 
 jobs:
+  run-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v3
+        with:
+          poetry-version: "1.8.2"
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests with coverage
+        run: |
+          poetry run pytest \
+            --cov=application \
+            --cov-report=term-missing \
+            --cov-report=html \
+            -v > test_output.log
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+
   build-and-push:
+    needs: run-tests
     runs-on: ubuntu-latest
     outputs:
       short_sha: ${{ steps.export.outputs.short_sha }}
