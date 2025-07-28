@@ -1,5 +1,4 @@
 
 select
 *
-from {{ source('carris', 'staging_gtfs_stops')}}
-where municipality_id is not null
+ from {{ explode_array(source('carris', 'staging_gtfs_stops'), 'routes', 'route')

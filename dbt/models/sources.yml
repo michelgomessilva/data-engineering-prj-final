@@ -22,7 +22,7 @@ sources:
             description: Unique identifier for each region.
           - name: region_name
             description: Name of region.
-      - name: stops
+      - name: staging_stops
         description: Information about the different stops. It also contains information about associated lines, routes and patterns that use each stop.
         columns:
           - name: stop_id
@@ -88,7 +88,7 @@ sources:
             description: List of route IDs for this line.
           - name: patterns
             description: List of pattern IDs for this line.
-      - name: gtfs_trips
+      - name: staging_gtfs_trips
         description: Information about the trips operated by Carris.
         columns:
           - name: trip_id
@@ -105,7 +105,7 @@ sources:
             description: ID of trip's shape.
           - name: trip_headsign
             description: Name of trip destination.
-      - name: dates
+      - name: staging_gtfs_dates
         description: Information about dates like week day and holiday.
         columns:
           - name: date
@@ -118,7 +118,7 @@ sources:
             description: Description in case of date is an holiday.
           - name: period
             description: Type of period of service.
-      - name: calendar_dates
+      - name: staging_gtfs_calendar_dates
         description: Information about calendar dates for a service.
         columns:
           - name: service_id
@@ -133,14 +133,14 @@ sources:
             description: Indicate if service date is an holiday.
           - name: period
             description: Type of period of service.
-      - name: period
+      - name: staging_gtfs_period
         description: Information about period for a service.
         columns:
           - name: period_id
             description: Unique identifier of different periods that a service can have.
           - name: period_name
             description: Description of period name.
-      - name: gtfs_stop_times
+      - name: staging_gtfs_stop_times
         description: Information about the schedule of all the lines in each stop.
         columns:
           - name: line
@@ -163,7 +163,7 @@ sources:
             description: Type of pickup.
           - name: timepoint
             description: Identifies the start and end of the trip.
-      - name: gtfs_stops
+      - name: staging_gtfs_stops
         description: Information about the different stops from gtfs file.
         columns:
           - name: stop_id
@@ -174,15 +174,13 @@ sources:
             description: New stop name.
           - name: stop_short_name
             description: Short stop name.
-          - name: areas
-            description: Dimension of the stop.
           - name: operational_status
-            description: Status of the stop (Active).
+            description: Status of the stop.
           - name: latitude
             description: Latitude of the stop.
           - name: longitude
             description: Longitude of the stop.
-          - name: locality
+          - name: localities
             description: Locality name of stop.
           - name: municipality_id
             description: Municipality ID.
@@ -234,7 +232,7 @@ sources:
             description: Identify if stop is near by bike sharing
           - name: car_parking
             description: Identify if stop is near by car parking
-      - name: gtfs_shapes
+      - name: staging_gtfs_shapes
         description: Information about the physical path of a transit route.
         columns:
           - name: shape_id
@@ -247,15 +245,21 @@ sources:
             description: Latitude point of the shape.
           - name: shape_pt_lon
             description: Longitude point of the shape.
-      - name: routes
+      - name: staging_routes
         description: Information about different routes of a line.
         columns:
           - name: route_id
             description: Unique identifier of route.
           - name: line_id
             description: Line id of route.
-          - name: long_name
+          - name: route_code
+            description: Route code.
+          - name: route_name
             description: Full route name (origin - destination).
+          - name: color
+            description: Color of route.
+          - name: text_color
+            description: Text color of route.
           - name: localities
             description: List of locality names the route passes through.
           - name: municipalities

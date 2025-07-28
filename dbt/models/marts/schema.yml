@@ -96,7 +96,7 @@ models:
         data_tests:
           - not_null
 
-  - name: dim_municipalities
+  - name: dim_stops
     config:
       contract:
         enforced: true
