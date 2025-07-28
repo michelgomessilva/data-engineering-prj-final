@@ -1,0 +1,268 @@
+version: 2
+
+sources:
+  - name: carris
+    database: "{{ target.database }}"
+    schema: applied_project_staging_grupo_2
+    tables:
+      - name: staging_municipalities
+        description: Information about municipalities in the Lisbon metropolitan area, as well as adjacent municipalities where Carris Metropolitana also has service.
+        columns:
+          - name: district_id
+            description: Unique identifier for each district.
+          - name: district_name
+            description: Name of district.
+          - name: municipality_id
+            description: Unique identifier for each municipality.
+          - name: municipality_name
+            description: Name of municipality.
+          - name: prefix
+            description: Prefix id of municipality.
+          - name: region_id
+            description: Unique identifier for each region.
+          - name: region_name
+            description: Name of region.
+      - name: staging_stops
+        description: Information about the different stops. It also contains information about associated lines, routes and patterns that use each stop.
+        columns:
+          - name: stop_id
+            description: Unique identifier for each stop.
+          - name: stop_name
+            description: Full stop name.
+          - name: short_name
+            description: Short name for the stop.
+          - name: operational_status
+            description: Status of the stop (Active/Inactive).
+          - name: tts_name
+            description: Text-to-speech friendly name.
+          - name: latitude
+            description: Latitude of the stop.
+          - name: longitude
+            description: Longitude of the stop.
+          - name: locality
+            description: Locality name of stop.
+          - name: parish_id
+            description: Parish ID (nullable).
+          - name: parish_name
+            description: Parish name (nullable).
+          - name: municipality_id
+            description: Municipality ID.
+          - name: municipality_name
+            description: Municipality name.
+          - name: district_id
+            description: District ID.
+          - name: district_name
+            description: District name.
+          - name: region_id
+            description: Region ID.
+          - name: region_name
+            description: Region name.
+          - name: wheelchair_boarding
+            description: Whether wheelchair boarding is supported.
+          - name: facilities
+            description: List of facilities available at the stop (example school).
+          - name: lines
+            description: List of line id that stop here.
+          - name: routes
+            description: List of route IDs associated with this stop.
+          - name: patterns
+            description: List of pattern IDs associated with this stop.
+      - name: staging_lines
+        description: Information about the lines operated by Carris. Each line can have several routes and patterns, and serves a set of municipalities and localities.
+        columns:
+          - name: line_id
+            description: Unique line identifier.
+          - name: short_name
+            description: Short public-facing line number (same as line_id).
+          - name: long_name
+            description: Full line name (origin - destination).
+          - name: color
+            description: Line color in HEX format.
+          - name: facilities
+            description: List of facilities associated with the line (empty in this case).
+          - name: localities
+            description: List of locality names the line passes through.
+          - name: municipalities
+            description: List of municipality IDs this line passes through.
+          - name: routes
+            description: List of route IDs for this line.
+          - name: patterns
+            description: List of pattern IDs for this line.
+      - name: staging_gtfs_trips
+        description: Information about the trips operated by Carris.
+        columns:
+          - name: trip_id
+            description: Unique identifier for each trip. This id corresponds to (route_id + schedule_time + service_id)
+          - name: route_id
+            description: ID of trip's route.
+          - name: pattern_id
+            description: ID of trip's pattern.
+          - name: direction_id
+            description: ID of trip's direction.
+          - name: service_id
+            description: ID of trip's service.
+          - name: shape_id
+            description: ID of trip's shape.
+          - name: trip_headsign
+            description: Name of trip destination.
+      - name: staging_gtfs_dates
+        description: Information about dates like week day and holiday.
+        columns:
+          - name: date
+            description: Date of calendar.
+          - name: day_type
+            description: Identifier of type day of service date (1 - week day , 2-saturday , 3-sunday).
+          - name: holiday
+            description: Indicate if service date is an holiday.
+          - name: notes
+            description: Description in case of date is an holiday.
+          - name: period
+            description: Type of period of service.
+      - name: staging_gtfs_calendar_dates
+        description: Information about calendar dates for a service.
+        columns:
+          - name: service_id
+            description: Unique identifier of a service.
+          - name: date
+            description: Date of the service.
+          - name: day_type
+            description: Identifier of type day of service date (1 - week day , 2-saturday , 3-sunday).
+          - name: exception_type
+            description: Type of exception of service.
+          - name: holiday
+            description: Indicate if service date is an holiday.
+          - name: period
+            description: Type of period of service.
+      - name: staging_gtfs_period
+        description: Information about period for a service.
+        columns:
+          - name: period_id
+            description: Unique identifier of different periods that a service can have.
+          - name: period_name
+            description: Description of period name.
+      - name: staging_gtfs_stop_times
+        description: Information about the schedule of all the lines in each stop.
+        columns:
+          - name: line
+            description: Identifier of the line.
+          - name: trip_id
+            description: Identifier of the trip.
+          - name: stop_id
+            description: Identifier of the stop.
+          - name: stop_sequence
+            description: Sequence number of stop for a line.
+          - name: arrival_time
+            description: Time schedule for trip_id arrive in stop.
+          - name: departure_time
+            description: Time schedule for trip_id departure in stop.
+          - name: shape_dist_traveled
+            description: Total distance traveled from first stop of a trip to current stop.
+          - name: drop_off_type
+            description: Type of drop off.
+          - name: pickup_type
+            description: Type of pickup.
+          - name: timepoint
+            description: Identifies the start and end of the trip.
+      - name: staging_gtfs_stops
+        description: Information about the different stops from gtfs file.
+        columns:
+          - name: stop_id
+            description: Unique identifier for each stop.
+          - name: stop_name
+            description: Full stop name.
+          - name: stop_name_new
+            description: New stop name.
+          - name: stop_short_name
+            description: Short stop name.
+          - name: operational_status
+            description: Status of the stop.
+          - name: latitude
+            description: Latitude of the stop.
+          - name: longitude
+            description: Longitude of the stop.
+          - name: localities
+            description: Locality name of stop.
+          - name: municipality_id
+            description: Municipality ID.
+          - name: municipality_name
+            description: Municipality name.
+          - name: district_id
+            description: District ID.
+          - name: district_name
+            description: District name.
+          - name: region_id
+            description: Region ID.
+          - name: region_name
+            description: Region name.
+          - name: wheelchair_boarding
+            description: Whether wheelchair boarding is supported.
+          - name: near_health_clinic
+            description: Identify if stop is near by health clinic
+          - name: near_hospital
+            description: Identify if stop is near by hospital
+          - name: near_university
+            description: Identify if stop is near by university
+          - name: near_school
+            description: Identify if stop is near by school
+          - name: near_police_station
+            description: Identify if stop is near by police station
+          - name: near_fire_station
+            description: Identify if stop is near by fire station
+          - name: near_shopping
+            description: Identify if stop is near by shopping
+          - name: near_historic_building
+            description: Identify if stop is near by historic building
+          - name: near_transit_office
+            description: Identify if stop is near by transit office
+          - name: near_beach
+            description: Identify if stop is near by beach
+          - name: subway
+            description: Identify if stop has connection with subway
+          - name: light_rail
+            description: Identify if stop has connection with light rail
+          - name: train
+            description: Identify if stop has connection with train
+          - name: boat
+            description: Identify if stop has connection with boat
+          - name: airport
+            description: Identify if stop is near by airport
+          - name: bike_sharing
+            description: Identify if stop has connection with bike sharing
+          - name: bike_parking
+            description: Identify if stop is near by bike sharing
+          - name: car_parking
+            description: Identify if stop is near by car parking
+      - name: staging_gtfs_shapes
+        description: Information about the physical path of a transit route.
+        columns:
+          - name: shape_id
+            description: Unique identifier of shape. (pattern_id + service_id)
+          - name: shape_dist_traveled
+            description: Total distance covered of the shape measured in km?.
+          - name: shape_sequence
+            description: Sequence number of shape.
+          - name: shape_pt_lat
+            description: Latitude point of the shape.
+          - name: shape_pt_lon
+            description: Longitude point of the shape.
+      - name: staging_routes
+        description: Information about different routes of a line.
+        columns:
+          - name: route_id
+            description: Unique identifier of route.
+          - name: line_id
+            description: Line id of route.
+          - name: route_code
+            description: Route code.
+          - name: route_name
+            description: Full route name (origin - destination).
+          - name: color
+            description: Color of route.
+          - name: text_color
+            description: Text color of route.
+          - name: localities
+            description: List of locality names the route passes through.
+          - name: municipalities
+            description: List of municipality IDs this route passes through.
+          - name: patterns
+            description: List of patterns IDs for this route.
