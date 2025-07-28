@@ -1,5 +1,5 @@
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, row_number, trim, upper
+from pyspark.sql.functions import col, row_number, split, substring, trim, upper
 from pyspark.sql.window import Window
 
 from infrastructure.logging.logger import logger
@@ -34,9 +34,8 @@ def cleanse_gtfs_stop_times_df(spark: SparkSession, input_path: str) -> DataFram
         col("shape_dist_traveled"),
         col("stop_sequence"),
         col("timepoint"),
-        col(
-            "line_id"
-        ),  # possivelmente necessário para joins futuros, mas é preciso verificar
+        substring(upper(trim(col("trip_id"))), 1, 4).alias("line_id"),
+        split(upper(trim(col("trip_id"))), "_|\\|").alias("trip_id_parts"),
         col("ingestion_date"),
         col("partition_date"),
     )
