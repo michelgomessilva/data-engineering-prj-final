@@ -22,6 +22,10 @@ sources:
             description: Unique identifier for each region.
           - name: region_name
             description: Name of region.
+          - name: ingestion_date
+            description: Date when the data was ingested.
+          - name: partition_date
+            description: Partition date.
       - name: staging_stops
         description: Information about the different stops. It also contains information about associated lines, routes and patterns that use each stop.
         columns:
@@ -88,6 +92,10 @@ sources:
             description: List of route IDs for this line.
           - name: patterns
             description: List of pattern IDs for this line.
+          - name: ingestion_date
+            description: Date when the data was ingested.
+          - name: partition_date
+            description: Partition date.
       - name: staging_gtfs_trips
         description: Information about the trips operated by Carris.
         columns:
@@ -105,6 +113,10 @@ sources:
             description: ID of trip's shape.
           - name: trip_headsign
             description: Name of trip destination.
+          - name: ingestion_date
+            description: Date when the data was ingested.
+          - name: partition_date
+            description: Partition date.
       - name: staging_gtfs_dates
         description: Information about dates like week day and holiday.
         columns:
@@ -118,6 +130,10 @@ sources:
             description: Description in case of date is an holiday.
           - name: period
             description: Type of period of service.
+          - name: ingestion_date
+            description: Date when the data was ingested.
+          - name: partition_date
+            description: Partition date.
       - name: staging_gtfs_calendar_dates
         description: Information about calendar dates for a service.
         columns:
@@ -133,6 +149,10 @@ sources:
             description: Indicate if service date is an holiday.
           - name: period
             description: Type of period of service.
+          - name: ingestion_date
+            description: Date when the data was ingested.
+          - name: partition_date
+            description: Partition date.
       - name: staging_gtfs_period
         description: Information about period for a service.
         columns:
@@ -140,11 +160,19 @@ sources:
             description: Unique identifier of different periods that a service can have.
           - name: period_name
             description: Description of period name.
+          - name: ingestion_date
+            description: Date when the data was ingested.
+          - name: partition_date
+            description: Partition date.
       - name: staging_gtfs_stop_times
         description: Information about the schedule of all the lines in each stop.
         columns:
-          - name: line
+          - name: line_id
             description: Identifier of the line.
+          - name: route_id
+            description: Identifier of the route.
+          - name: service_id
+            description: Identifier of the service.
           - name: trip_id
             description: Identifier of the trip.
           - name: stop_id
@@ -163,6 +191,10 @@ sources:
             description: Type of pickup.
           - name: timepoint
             description: Identifies the start and end of the trip.
+          - name: ingestion_date
+            description: Date when the data was ingested.
+          - name: partition_date
+            description: Partition date.
       - name: staging_gtfs_stops
         description: Information about the different stops from gtfs file.
         columns:

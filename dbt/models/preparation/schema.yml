@@ -49,6 +49,11 @@ models:
         data_type: date
         data_tests:
           - not_null
+#      - name: partition_date
+#        description: Date when the data was partitioned.
+#        data_type: date
+#        data_tests:
+#          - not_null
 
   - name: stg_gtfs_stops
     config:

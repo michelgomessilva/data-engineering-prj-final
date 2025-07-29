@@ -84,25 +84,36 @@ models:
     description: >
       Dimension table about the lines of carris service.
     columns:
-      - name: line_id
-        description: Unique identifier for line.
+      - name: route_id
+        description: Unique identifier for route.
         data_type: string
         data_tests:
           - not_null
           - unique
+      - name: line_id
+        description: ID of route's line.
+        data_type: string
+        data_tests:
+          - not_null
       - name: line_name
         description: Name of line.
         data_type: string
         data_tests:
           - not_null
 
-  - name: dim_stops
+  - name: dim_municipalities
     config:
       contract:
         enforced: true
     description: >
       Dimension table about the municipalities where Carris Metropolitana has service.
     columns:
+      - name: municipality_key
+        description: Unique identifier for municipality.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
       - name: municipality_id
         description: Unique identifier for municipality.
         data_type: string
