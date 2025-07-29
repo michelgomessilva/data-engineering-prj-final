@@ -61,14 +61,20 @@ def cleanse_gtfs_stop_times_df(spark: SparkSession, input_path: str) -> DataFram
             """
             CASE
                 WHEN trip_id LIKE '%|%' THEN
-                    concat(
-                        split(
-                            split(trip_id, '\\|')[1], '\\|')[0],
-                                split(split(trip_id, '\\|')[2], '\\|')[0], '_',
-                                split(trip_id, '\\|')[3])
+                    concat_ws('_',
+                        slice(
+                            split(translate(trip_id, '|', '_'), '_'),
+                            -2,
+                            2
+                        )
+                    )
                 ELSE
                     concat_ws('_',
-                        slice(split(trip_id, '_'), -3, 3)
+                        slice(
+                            split(trip_id, '_'),
+                            -3,
+                            3
+                        )
                     )
             END
         """
