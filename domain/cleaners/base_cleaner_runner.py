@@ -52,7 +52,13 @@ class BaseCleanseRunner:
 
             dataset = Settings.get_bq_dataset()
             logger.info(f"Gravando dados limpos no BigQuery: {dataset}.{self.bq_table}")
-            write_to_bigquery(df_clean, dataset, self.bq_table)
+            write_to_bigquery(
+                df_clean,
+                dataset,
+                self.bq_table,
+                mode="append",
+                partition_field="partition_date",
+            )
 
             logger.success(
                 f"Cleansing e carga da entidade '{self.entity_name}' concluídos com sucesso!"

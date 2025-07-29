@@ -1,5 +1,5 @@
 from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql.functions import col, row_number, split, substring, trim, upper
+from pyspark.sql.functions import col, expr, row_number, substring, trim, upper
 from pyspark.sql.window import Window
 
 from infrastructure.logging.logger import logger
@@ -10,7 +10,8 @@ def cleanse_gtfs_stop_times_df(spark: SparkSession, input_path: str) -> DataFram
     Realiza o cleansing do dataset gtfs_stop_times a partir dos dados raw em Parquet.
 
     Aplica limpeza nas colunas principais, removendo espaços e aplicando
-    formatação consistente (ex: UPPERCASE para nomes).
+    formatação consistente (ex: UPPERCASE para nomes). Também gera colunas
+    line_id, route_id e service_id a partir de trip_id.
 
     Args:
         spark (SparkSession): Sessão Spark ativa.
@@ -23,7 +24,6 @@ def cleanse_gtfs_stop_times_df(spark: SparkSession, input_path: str) -> DataFram
     df = spark.read.parquet(input_path)
 
     logger.info("🧹 Limpando e padronizando colunas...")
-    # 1. Seleção e limpeza das colunas
     cleaned_df = df.select(
         trim(col("stop_id")).alias("stop_id"),
         upper(trim(col("trip_id"))).alias("trip_id"),
@@ -34,8 +34,6 @@ def cleanse_gtfs_stop_times_df(spark: SparkSession, input_path: str) -> DataFram
         col("shape_dist_traveled"),
         col("stop_sequence"),
         col("timepoint"),
-        substring(upper(trim(col("trip_id"))), 1, 4).alias("line_id"),
-        split(upper(trim(col("trip_id"))), "_|\\|").alias("trip_id_parts"),
         col("ingestion_date"),
         col("partition_date"),
     )
@@ -46,28 +44,47 @@ def cleanse_gtfs_stop_times_df(spark: SparkSession, input_path: str) -> DataFram
         )
     )
 
-    # 2. Definição da janela para deduplicar
+    # Adiciona line_id (4 primeiros caracteres)
+    cleaned_df = cleaned_df.withColumn("line_id", substring("trip_id", 1, 4)).alias(
+        "line_id"
+    )
+
+    # Adiciona route_id (line_id + "_" + primeiro dígito após o primeiro "_")
+    cleaned_df = cleaned_df.withColumn(
+        "route_id", expr("concat(substring(trip_id, 1, 5), split(trip_id, '_')[1])")
+    ).alias("route_id")
+
+    # Adiciona service_id (regra condicional com pipe ou underscores)
+    cleaned_df = cleaned_df.withColumn(
+        "service_id",
+        expr(
+            """
+            CASE
+                WHEN trip_id LIKE '%|%' THEN
+                    concat(
+                        split(
+                            split(trip_id, '\\|')[1], '\\|')[0],
+                                split(split(trip_id, '\\|')[2], '\\|')[0], '_',
+                                split(trip_id, '\\|')[3])
+                ELSE
+                    concat_ws('_',
+                        slice(split(trip_id, '_'), -3, 3)
+                    )
+            END
+        """
+        ),
+    ).alias("service_id")
+
+    # Deduplicação por janela
     window_spec = Window.partitionBy("stop_id", "trip_id", "stop_sequence").orderBy(
         col("ingestion_date").desc()
     )
 
-    logger.info(
-        "Após definir a janela, temos {} partições.".format(window_spec.partitionBy)
-    )
-
-    # 3. Gera ranking por partição
     ranked_df = cleaned_df.withColumn("row_num", row_number().over(window_spec))
 
-    logger.info("Após aplicar o ranking, temos {} registros.".format(ranked_df.count()))
-
-    # 4. Mantém apenas a primeira ocorrência (mais recente)
     cleansed_df = ranked_df.filter(col("row_num") == 1).drop("row_num")
 
-    logger.info(
-        "Após filtrar por ocorrências únicas, temos {} registros.".format(
-            cleansed_df.count()
-        )
+    logger.success(
+        "✅ Cleansing do gtfs_stop_times concluído com line_id, route_id e service_id."
     )
-
-    logger.success("✅ Cleansing do gtfs_stops concluído.")
     return cleansed_df
