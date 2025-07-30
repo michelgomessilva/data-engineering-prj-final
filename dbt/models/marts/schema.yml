@@ -109,7 +109,7 @@ models:
       Dimension table about the municipalities where Carris Metropolitana has service.
     columns:
       - name: municipality_key
-        description: Unique identifier for municipality.
+        description: Surrogate key for the municipality, generated from business keys.
         data_type: string
         data_tests:
           - not_null
@@ -150,6 +150,212 @@ models:
         data_type: string
         data_tests:
           - not_null
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
+
+  - name: dim_stops
+    config:
+      contract:
+        enforced: true
+    description: >
+      Dimension table for stops with enriched location and metadata
+    columns:
+      - name: stop_key
+        description: Surrogate key for the stop, generated from business keys.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: stop_id
+        description: Unique identifier for the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: name
+        description: Full name of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: short_name
+        description: Short name of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_id
+        description: ID of the district the stop belongs to
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_id
+        description: ID of the municipality the stop belongs to
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_id
+        description: ID of the region the stop belongs to
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_name
+        description: Name of the district
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_name
+        description: Name of the municipality
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_name
+        description: Name of the region
+        data_type: string
+        data_tests:
+          - not_null
+      - name: latitude
+        description: Latitude coordinate of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: longitude
+        description: Longitude coordinate of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: localities
+        description: List or description of localities around the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: status
+        description: Operational status of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: tts_stop_name
+        description: Text-to-speech version of the stop name
+        data_type: string
+        data_tests:
+          - not_null
+      - name: near_hospital
+        description: Boolean indicating if the stop is near a hospital
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - true
+                - false
+      - name: near_school
+        description: Boolean indicating if the stop is near a school
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - true
+                - false
+      - name: ingestion_date
+        description: Date when the stop data was ingested
+        data_type: date
+        data_tests:
+          - not_null
+
+  - name: dim_date
+    config:
+      contract:
+        enforced: true
+    description: >
+      Dimension table for stops with enriched period and metadata
+    columns:
+      - name: date_key
+        description: Surrogate key for date.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: date_day
+        description: Date parsed from string.
+        data_type: date
+        data_tests:
+          - not_null
+          - unique
+      - name: day
+        description: Day of the month extracted from the date.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: month
+        description: Month extracted from the date.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: year
+        description: Year extracted from the date.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: week_day
+        description: Numeric day of the week (1=Sunday, 7=Saturday).
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: day_type
+        description: Numeric indicator of the day type (1=weekday, 2=Saturday, 3=Sunday/holiday).
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - '1'
+                - '2'
+                - '3'
+      - name: day_type_description
+        description: Label for day type (Dia útil, Sábado, Domingo/Feriado).
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'Dia útil'
+                - 'Sábado'
+                - 'Domingo/Feriado'
+      - name: is_holiday
+        description: Boolean indicating if the date is a holiday.
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - true
+                - false
+      - name: type_holiday
+        description: Type or name of the holiday, or 'N/A' if not a holiday.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: period_type
+        description: Numeric indicator of period type from stg_period table.
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - '1'
+                - '2'
+                - '3'
+      - name: period_description
+        description: Description of the period from stg_period table.
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'PERÍODO ESCOLAR'
+                - 'FÉRIAS ESCOLARES'
+                - 'VERÃO'
       - name: ingestion_date
         description: Date when the data was ingested.
         data_type: date
