@@ -12,7 +12,15 @@ SAFE.PARSE_TIME('%H:%M:%S',departure_time) AS departure_time,
 drop_off_type,
 pickup_type,
 shape_dist_traveled as distance,
-stop_sequence,
+CAST(stop_sequence AS INT64) as stop_sequence,
+TIME_DIFF(
+    SAFE.PARSE_TIME('%H:%M:%S', arrival_time),
+    LAG(SAFE.PARSE_TIME('%H:%M:%S', arrival_time)) OVER (
+      PARTITION BY trip_id
+      ORDER BY CAST(stop_sequence AS INT64)
+    ),
+    MINUTE
+  ) AS duration_minutes,
 timepoint,
 line_id,
 route_id,

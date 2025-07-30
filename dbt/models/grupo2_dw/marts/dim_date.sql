@@ -3,7 +3,6 @@
     materialized='table'
 ) }}
 
-{% set surrogate_key_columns = ["date_day"] %}
 
 with
     dates as (
@@ -12,8 +11,7 @@ with
 
    final as (
         select
-            {{ dbt_utils.generate_surrogate_key(surrogate_key_columns) }}
-            as date_key,
+            sk_date as date_key,
             dates.date_day,
             dates.day,
             dates.month,

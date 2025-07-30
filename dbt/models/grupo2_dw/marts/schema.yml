@@ -208,7 +208,7 @@ models:
     columns:
       - name: date_key
         description: Surrogate key for date.
-        data_type: string
+        data_type: INT64
         data_tests:
           - not_null
           - unique
@@ -292,6 +292,75 @@ models:
                 - 'PERÍODO ESCOLAR'
                 - 'FÉRIAS ESCOLARES'
                 - 'VERÃO'
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
+
+  - name: fact_trips
+    config:
+      contract:
+        enforced: true
+    description: >
+      Fact table with information about trips.
+    columns:
+      - name: trip_key
+        description: Surrogate key generated from trip_id.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: trip_id
+        description: Unique identifier for trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: stop_id
+        description: Unique identifier for stop.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: stop_sequence
+        description: Sequence number of stop for a route.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: route_id
+        description: Unique identifier for route.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: line_name
+        description: Name of line.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: is_peak
+        description: Indicates whether the trip occurs during peak hours.
+        data_type: boolean
+        data_tests:
+          - not_null
+      - name: trip_date
+        description: Calendar date of a service trip.
+        data_type: date
+        data_tests:
+          - not_null
+      - name: total_trip_distance
+        description: Total distance covered by the trip.
+        data_type: FLOAT64
+        data_tests:
+          - not_null
+      - name: total_trip_duration
+        description: Total trip duration in minutes.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: service_id
+        description: Identifier of the service.
+        data_type: string
+        data_tests:
+          - not_null
       - name: ingestion_date
         description: Date when the data was ingested.
         data_type: date

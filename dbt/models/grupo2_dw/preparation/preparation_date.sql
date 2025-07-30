@@ -6,6 +6,7 @@
 with
 preparation_date as (
 select
+date,
 SAFE.PARSE_DATE('%Y%m%d', date) as date_day,
 day_type,
 holiday,
@@ -22,6 +23,7 @@ from {{ source('carris', 'staging_gtfs_periods') }}
 )
 
 select
+CAST(date AS INT64) AS sk_date,
 date_day,
 EXTRACT(DAY FROM date_day) AS day,
 EXTRACT(MONTH FROM date_day) AS month,

@@ -186,7 +186,12 @@ models:
         data_type: string
       - name: stop_sequence
         description: Sequence number of stop for a line.
-        data_type: string
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: duration_minutes
+        description: Difference time between previous stop and current stop in minutes.
+        data_type: INT64
         data_tests:
           - not_null
       - name: timepoint
@@ -221,6 +226,11 @@ models:
     description: >
       Staging table with information about dates
     columns:
+      - name: sk_date
+        description: Surrogate key generated from date.
+        data_type: INT64
+        data_tests:
+          - not_null
       - name: date_day
         description: Date parsed from string.
         data_type: date
