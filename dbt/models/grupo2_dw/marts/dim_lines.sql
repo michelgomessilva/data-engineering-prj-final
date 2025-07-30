@@ -1,8 +1,13 @@
+{{ config(
+    schema='mart_grupo_2',
+    materialized='table'
+) }}
+
 {% set surrogate_key_columns = ["route_id"] %}
 
 with
     routes as (
-        select * from {{ ref("stg_routes") }}
+        select * from {{ ref("preparation_routes") }}
     ),
 
    final as (

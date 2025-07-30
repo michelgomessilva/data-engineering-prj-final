@@ -1,8 +1,13 @@
+{{ config(
+    schema='mart_grupo_2',
+    materialized='table'
+) }}
+
 {% set surrogate_key_columns = ["date_day"] %}
 
 with
     dates as (
-       select * from {{ ref("stg_date") }}
+       select * from {{ ref("preparation_date") }}
     ),
 
    final as (

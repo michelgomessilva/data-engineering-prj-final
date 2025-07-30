@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: stg_municipalities
+  - name: preparation_municipalities
     config:
       contract:
         enforced: true
@@ -55,7 +55,7 @@ models:
 #        data_tests:
 #          - not_null
 
-  - name: stg_gtfs_stops
+  - name: preparation_gtfs_stops
     config:
       contract:
         enforced: true
@@ -139,7 +139,7 @@ models:
         data_tests:
           - not_null
 
-  - name: stg_gtfs_stop_times
+  - name: preparation_gtfs_stop_times
     config:
       contract:
         enforced: true
@@ -214,7 +214,7 @@ models:
         data_type: date
         data_tests:
           - not_null
-  - name: stg_date
+  - name: preparation_date
     config:
       contract:
         enforced: true
@@ -282,7 +282,7 @@ models:
         data_tests:
           - not_null
       - name: period_type
-        description: Numeric indicator of period type from stg_period table.
+        description: Numeric indicator of period type from preparation_period table.
         data_type: string
         data_tests:
           - not_null
@@ -292,7 +292,7 @@ models:
                 - '2'
                 - '3'
       - name: period_description
-        description: Description of the period from stg_period table.
+        description: Description of the period from preparation_period table.
         data_type: string
         data_tests:
           - not_null
@@ -307,7 +307,7 @@ models:
         data_tests:
           - not_null
 
-  - name: stg_trips
+  - name: preparation_trips
     config:
       contract:
         enforced: true
@@ -361,7 +361,7 @@ models:
         data_tests:
           - not_null
 
-  - name: stg_routes
+  - name: preparation_routes
     config:
       contract:
         enforced: true
@@ -404,7 +404,7 @@ models:
         data_tests:
           - not_null
 
-  - name: stg_calendar_dates
+  - name: preparation_calendar_dates
     config:
       contract:
         enforced: true
@@ -447,7 +447,7 @@ models:
                 - true
                 - false
       - name: period_type
-        description: Numeric indicator of period type from stg_period table.
+        description: Numeric indicator of period type from preparation_period table.
         data_type: string
         data_tests:
           - not_null
@@ -457,7 +457,7 @@ models:
                 - '2'
                 - '3'
       - name: period_description
-        description: Description of the period from stg_period table.
+        description: Description of the period from preparation_period table.
         data_type: string
         data_tests:
           - not_null

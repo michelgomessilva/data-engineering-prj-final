@@ -1,8 +1,13 @@
+{{ config(
+    schema='mart_grupo_2',
+    materialized='table'
+) }}
+
 {% set surrogate_key_columns = ["municipality_id"] %}
 
 with
     municipalities as (
-        select * from {{ ref("stg_municipalities") }}
+        select * from {{ ref("preparation_municipalities") }}
     ),
 
    final as (

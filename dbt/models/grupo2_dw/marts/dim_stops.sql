@@ -1,8 +1,13 @@
+{{ config(
+    schema='mart_grupo_2',
+    materialized='table'
+) }}
+
 {% set surrogate_key_columns = ["stop_id"] %}
 
 with
     stops as (
-       select * from {{ ref("stg_gtfs_stops") }}
+       select * from {{ ref("preparation_gtfs_stops") }}
     ),
 
    final as (

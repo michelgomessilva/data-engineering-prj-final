@@ -1,11 +1,11 @@
-dbt:
+grupo2_dw:
   target: dev
   outputs:
     dev:
       type: bigquery
       method: service-account
       project: data-eng-dev-437916              # <- Project ID
-      dataset: applied_project_mart_grupo_2     # <- Dataset/schema
+      dataset: applied_project     # <- Dataset/schema
       location: europe-west1
       threads: 4
       timeout_seconds: 300

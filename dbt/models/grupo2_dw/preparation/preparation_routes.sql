@@ -1,3 +1,7 @@
+{{ config(
+    schema='preparation_grupo_2',
+    materialized='view'
+) }}
 
 select
 route_id,
