@@ -48,13 +48,18 @@ with
         from {{ ref("preparation_calendar_dates") }}
     ),
 
+    dim_date as (
+        select sk_date, date_day
+        from {{ ref("dim_date") }}
+    ),
+
     final as (
         select
             {{ dbt_utils.generate_surrogate_key(surrogate_key_columns) }} as trip_key,
             stop_times.stop_id as sk_stop,
             trips.sk_line,
             trips.line_id,
-            calendar_dates.calendar_date as trip_date,
+            dim_date.sk_date as trip_date,
             stop_times.departure_time,
             stop_times.arrival_time,
             stop_times.is_peak as is_peak_time,
@@ -72,15 +77,15 @@ with
                 coalesce(cast(stop_times.departure_time as string), ''), '||',
                 coalesce(cast(stop_times.arrival_time as string), ''), '||',
                 coalesce(cast(stop_times.is_peak as string), ''), '||',
-                coalesce(cast(calendar_dates.calendar_date as string), ''), '||',
+                coalesce(cast(dim_date.sk_date as string), ''), '||',
                 coalesce(cast(stop_times_agg.total_duration as string), ''), '||',
                 coalesce(cast(stop_times_agg.total_distance as string), '')
-            ))
-            as version
+            )) as version
 
         from trips
         left join stop_times on trips.trip_id = stop_times.trip_id
         left join calendar_dates on trips.service_id = calendar_dates.service_id
+        left join dim_date on calendar_dates.calendar_date = dim_date.date_day
         inner join stop_times_agg on trips.trip_id = stop_times_agg.trip_id
     )
 
