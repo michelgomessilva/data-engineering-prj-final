@@ -1,0 +1,460 @@
+version: 2
+
+models:
+  - name: dim_lines
+    config:
+      contract:
+        enforced: true
+    description: >
+      Dimension table about the lines of carris service.
+    columns:
+      - name: route_key
+        description: Surrogate key generated from route_id.
+        data_type: string
+      - name: route_id
+        description: Unique identifier for route.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: line_id
+        description: ID of route's line.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: line_name
+        description: Name of line.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: is_circular
+        description: Indicates if the line is circular.
+        data_type: boolean
+      - name: path_type
+        description: Type of the path followed by the line.
+        data_type: string
+      - name: ingestion_date
+        description: Date of data ingestion.
+        data_type: date
+
+  - name: dim_municipalities
+    config:
+      contract:
+        enforced: true
+    description: >
+      Dimension table about the municipalities where Carris Metropolitana has service.
+    columns:
+      - name: municipality_key
+        description: Surrogate key for the municipality, generated from business keys.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: municipality_id
+        description: Unique identifier for municipality.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: municipality_name
+        description: Name of municipality.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_id
+        description: Unique identifier for district.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_name
+        description: Name of district.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_id
+        description: Unique identifier for region.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_name
+        description: Name of region.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_prefix
+        description: Prefix municipality.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
+
+  - name: dim_stops
+    config:
+      contract:
+        enforced: true
+    description: >
+      Dimension table for stops with enriched location and metadata
+    columns:
+      - name: stop_key
+        description: Surrogate key for the stop, generated from business keys.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: stop_id
+        description: Unique identifier for the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: name
+        description: Full name of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: short_name
+        description: Short name of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_id
+        description: ID of the district the stop belongs to
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_id
+        description: ID of the municipality the stop belongs to
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_id
+        description: ID of the region the stop belongs to
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_name
+        description: Name of the district
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_name
+        description: Name of the municipality
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_name
+        description: Name of the region
+        data_type: string
+        data_tests:
+          - not_null
+      - name: latitude
+        description: Latitude coordinate of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: longitude
+        description: Longitude coordinate of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: localities
+        description: List or description of localities around the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: status
+        description: Operational status of the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: tts_stop_name
+        description: Text-to-speech version of the stop name
+        data_type: string
+        data_tests:
+          - not_null
+      - name: near_hospital
+        description: Boolean indicating if the stop is near a hospital
+        data_type: boolean
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: near_school
+        description: Boolean indicating if the stop is near a school
+        data_type: boolean
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: ingestion_date
+        description: Date when the stop data was ingested
+        data_type: date
+        data_tests:
+          - not_null
+
+  - name: dim_date
+    description: >
+      Dimension table for enriched date metadata, including calendar, holidays and periods.
+    config:
+      contract:
+        enforced: true
+    columns:
+    - name: sk_date
+      description: Surrogate key in format YYYYMMDD.
+      data_type: INT64
+      tests:
+        - not_null
+        - unique
+    - name: date_day
+      data_type: DATE
+      tests:
+        - not_null
+        - unique
+    - name: day
+      data_type: INTEGER
+      tests:
+        - not_null
+    - name: month
+      data_type: INTEGER
+      tests:
+        - not_null
+    - name: year
+      data_type: INTEGER
+      tests:
+        - not_null
+    - name: week_day
+      data_type: INTEGER
+      tests:
+        - not_null
+    - name: day_type
+      description: (1 = semana, 2 = sábado, 3 = domingo/feriado)
+      data_type: INTEGER
+      tests:
+        - not_null
+        - accepted_values:
+            values: [1, 2, 3]
+    - name: day_type_description
+      data_type: STRING
+      tests:
+        - not_null
+    - name: is_holiday
+      data_type: BOOLEAN
+      tests:
+        - not_null
+    - name: type_holiday
+      data_type: STRING
+      tests:
+        - not_null
+    - name: period_type
+      data_type: STRING
+      tests:
+        - not_null
+    - name: period_description
+      data_type: STRING
+      tests:
+        - not_null
+    - name: ingestion_date
+      data_type: DATE
+      tests:
+        - not_null
+
+  - name: fact_trips
+    config:
+      contract:
+        enforced: true
+    description: >
+      Fact table with detailed information about trips and stop occurrences.
+    columns:
+      - name: trip_key
+        description: Surrogate key generated from trip_id and stop_id.
+        data_type: string
+        tests:
+          - not_null
+          - unique
+
+      - name: sk_stop
+        description: Surrogate key for the stop (foreign key to dim_stops).
+        data_type: string
+        tests:
+          - not_null
+
+      - name: sk_line
+        description: Surrogate key for the line (foreign key to dim_lines).
+        data_type: string
+        tests:
+          - not_null
+
+      - name: line_id
+        description: Identifier or name of the line.
+        data_type: string
+        tests:
+          - not_null
+
+      - name: trip_date
+        description: Date of the trip (foreign key to dim_date).
+        data_type: INT64
+        tests:
+          - not_null
+
+      - name: departure_time
+        description: Scheduled departure time from the stop.
+        data_type: time
+        tests:
+          - not_null
+
+      - name: arrival_time
+        description: Scheduled arrival time at the stop.
+        data_type: time
+        tests:
+          - not_null
+
+      - name: is_peak_time
+        description: Boolean flag indicating if the trip is during peak hours.
+        data_type: boolean
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+      - name: trip_duration
+        description: Total duration of the trip in minutes.
+        data_type: INT64
+        tests:
+          - not_null
+
+      - name: distance
+        description: Total distance of the trip in kilometers.
+        data_type: FLOAT64
+        tests:
+          - not_null
+
+      - name: pattern_id
+        description: Identifier for the pattern followed by the trip.
+        data_type: string
+        tests:
+          - not_null
+
+      - name: service_id
+        description: Identifier of the associated service.
+        data_type: string
+        tests:
+          - not_null
+
+      - name: created_at
+        description: Timestamp when the record was created.
+        data_type: timestamp
+        tests:
+          - not_null
+
+      - name: last_updated_at
+        description: Timestamp when the record was last updated.
+        data_type: timestamp
+        tests:
+          - not_null
+
+      - name: version
+        description: Hash used for incremental versioning of the record.
+        data_type: bytes
+        tests:
+          - not_null
+
+  - name: fact_stops
+    config:
+      contract:
+        enforced: true
+    description: >
+      Fact table with detailed information about lines and stop occurrences.
+    columns:
+      - name: f_stop_key
+        description: Surrogate key generated from stop_id, line_id and date.
+        data_type: string
+        tests:
+          - not_null
+          - unique
+
+      - name: sk_line
+        description: Surrogate key for the line (foreign key to dim_lines).
+        data_type: string
+        tests:
+          - not_null
+
+      - name: sk_stop
+        description: Surrogate key for the stop (foreign key to dim_stops).
+        data_type: string
+        tests:
+          - not_null
+
+      - name: sk_date
+        description: Surrogate key for the date (foreign key to dim_date).
+        data_type: INT64
+        tests:
+          - not_null
+
+      - name: sk_municipalities
+        description: Surrogate key for the municipalities (foreign key to dim_muncicipalities).
+        data_type: string
+        tests:
+          - not_null
+
+      - name: day_type
+        description: Label for day type (Dia útil, Sábado, Domingo/Feriado).
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'Dia útil'
+                - 'Sábado'
+                - 'Domingo/Feriado'
+
+      - name: period
+        description: Description of the period from preparation_period table.
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'PERÍODO ESCOLAR'
+                - 'FÉRIAS ESCOLARES'
+                - 'VERÃO'
+
+      - name: is_near_school
+        description: Identify if stop is near by school
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+      - name: municipality_name
+        description: Municipality name where stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+
+      - name: region_name
+        description: Region name where stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+
+      - name: total_line_stops
+        description: Indicates the number of times a specific transit line stopped at a given stop on a particular service day. This metric helps quantify service frequency at the stop level.
+        data_type: INT64
+        tests:
+          - not_null
+
+      - name: created_at
+        description: Timestamp when the record was created.
+        data_type: timestamp
+        tests:
+          - not_null
+
+      - name: last_updated_at
+        description: Timestamp when the record was last updated.
+        data_type: timestamp
+        tests:
+          - not_null

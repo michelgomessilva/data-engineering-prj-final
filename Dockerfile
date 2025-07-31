@@ -32,6 +32,10 @@ RUN poetry config virtualenvs.create false && \
 # Copia o projeto DBT para dentro da imagem
 COPY dbt/ /app/dbt/
 
+COPY .dbt/profiles.yml /app/.dbt/profiles.yml
+
+WORKDIR /app/dbt
+
 # Executa dbt deps para baixar os pacotes do packages.yml
 RUN dbt deps --project-dir /app/dbt
 
@@ -93,6 +97,7 @@ WORKDIR /app
 
 # Copia os pacotes dbt instalados
 COPY --from=builder /app/dbt/dbt_packages /app/dbt/dbt_packages
+COPY --from=builder /app/.dbt /root/.dbt
 # Copia dependências e código
 COPY --from=builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
 COPY --from=builder /usr/local/bin /usr/local/bin

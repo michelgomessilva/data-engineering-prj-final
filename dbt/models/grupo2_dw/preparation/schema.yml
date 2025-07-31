@@ -1,0 +1,488 @@
+version: 2
+
+models:
+  - name: preparation_municipalities
+    config:
+      contract:
+        enforced: true
+    description: >
+      Staging table about the municipalities where Carris Metropolitana has service.
+    columns:
+      - name: municipality_id
+        description: Unique identifier for municipality.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: municipality_name
+        description: Name of municipality.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_id
+        description: Unique identifier for district.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: district_name
+        description: Name of district.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_id
+        description: Unique identifier for region.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: region_name
+        description: Name of region.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: municipality_prefix
+        description: Prefix municipality.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
+#      - name: partition_date
+#        description: Date when the data was partitioned.
+#        data_type: date
+#        data_tests:
+#          - not_null
+
+  - name: preparation_gtfs_stops
+    config:
+      contract:
+        enforced: true
+    description: >
+      Staging table with information about the different stops from gtfs file.
+    columns:
+      - name: stop_id
+        description: Unique identifier for the stop
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Name of the stop
+        data_type: string
+        data_tests:
+          - not_null
+#      - name: stop_name_new
+#        description: New name of the stop
+#        data_type: string
+      - name: short_name
+        description: Short name of the stop
+        data_type: string
+      - name: district_id
+        description: ID of the district
+        data_type: string
+      - name: municipality_id
+        description: ID of the municipality
+        data_type: string
+      - name: region_id
+        description: ID of the region
+        data_type: string
+      - name: district_name
+        description: Name of the district
+        data_type: string
+      - name: municipality_name
+        description: Name of the municipality
+        data_type: string
+      - name: region_name
+        description: Name of the region
+        data_type: string
+      - name: latitude
+        description: Latitude of the stop
+        data_type: string
+      - name: longitude
+        description: Longitude of the stop
+        data_type: string
+      - name: localities
+        description: Localities covered by the stop
+        data_type: string
+      - name: status
+        description: Current operational status
+        data_type: string
+ #     - name: lines
+ #       description: Lines associated with the stop
+ #       data_type: string
+      - name: tts_stop_name
+        description: Text-to-speech name
+        data_type: string
+      - name: near_hospital
+        description: Identify if stop is near by hospital
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - true
+                - false
+      - name: near_school
+        description: Identify if stop is near by school
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - true
+                - false
+      - name: ingestion_date
+        description: Date when the data was ingested
+        data_type: date
+        data_tests:
+          - not_null
+
+  - name: preparation_gtfs_stop_times
+    config:
+      contract:
+        enforced: true
+    description: >
+      Staging table with information about the schedule of all the lines in each stop
+    columns:
+      - name: stop_id
+        description: Unique identifier for the stop
+        data_type: string
+        data_tests:
+          - not_null
+      - name: trip_id
+        description: Unique identifier for the trip
+        data_type: string
+        data_tests:
+          - not_null
+      - name: arrival_time
+        description: Time schedule for trip_id arrive in stop.
+        data_type: time
+        data_tests:
+          - not_null
+      - name: departure_time
+        description: Time schedule for trip_id departure in stop.
+        data_type: time
+        data_tests:
+          - not_null
+      - name: is_peak
+        description: Identifies if a peak time
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - true
+                - false
+      - name: drop_off_type
+        description: Type of drop off.
+        data_type: string
+      - name: pickup_type
+        description: Type of pickup.
+        data_type: string
+      - name: distance
+        description: Total distance traveled from first stop of a trip to current stop.
+        data_type: string
+      - name: stop_sequence
+        description: Sequence number of stop for a line.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: duration_minutes
+        description: Difference time between previous stop and current stop in minutes.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: timepoint
+        description: Identifies the start and end of the trip.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: line_id
+        description: Identifier of the line.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: route_id
+        description: Identifier of the route.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: service_id
+        description: Identifier of the service.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
+  - name: preparation_date
+    config:
+      contract:
+        enforced: true
+    description: >
+      Staging table with information about dates
+    columns:
+      - name: sk_date
+        description: Surrogate key generated from date.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: date_day
+        description: Date parsed from string.
+        data_type: date
+        data_tests:
+          - not_null
+          - unique
+      - name: day
+        description: Day of the month extracted from the date.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: month
+        description: Month extracted from the date.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: year
+        description: Year extracted from the date.
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: week_day
+        description: Numeric day of the week (1=Sunday, 7=Saturday).
+        data_type: INT64
+        data_tests:
+          - not_null
+      - name: day_type
+        description: Numeric indicator of the day type (1=weekday, 2=Saturday, 3=Sunday/holiday).
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - '1'
+                - '2'
+                - '3'
+      - name: day_type_description
+        description: Label for day type (Dia útil, Sábado, Domingo/Feriado).
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'Dia útil'
+                - 'Sábado'
+                - 'Domingo/Feriado'
+      - name: is_holiday
+        description: Boolean indicating if the date is a holiday.
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - true
+                - false
+      - name: type_holiday
+        description: Type or name of the holiday, or 'N/A' if not a holiday.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: period_type
+        description: Numeric indicator of period type from preparation_period table.
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - '1'
+                - '2'
+                - '3'
+      - name: period_description
+        description: Description of the period from preparation_period table.
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'PERÍODO ESCOLAR'
+                - 'FÉRIAS ESCOLARES'
+                - 'VERÃO'
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
+
+  - name: preparation_trips
+    config:
+      contract:
+        enforced: true
+    description: >
+      Staging table with information about trips
+    columns:
+      - name: trip_id
+        description: Unique identifier for the trip.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: route_id
+        description: Identifier of the route.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: pattern_id
+        description: Identifier of the route pattern.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: shape_id
+        description: Identifier of the shape.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: service_id
+        description: Identifier of the service.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: direction_id
+        description: Identifier of trip direction.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: destination
+        description: Trip destination.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: occasional_trip
+        description: Trip frequency. Only applied for occasional service.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
+
+  - name: preparation_routes
+    config:
+      contract:
+        enforced: true
+    description: >
+      Staging table with information about routes
+    columns:
+      - name: route_id
+        description: Unique identifier for the trip.
+        data_type: string
+        data_tests:
+          - not_null
+          - unique
+      - name: line_id
+        description: Identifier of the line.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: line_name
+        description: Name of the line (origin - destination)
+        data_type: string
+        data_tests:
+          - not_null
+      - name: is_circular
+        description: Identifies if route is circular
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - true
+                - false
+      - name: path_type
+        description: Type of path
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
+
+  - name: preparation_calendar_dates
+    config:
+      contract:
+        enforced: true
+    description: >
+      Staging table with information about dates
+    columns:
+      - name: calendar_date
+        description: Calendar date of a service.
+        data_type: date
+        data_tests:
+          - not_null
+          - unique
+      - name: day_type
+        description: Numeric indicator of the day type (1=weekday, 2=Saturday, 3=Sunday/holiday).
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - '1'
+                - '2'
+                - '3'
+      - name: day_type_description
+        description: Label for day type (Dia útil, Sábado, Domingo/Feriado).
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'Dia útil'
+                - 'Sábado'
+                - 'Domingo/Feriado'
+      - name: is_holiday
+        description: Boolean indicating if the date is a holiday.
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - true
+                - false
+      - name: period_type
+        description: Numeric indicator of period type from preparation_period table.
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - '1'
+                - '2'
+                - '3'
+      - name: period_description
+        description: Description of the period from preparation_period table.
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'PERÍODO ESCOLAR'
+                - 'FÉRIAS ESCOLARES'
+                - 'VERÃO'
+      - name: service_id
+        description: ID of service scheduled.
+        data_type: string
+        data_tests:
+          - not_null
+      - name: ingestion_date
+        description: Date when the data was ingested.
+        data_type: date
+        data_tests:
+          - not_null
