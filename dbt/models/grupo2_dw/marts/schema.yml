@@ -403,7 +403,7 @@ models:
         tests:
           - not_null
 
-      - name: day_type_description
+      - name: day_type
         description: Label for day type (Dia útil, Sábado, Domingo/Feriado).
         data_type: string
         data_tests:
@@ -414,7 +414,7 @@ models:
                 - 'Sábado'
                 - 'Domingo/Feriado'
 
-      - name: period_description
+      - name: period
         description: Description of the period from preparation_period table.
         data_type: string
         data_tests:
@@ -433,10 +433,22 @@ models:
           - accepted_values:
               values: [true, false]
 
+      - name: municipality_name
+        description: Municipality name where stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+
       - name: region_name
         description: Region name where stop is located.
         data_type: string
         data_tests:
+          - not_null
+
+      - name: total_line_stops
+        description: Indicates the number of times a specific transit line stopped at a given stop on a particular service day. This metric helps quantify service frequency at the stop level.
+        data_type: INT64
+        tests:
           - not_null
 
       - name: created_at
