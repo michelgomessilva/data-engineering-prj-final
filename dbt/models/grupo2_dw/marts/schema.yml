@@ -200,103 +200,70 @@ models:
           - not_null
 
   - name: dim_date
+    description: >
+      Dimension table for enriched date metadata, including calendar, holidays and periods.
     config:
       contract:
         enforced: true
-    description: >
-      Dimension table for stops with enriched period and metadata
     columns:
-      - name: date_key
-        description: Surrogate key for date.
-        data_type: INT64
-        data_tests:
-          - not_null
-          - unique
-      - name: date_day
-        description: Date parsed from string.
-        data_type: date
-        data_tests:
-          - not_null
-          - unique
-      - name: day
-        description: Day of the month extracted from the date.
-        data_type: INT64
-        data_tests:
-          - not_null
-      - name: month
-        description: Month extracted from the date.
-        data_type: INT64
-        data_tests:
-          - not_null
-      - name: year
-        description: Year extracted from the date.
-        data_type: INT64
-        data_tests:
-          - not_null
-      - name: week_day
-        description: Numeric day of the week (1=Sunday, 7=Saturday).
-        data_type: INT64
-        data_tests:
-          - not_null
-      - name: day_type
-        description: Numeric indicator of the day type (1=weekday, 2=Saturday, 3=Sunday/holiday).
-        data_type: string
-        data_tests:
-          - not_null
-          - accepted_values:
-              values:
-                - '1'
-                - '2'
-                - '3'
-      - name: day_type_description
-        description: Label for day type (Dia útil, Sábado, Domingo/Feriado).
-        data_type: string
-        data_tests:
-          - not_null
-          - accepted_values:
-              values:
-                - 'Dia útil'
-                - 'Sábado'
-                - 'Domingo/Feriado'
-      - name: is_holiday
-        description: Boolean indicating if the date is a holiday.
-        data_type: boolean
-        data_tests:
-          - not_null
-          - accepted_values:
-              values:
-                - true
-                - false
-      - name: type_holiday
-        description: Type or name of the holiday, or 'N/A' if not a holiday.
-        data_type: string
-        data_tests:
-          - not_null
-      - name: period_type
-        description: Numeric indicator of period type from preparation_period table.
-        data_type: string
-        data_tests:
-          - not_null
-          - accepted_values:
-              values:
-                - '1'
-                - '2'
-                - '3'
-      - name: period_description
-        description: Description of the period from preparation_period table.
-        data_type: string
-        data_tests:
-          - not_null
-          - accepted_values:
-              values:
-                - 'PERÍODO ESCOLAR'
-                - 'FÉRIAS ESCOLARES'
-                - 'VERÃO'
-      - name: ingestion_date
-        description: Date when the data was ingested.
-        data_type: date
-        data_tests:
-          - not_null
+    - name: sk_date
+      description: Surrogate key in format YYYYMMDD.
+      data_type: INT64
+      tests:
+        - not_null
+        - unique
+    - name: date_day
+      data_type: DATE
+      tests:
+        - not_null
+        - unique
+    - name: day
+      data_type: INTEGER
+      tests:
+        - not_null
+    - name: month
+      data_type: INTEGER
+      tests:
+        - not_null
+    - name: year
+      data_type: INTEGER
+      tests:
+        - not_null
+    - name: week_day
+      data_type: INTEGER
+      tests:
+        - not_null
+    - name: day_type
+      description: (1 = semana, 2 = sábado, 3 = domingo/feriado)
+      data_type: INTEGER
+      tests:
+        - not_null
+        - accepted_values:
+            values: [1, 2, 3]
+    - name: day_type_description
+      data_type: STRING
+      tests:
+        - not_null
+    - name: is_holiday
+      data_type: BOOLEAN
+      tests:
+        - not_null
+    - name: type_holiday
+      data_type: STRING
+      tests:
+        - not_null
+    - name: period_type
+      data_type: STRING
+      tests:
+        - not_null
+    - name: period_description
+      data_type: STRING
+      tests:
+        - not_null
+    - name: ingestion_date
+      data_type: DATE
+      tests:
+        - not_null
 
   - name: fact_trips
     config:
@@ -332,7 +299,7 @@ models:
 
       - name: trip_date
         description: Date of the trip (foreign key to dim_date).
-        data_type: date
+        data_type: INT64
         tests:
           - not_null
 
