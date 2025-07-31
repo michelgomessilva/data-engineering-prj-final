@@ -132,8 +132,8 @@ jobs:
         run: |
           cd dbt
           dbt deps
-          dbt build --project-dir ~./dbt --profiles-dir ~/.dbt
-          dbt test --project-dir ~./dbt --profiles-dir ~/.dbt
+          dbt build --project-dir . --profiles-dir ~/.dbt
+          dbt test --project-dir . --profiles-dir ~/.dbt
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ~/.dbt/gcp-key.json
 
