@@ -103,9 +103,45 @@ jobs:
           name: dag-pipeline
           path: ${{ env.DAG_PATH }}
 
-  upload-dag:
+  run-dbt-tests:
+    name: Run DBT Tests
     runs-on: ubuntu-latest
     needs: build-and-push
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Salva gcp-key.json
+        run: echo '${{ secrets.GCP_SA_KEY_JSON }}' > gcp-key.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Instala Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          ln -s $HOME/.local/bin/poetry /usr/local/bin/poetry
+          poetry config virtualenvs.create false
+          poetry install --only main
+
+      - name: Copia profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cp dbt/profiles.yml ~/.dbt/profiles.yml
+
+      - name: Run dbt build + test
+        run: |
+          cd dbt
+          dbt deps
+          dbt build --project-dir . --profiles-dir ~/.dbt
+          dbt test --project-dir . --profiles-dir ~/.dbt
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ./gcp-key.json
+
+  upload-dag:
+    runs-on: ubuntu-latest
+    needs: [build-and-push, run-dbt-tests]
     steps:
       - uses: actions/checkout@v4
 
