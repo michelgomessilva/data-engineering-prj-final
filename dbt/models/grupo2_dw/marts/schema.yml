@@ -397,3 +397,89 @@ models:
         data_type: bytes
         tests:
           - not_null
+
+  - name: fact_stops
+    config:
+      contract:
+        enforced: true
+    description: >
+      Fact table with detailed information about lines and stop occurrences.
+    columns:
+      - name: f_stop_key
+        description: Surrogate key generated from stop_id, line_id and date.
+        data_type: string
+        tests:
+          - not_null
+          - unique
+
+      - name: sk_line
+        description: Surrogate key for the line (foreign key to dim_lines).
+        data_type: string
+        tests:
+          - not_null
+
+      - name: sk_stop
+        description: Surrogate key for the stop (foreign key to dim_stops).
+        data_type: string
+        tests:
+          - not_null
+
+      - name: sk_date
+        description: Surrogate key for the date (foreign key to dim_date).
+        data_type: INT64
+        tests:
+          - not_null
+
+      - name: sk_municipalities
+        description: Surrogate key for the municipalities (foreign key to dim_muncicipalities).
+        data_type: string
+        tests:
+          - not_null
+
+      - name: day_type_description
+        description: Label for day type (Dia útil, Sábado, Domingo/Feriado).
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'Dia útil'
+                - 'Sábado'
+                - 'Domingo/Feriado'
+
+      - name: period_description
+        description: Description of the period from preparation_period table.
+        data_type: string
+        data_tests:
+          - not_null
+          - accepted_values:
+              values:
+                - 'PERÍODO ESCOLAR'
+                - 'FÉRIAS ESCOLARES'
+                - 'VERÃO'
+
+      - name: is_near_school
+        description: Identify if stop is near by school
+        data_type: boolean
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+
+      - name: region_name
+        description: Region name where stop is located.
+        data_type: string
+        data_tests:
+          - not_null
+
+      - name: created_at
+        description: Timestamp when the record was created.
+        data_type: timestamp
+        tests:
+          - not_null
+
+      - name: last_updated_at
+        description: Timestamp when the record was last updated.
+        data_type: timestamp
+        tests:
+          - not_null
