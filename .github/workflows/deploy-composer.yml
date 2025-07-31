@@ -110,11 +110,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Salva gcp-key.json
-        run: |
-          mkdir -p app
-          echo '${{ secrets.GCP_SA_KEY_JSON }}' > ./gcp-key.json
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -130,16 +125,17 @@ jobs:
       - name: Copia profiles.yml
         run: |
           mkdir -p ~/.dbt
+          echo '${{ secrets.GCP_SA_KEY_JSON }}' > ~/.dbt/gcp-key.json
           cp dbt/profiles.yml ~/.dbt/profiles.yml
 
       - name: Run dbt build + test
         run: |
           cd dbt
           dbt deps
-          dbt build --project-dir . --profiles-dir ~/.dbt
-          dbt test --project-dir . --profiles-dir ~/.dbt
+          dbt build --project-dir ~./dbt --profiles-dir ~/.dbt
+          dbt test --project-dir ~./dbt --profiles-dir ~/.dbt
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ./gcp-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: ~/.dbt/gcp-key.json
 
   upload-dag:
     runs-on: ubuntu-latest
