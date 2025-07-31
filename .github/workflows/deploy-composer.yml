@@ -112,7 +112,7 @@ jobs:
 
       - name: Salva gcp-key.json
         run: |
-          mkdir -p /app
+          mkdir -p app
           echo '${{ secrets.GCP_SA_KEY_JSON }}' > ./gcp-key.json
 
       - name: Set up Python
@@ -139,7 +139,7 @@ jobs:
           dbt build --project-dir . --profiles-dir ~/.dbt
           dbt test --project-dir . --profiles-dir ~/.dbt
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: /app/gcp-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: ./gcp-key.json
 
   upload-dag:
     runs-on: ubuntu-latest
