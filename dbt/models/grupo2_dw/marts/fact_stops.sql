@@ -3,7 +3,7 @@
     materialized='table'
 ) }}
 
-{% set surrogate_key_columns = ["stop_id","line_id","calendar_date"] %}
+{% set surrogate_key_columns = ["stop_id","route_id","calendar_date"] %}
 
 with
     stops as (
@@ -14,7 +14,7 @@ with
 
     stop_service as (
        select stops.*, service_id, route_id, ingestion_date from stops
-       left join {{ ref("preparation_gtfs_stop_times") }} st on stops.stop_id = st.stop_id
+       INNER join {{ ref("preparation_gtfs_stop_times") }} st on stops.stop_id = st.stop_id
     ),
 
     stop_service_line as (
@@ -33,7 +33,7 @@ with
             select stop_id, line_id, calendar_date, count(1) as total_line_stops
             from stop_line_calendar_date
             group by stop_id, line_id, calendar_date
-    ),
+   ),
 
     stop_line_date_aggr as (
        select slcd.*, sk_date, day_type_description AS day_type, period_description as period, total_line_stops

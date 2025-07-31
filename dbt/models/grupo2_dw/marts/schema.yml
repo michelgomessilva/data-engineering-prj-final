@@ -178,21 +178,17 @@ models:
       - name: near_hospital
         description: Boolean indicating if the stop is near a hospital
         data_type: boolean
-        data_tests:
+        tests:
           - not_null
           - accepted_values:
-              values:
-                - true
-                - false
+              values: [true, false]
       - name: near_school
         description: Boolean indicating if the stop is near a school
         data_type: boolean
-        data_tests:
+        tests:
           - not_null
           - accepted_values:
-              values:
-                - true
-                - false
+              values: [true, false]
       - name: ingestion_date
         description: Date when the stop data was ingested
         data_type: date

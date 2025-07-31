@@ -31,3 +31,4 @@ tts_stop_name,
 {{cast_to_boolean('near_school') }} as near_school,
 ingestion_date
 from {{ source('carris', 'staging_gtfs_stops') }}
+where operational_status = 'ACTIVE'
