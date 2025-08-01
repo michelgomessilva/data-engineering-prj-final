@@ -105,19 +105,16 @@ docker build -t grupo-2-pipeline-app .
 
 # Executar pipeline de ingestão para um único caso de uso
 docker run --rm `
-  -v "${PWD}/.env:/app/.env" `
   -v "${PWD}/gcp-key.json:/app/gcp-key.json" `
   grupo-2-pipeline-app python -m app.main --use-case ingest_vehicles
 
 # Executar pipeline com todos os casos de uso de ingestão
 docker run --rm `
-  -v "${PWD}/.env:/app/.env" `
   -v "${PWD}/gcp-key.json:/app/gcp-key.json" `
   grupo-2-pipeline-app python -m app.main --use-case all
 
 # Executar pipeline de cleansing para um único caso de uso
 docker run --rm `
-  -v "${PWD}/.env:/app/.env" `
   -v "${PWD}/gcp-key.json:/app/gcp-key.json" `
   grupo-2-pipeline-app python -m app.main --use-case cleanse_gtfs_stop_times
 
