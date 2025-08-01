@@ -44,7 +44,7 @@ with DAG(
     schedule_interval="12 */4 * * *",  # Executa a cada 4 horas, aos 12 minutos
     catchup=False,
     max_active_runs=1,
-    concurrency=3,
+    concurrency=5,
     description="Grupo 2: Pipeline principal de ingestão e transformação da Carris Metropolitana.",
     tags=["pipeline", "grupo-2"],
 ) as dag:
