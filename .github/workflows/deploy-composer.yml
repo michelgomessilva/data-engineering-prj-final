@@ -124,9 +124,10 @@ jobs:
 
       - name: Configurar ambiente do DBT
         run: |
-          mkdir -p ~/.dbt
-          echo '${{ secrets.GCP_SA_KEY_JSON }}' > ~/.dbt/gcp-key.json
-          cp dbt/profiles.yml ~/.dbt/profiles.yml
+          export DBT_DIR="$HOME/.dbt"
+          mkdir -p "$DBT_DIR"
+          echo '${{ secrets.GCP_SA_KEY_JSON }}' > "$DBT_DIR/gcp-key.json"
+          cp dbt/profiles.yml "$DBT_DIR/profiles.yml"
 
       - name: Run dbt build + test
         run: |
@@ -135,7 +136,7 @@ jobs:
           dbt build --project-dir . --profiles-dir ~/.dbt
           dbt test --project-dir . --profiles-dir ~/.dbt
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ~/.dbt/gcp-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: $HOME/.dbt/gcp-key.json
 
   upload-dag:
     runs-on: ubuntu-latest
