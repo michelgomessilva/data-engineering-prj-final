@@ -13,7 +13,6 @@ Executada automaticamente a cada 4 horas, aos 12 minutos.
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.models.baseoperator import chain
 from grupo_2.tasks.dbt_create_task import create_dbt_run_task
 from grupo_2.tasks.generic_create_task import create_task
 
@@ -114,38 +113,34 @@ with DAG(
     dbt_run = create_dbt_run_task(IMAGE_URI, ENV_VARS)
 
     # Encadeamento das tarefas
-    ingest_tasks = [
-        ingest_vehicles,
-        ingest_municipalities,
-        ingest_lines,
-        ingest_routes,
-        ingest_stops,
-    ]
-
-    cleanse_basic = [
-        cleanse_lines,
-        cleanse_municipalities,
-        cleanse_stops,
-        cleanse_routes,
-    ]
-
-    cleanse_gtfs = [
-        cleanse_gtfs_periods,
-        cleanse_gtfs_routes,
-        cleanse_gtfs_municipalities,
-        cleanse_gtfs_feed_info,
-        cleanse_gtfs_calendar_dates,
-        cleanse_gtfs_dates,
-    ]
-
-    chain(
-        *ingest_tasks,
-        ingest_gtfs,
-        *cleanse_basic,
-        *cleanse_gtfs,
-        cleanse_gtfs_stops,
-        cleanse_gtfs_trips,
-        cleanse_gtfs_stop_times,
-        cleanse_gtfs_shapes,
-        dbt_run,
+    (
+        [
+            ingest_vehicles,
+            ingest_municipalities,
+            ingest_lines,
+            ingest_routes,
+            ingest_stops,
+        ]
+        >> ingest_gtfs
+        >> [
+            cleanse_lines,
+            cleanse_municipalities,
+            cleanse_stops,
+            cleanse_routes,
+        ]
+        >> cleanse_gtfs_stops
+        >> [
+            cleanse_gtfs_periods,
+            cleanse_gtfs_routes,
+            cleanse_gtfs_municipalities,
+            cleanse_gtfs_feed_info,
+        ]
+        >> cleanse_gtfs_trips
+        >> [
+            cleanse_gtfs_calendar_dates,
+            cleanse_gtfs_dates,
+        ]
+        >> cleanse_gtfs_stop_times
+        >> cleanse_gtfs_shapes
+        >> dbt_run
     )
