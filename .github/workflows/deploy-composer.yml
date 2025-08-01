@@ -122,21 +122,23 @@ jobs:
           poetry config virtualenvs.create false
           poetry install --only main
 
-      - name: Configurar ambiente do DBT
+      - name: Configura ambiente DBT
         run: |
-          export DBT_DIR="$HOME/.dbt"
-          mkdir -p "$DBT_DIR"
-          echo '${{ secrets.GCP_SA_KEY_JSON }}' > "$DBT_DIR/gcp-key.json"
-          cp dbt/profiles.yml "$DBT_DIR/profiles.yml"
+          mkdir -p "$HOME/.dbt"
+          echo "${{ secrets.GCP_SA_KEY_JSON }}" > "$HOME/.dbt/gcp-key.json"
+          cp dbt/profiles.yml "$HOME/.dbt/profiles.yml"
+
+      - name: Export GOOGLE_APPLICATION_CREDENTIALS dynamically
+        run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/.dbt/gcp-key.json" >> $GITHUB_ENV
 
       - name: Run dbt build + test
         run: |
           cd dbt
           dbt deps
-          dbt build --project-dir . --profiles-dir ~/.dbt
-          dbt test --project-dir . --profiles-dir ~/.dbt
+          dbt build --project-dir . --profiles-dir "$HOME/.dbt"
+          dbt test --project-dir . --profiles-dir "$HOME/.dbt"
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: $HOME/.dbt/gcp-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
 
   upload-dag:
     runs-on: ubuntu-latest
