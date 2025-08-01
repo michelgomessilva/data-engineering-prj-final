@@ -44,7 +44,7 @@ with DAG(
     schedule_interval="12 */4 * * *",  # Executa a cada 4 horas, aos 12 minutos
     catchup=False,
     max_active_runs=1,
-    concurrency=10,
+    concurrency=5,
     description="Grupo 2: Pipeline principal de ingestão e transformação da Carris Metropolitana.",
     tags=["pipeline", "grupo-2"],
 ) as dag:
@@ -127,8 +127,6 @@ with DAG(
             cleanse_municipalities,
             cleanse_stops,
             cleanse_routes,
-            cleanse_gtfs_stops,
-            cleanse_gtfs_trips,
             cleanse_gtfs_periods,
             cleanse_gtfs_routes,
             cleanse_gtfs_municipalities,
@@ -136,6 +134,8 @@ with DAG(
             cleanse_gtfs_calendar_dates,
             cleanse_gtfs_dates,
         ]
+        >> cleanse_gtfs_stops
+        >> cleanse_gtfs_trips
         >> cleanse_gtfs_stop_times
         >> cleanse_gtfs_shapes
         >> dbt_run
