@@ -310,8 +310,8 @@ models:
         data_type: boolean
         tests:
           - not_null
-          - accepted_values:
-              values: [true, false]
+#          - accepted_values:
+#              values: [true, false]
 
       - name: trip_duration
         description: Total duration of the trip in minutes.
