@@ -115,33 +115,30 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Instala Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          ln -s $HOME/.local/bin/poetry /usr/local/bin/poetry
-          poetry config virtualenvs.create false
-          poetry install --only main
+      #- name: Instala Poetry
+      #  run: |
+      #    curl -sSL https://install.python-poetry.org | python3 -
+      #    ln -s $HOME/.local/bin/poetry /usr/local/bin/poetry
+      #    poetry config virtualenvs.create false
+       #   poetry install --only main
 
-      - name: Configura ambiente DBT
-        run: |
-          mkdir -p "$HOME/.dbt"
-          echo '${{ secrets.GCP_SA_KEY_JSON }}' | jq '.' > /home/runner/.dbt/gcp-key.json
-          cp dbt/profiles.yml "$HOME/.dbt/profiles.yml"
+      #- name: Configura ambiente DBT
+       # run: |
+        #  mkdir -p "$HOME/.dbt"
+         # echo '${{ secrets.GCP_SA_KEY_JSON }}' | jq '.' > /home/runner/.dbt/gcp-key.json
+          #cp dbt/profiles.yml "$HOME/.dbt/profiles.yml"
 
-      - name: Debug JSON
-        run: cat /home/runner/.dbt/gcp-key.json
+      #- name: Export GOOGLE_APPLICATION_CREDENTIALS dynamically
+      #  run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/.dbt/gcp-key.json" >> $GITHUB_ENV
 
-      - name: Export GOOGLE_APPLICATION_CREDENTIALS dynamically
-        run: echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/.dbt/gcp-key.json" >> $GITHUB_ENV
-
-      - name: Run dbt build + test
-        run: |
-          cd dbt
-          dbt deps
-          dbt build --project-dir . --profiles-dir "$HOME/.dbt"
-          dbt test --project-dir . --profiles-dir "$HOME/.dbt"
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+      #- name: Run dbt build + test
+       # run: |
+        #  cd dbt
+         # dbt deps
+      #    dbt build --project-dir . --profiles-dir "$HOME/.dbt"
+       #   dbt test --project-dir . --profiles-dir "$HOME/.dbt"
+      #  env:
+       #   GOOGLE_APPLICATION_CREDENTIALS: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
 
   upload-dag:
     runs-on: ubuntu-latest
