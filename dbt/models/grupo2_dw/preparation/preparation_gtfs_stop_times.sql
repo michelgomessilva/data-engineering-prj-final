@@ -6,21 +6,21 @@
 select
 stop_id,
 trip_id,
-SAFE.PARSE_TIME('%H:%M:%S',arrival_time) AS arrival_time,
-SAFE.PARSE_TIME('%H:%M:%S',departure_time) AS departure_time,
+{{ normalize_time('arrival_time') }} AS arrival_time,
+{{ normalize_time('departure_time') }} AS departure_time,
 {{ is_peak_time('arrival_time') }} AS is_peak,
 drop_off_type,
 pickup_type,
 shape_dist_traveled as distance,
 CAST(stop_sequence AS INT64) as stop_sequence,
-TIME_DIFF(
-    SAFE.PARSE_TIME('%H:%M:%S', arrival_time),
-    LAG(SAFE.PARSE_TIME('%H:%M:%S', arrival_time)) OVER (
+coalesce(TIME_DIFF(
+    {{ normalize_time('arrival_time') }} ,
+    LAG({{ normalize_time('arrival_time') }} ) OVER (
       PARTITION BY trip_id
       ORDER BY CAST(stop_sequence AS INT64)
     ),
     MINUTE
-  ) AS duration_minutes,
+  ),0) AS duration_minutes,
 timepoint,
 line_id,
 route_id,

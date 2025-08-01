@@ -1,8 +1,6 @@
 {{ config(
     schema='mart_grupo_2',
-    materialized='incremental',
-    unique_key='trip_key',
-    on_schema_change='append_new_columns'
+    materialized='table',
 ) }}
 
 {% set surrogate_key_columns = ["trips.trip_id", "stop_times.stop_id"] %}
@@ -12,7 +10,7 @@ with
         select
             trip_id,
             stop_id,
-            stop_sequence,
+--            stop_sequence,
             is_peak,
             arrival_time,
             departure_time,
@@ -67,21 +65,8 @@ with
             stop_times_agg.total_distance as distance,
             trips.pattern_id,
             trips.service_id,
-
-            -- Controle incremental
             current_timestamp() as created_at,
             current_timestamp() as last_updated_at,
-            md5(concat(
-                coalesce(cast(stop_times.stop_id as string), ''), '||',
-                coalesce(cast(stop_times.stop_sequence as string), ''), '||',
-                coalesce(cast(stop_times.departure_time as string), ''), '||',
-                coalesce(cast(stop_times.arrival_time as string), ''), '||',
-                coalesce(cast(stop_times.is_peak as string), ''), '||',
-                coalesce(cast(dim_date.sk_date as string), ''), '||',
-                coalesce(cast(stop_times_agg.total_duration as string), ''), '||',
-                coalesce(cast(stop_times_agg.total_distance as string), '')
-            )) as version
-
         from trips
         left join stop_times on trips.trip_id = stop_times.trip_id
         left join calendar_dates on trips.service_id = calendar_dates.service_id
@@ -90,9 +75,3 @@ with
     )
 
 select * from final
-
-{% if is_incremental() %}
-  where version not in (
-    select version from {{ this }}
-  )
-{% endif %}
