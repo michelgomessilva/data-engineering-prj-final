@@ -75,6 +75,7 @@ sources:
             description: Date when the data was ingested.
           - name: partition_date
             description: Partition date.
+
       - name: staging_lines
         description: Information about the lines operated by Carris. Each line can have several routes and patterns, and serves a set of municipalities and localities.
         columns:
@@ -100,6 +101,7 @@ sources:
             description: Date when the data was ingested.
           - name: partition_date
             description: Partition date.
+
       - name: staging_gtfs_trips
         description: Information about the trips operated by Carris.
         columns:
@@ -173,10 +175,6 @@ sources:
         columns:
           - name: line_id
             description: Identifier of the line.
-          - name: route_id
-            description: Identifier of the route.
-          - name: service_id
-            description: Identifier of the service.
           - name: trip_id
             description: Identifier of the trip.
           - name: stop_id

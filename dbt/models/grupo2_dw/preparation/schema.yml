@@ -49,11 +49,6 @@ models:
         data_type: date
         data_tests:
           - not_null
-#      - name: partition_date
-#        description: Date when the data was partitioned.
-#        data_type: date
-#        data_tests:
-#          - not_null
 
   - name: preparation_gtfs_stops
     config:
@@ -73,9 +68,6 @@ models:
         data_type: string
         data_tests:
           - not_null
-#      - name: stop_name_new
-#        description: New name of the stop
-#        data_type: string
       - name: short_name
         description: Short name of the stop
         data_type: string
@@ -109,9 +101,6 @@ models:
       - name: status
         description: Current operational status
         data_type: string
- #     - name: lines
- #       description: Lines associated with the stop
- #       data_type: string
       - name: tts_stop_name
         description: Text-to-speech name
         data_type: string
@@ -151,13 +140,13 @@ models:
       - name: arrival_time
         description: Time schedule for trip_id arrive in stop.
         data_type: time
-        #data_tests:
-          #- not_null # ← esse teste está falhando
+        data_tests:
+          - not_null
       - name: departure_time
         description: Time schedule for trip_id departure in stop.
         data_type: time
-        #data_tests:
-          #- not_null # ← esse teste está falhando
+        data_tests:
+          - not_null
       - name: is_peak
         description: Identifies if a peak time
         data_type: boolean
@@ -180,8 +169,8 @@ models:
       - name: duration_minutes
         description: Difference time between previous stop and current stop in minutes.
         data_type: INT64
-        #data_tests:
-          #- not_null  # ← esse teste está falhando
+        data_tests:
+          - not_null
       - name: timepoint
         description: Identifies the start and end of the trip.
         data_type: string
@@ -189,16 +178,6 @@ models:
           - not_null
       - name: line_id
         description: Identifier of the line.
-        data_type: string
-        data_tests:
-          - not_null
-      - name: route_id
-        description: Identifier of the route.
-        data_type: string
-        data_tests:
-          - not_null
-      - name: service_id
-        description: Identifier of the service.
         data_type: string
         data_tests:
           - not_null
