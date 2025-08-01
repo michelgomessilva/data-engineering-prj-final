@@ -81,6 +81,33 @@ with DAG(
     cleanse_gtfs_shapes = create_task(
         "cleanse_gtfs_shapes", "cleanse_gtfs_shapes", IMAGE_URI, ENV_VARS
     )
+    cleanse_gtfs_trips = create_task(
+        "cleanse_gtfs_trips", "cleanse_gtfs_trips", IMAGE_URI, ENV_VARS
+    )
+    cleanse_gtfs_periods = create_task(
+        "cleanse_gtfs_periods", "cleanse_gtfs_periods", IMAGE_URI, ENV_VARS
+    )
+    cleanse_gtfs_routes = create_task(
+        "cleanse_gtfs_routes", "cleanse_gtfs_routes", IMAGE_URI, ENV_VARS
+    )
+    cleanse_gtfs_municipalities = create_task(
+        "cleanse_gtfs_municipalities",
+        "cleanse_gtfs_municipalities",
+        IMAGE_URI,
+        ENV_VARS,
+    )
+    cleanse_gtfs_feed_info = create_task(
+        "cleanse_gtfs_feed_info", "cleanse_gtfs_feed_info", IMAGE_URI, ENV_VARS
+    )
+    cleanse_gtfs_calendar_dates = create_task(
+        "cleanse_gtfs_calendar_dates",
+        "cleanse_gtfs_calendar_dates",
+        IMAGE_URI,
+        ENV_VARS,
+    )
+    cleanse_gtfs_dates = create_task(
+        "cleanse_gtfs_dates", "cleanse_gtfs_dates", IMAGE_URI, ENV_VARS
+    )
 
     # 4. Execução do dbt para transformação final dos dados
     dbt_run = create_dbt_run_task(IMAGE_URI, ENV_VARS)
@@ -101,6 +128,13 @@ with DAG(
             cleanse_stops,
             cleanse_routes,
             cleanse_gtfs_stops,
+            cleanse_gtfs_trips,
+            cleanse_gtfs_periods,
+            cleanse_gtfs_routes,
+            cleanse_gtfs_municipalities,
+            cleanse_gtfs_feed_info,
+            cleanse_gtfs_calendar_dates,
+            cleanse_gtfs_dates,
         ]
         >> cleanse_gtfs_stop_times
         >> cleanse_gtfs_shapes

@@ -1,10 +1,25 @@
 from typing import Callable
 
+from application.use_cases.cleansing.cleanse_gtfs_calendar_dates import (
+    run_cleanse_gtfs_calendar_dates,
+)
+from application.use_cases.cleansing.cleanse_gtfs_dates import run_cleanse_gtfs_dates
+from application.use_cases.cleansing.cleanse_gtfs_feed_info import (
+    run_cleanse_gtfs_feed_info,
+)
+from application.use_cases.cleansing.cleanse_gtfs_municipalities import (
+    run_cleanse_gtfs_municipalities,
+)
+from application.use_cases.cleansing.cleanse_gtfs_periods import (
+    run_cleanse_gtfs_periods,
+)
+from application.use_cases.cleansing.cleanse_gtfs_routes import run_cleanse_gtfs_routes
 from application.use_cases.cleansing.cleanse_gtfs_shapes import run_cleanse_gtfs_shapes
 from application.use_cases.cleansing.cleanse_gtfs_stop_times import (
     run_cleanse_gtfs_stop_times,
 )
 from application.use_cases.cleansing.cleanse_gtfs_stops import run_cleanse_gtfs_stops
+from application.use_cases.cleansing.cleanse_gtfs_trips import run_cleanse_gtfs_trips
 from application.use_cases.cleansing.cleanse_lines import run_cleanse_lines
 from application.use_cases.cleansing.cleanse_municipalities import (
     run_cleanse_municipalities,
@@ -49,6 +64,13 @@ def run_all():
     USE_CASES["cleanse_gtfs_stops"]()
     USE_CASES["cleanse_gtfs_stop_times"]()
     USE_CASES["cleanse_gtfs_shapes"]()
+    USE_CASES["cleanse_gtfs_trips"]()
+    USE_CASES["cleanse_gtfs_periods"]()
+    USE_CASES["cleanse_gtfs_routes"]()
+    USE_CASES["cleanse_gtfs_municipalities"]()
+    USE_CASES["cleanse_gtfs_feed_info"]()
+    USE_CASES["cleanse_gtfs_calendar_dates"]()
+    USE_CASES["cleanse_gtfs_dates"]()
 
 
 USE_CASES: dict[str, Callable[[], None]] = {
@@ -67,6 +89,13 @@ USE_CASES: dict[str, Callable[[], None]] = {
     "cleanse_gtfs_stops": run_cleanse_gtfs_stops,
     "cleanse_gtfs_stop_times": run_cleanse_gtfs_stop_times,
     "cleanse_gtfs_shapes": run_cleanse_gtfs_shapes,
+    "cleanse_gtfs_trips": run_cleanse_gtfs_trips,
+    "cleanse_gtfs_periods": run_cleanse_gtfs_periods,
+    "cleanse_gtfs_routes": run_cleanse_gtfs_routes,
+    "cleanse_gtfs_municipalities": run_cleanse_gtfs_municipalities,
+    "cleanse_gtfs_feed_info": run_cleanse_gtfs_feed_info,
+    "cleanse_gtfs_calendar_dates": run_cleanse_gtfs_calendar_dates,
+    "cleanse_gtfs_dates": run_cleanse_gtfs_dates,
     "endpoints": run_endpoints,
     "all": run_all,
 }
