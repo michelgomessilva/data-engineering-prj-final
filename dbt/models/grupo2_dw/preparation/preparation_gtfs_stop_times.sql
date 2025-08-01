@@ -3,7 +3,7 @@
     materialized='view'
 ) }}
 
-select
+select distinct
 stop_id,
 trip_id,
 {{ normalize_time('arrival_time') }} AS arrival_time,
@@ -23,7 +23,5 @@ coalesce(TIME_DIFF(
   ),0) AS duration_minutes,
 timepoint,
 line_id,
-route_id,
-COALESCE(service_id,'N/A') as service_id,
 ingestion_date
  from {{ source('carris', 'staging_gtfs_stop_times') }}

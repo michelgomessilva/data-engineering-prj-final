@@ -4,7 +4,7 @@
 ) }}
 
 select
-stop_id,
+distinct stop_id,
 case when
     stop_name_new = 'A DEFINIR' or stop_name_new is null then stop_name
     else stop_name_new
