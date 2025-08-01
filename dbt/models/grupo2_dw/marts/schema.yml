@@ -355,12 +355,6 @@ models:
         tests:
           - not_null
 
-      - name: version
-        description: Hash used for incremental versioning of the record.
-        data_type: bytes
-        tests:
-          - not_null
-
   - name: fact_stops
     config:
       contract:
