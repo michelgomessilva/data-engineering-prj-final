@@ -10,4 +10,4 @@ grupo2_dw:
       threads: 4
       timeout_seconds: 300
       priority: interactive
-      keyfile: /app/gcp-key.json               # <- Path to the GCP key file
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}" #/app/gcp-key.json               # <- Path to the GCP key file

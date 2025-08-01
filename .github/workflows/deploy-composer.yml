@@ -122,7 +122,7 @@ jobs:
           poetry config virtualenvs.create false
           poetry install --only main
 
-      - name: Copia profiles.yml
+      - name: Configurar ambiente do DBT
         run: |
           mkdir -p ~/.dbt
           echo '${{ secrets.GCP_SA_KEY_JSON }}' > ~/.dbt/gcp-key.json
