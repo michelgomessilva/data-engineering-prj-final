@@ -178,17 +178,19 @@ models:
       - name: near_hospital
         description: Boolean indicating if the stop is near a hospital
         data_type: boolean
-        tests:
+        data_tests:
           - not_null
-          #- accepted_values:
-          #    values: [true, false] # ← esse teste está falhando
+          - accepted_values:
+              values: [true, false]
+              quote: false
       - name: near_school
         description: Boolean indicating if the stop is near a school
         data_type: boolean
-        tests:
+        data_tests:
           - not_null
-          #- accepted_values:
-          #    values: [true, false]# ← esse teste está falhando
+          - accepted_values:
+              values: [true, false]
+              quote: false
       - name: ingestion_date
         description: Date when the stop data was ingested
         data_type: date
@@ -205,60 +207,61 @@ models:
     - name: sk_date
       description: Surrogate key in format YYYYMMDD.
       data_type: INT64
-      tests:
+      data_tests:
         - not_null
         - unique
     - name: date_day
       data_type: DATE
-      tests:
+      data_tests:
         - not_null
         - unique
     - name: day
       data_type: INTEGER
-      tests:
+      data_tests:
         - not_null
     - name: month
       data_type: INTEGER
-      tests:
+      data_tests:
         - not_null
     - name: year
       data_type: INTEGER
-      tests:
+      data_tests:
         - not_null
     - name: week_day
       data_type: INTEGER
-      tests:
+      data_tests:
         - not_null
     - name: day_type
       description: (1 = semana, 2 = sábado, 3 = domingo/feriado)
       data_type: INTEGER
-      tests:
+      data_tests:
         - not_null
-        #- accepted_values:# ← esse teste está falhando
-         #   values: [1, 2, 3]
+        - accepted_values:
+            values: [1, 2, 3]
+            quote: false
     - name: day_type_description
       data_type: STRING
-      tests:
+      data_tests:
         - not_null
     - name: is_holiday
       data_type: BOOLEAN
-      tests:
+      data_tests:
         - not_null
     - name: type_holiday
       data_type: STRING
-      tests:
+      data_tests:
         - not_null
     - name: period_type
       data_type: STRING
-      tests:
+      data_tests:
         - not_null
     - name: period_description
       data_type: STRING
-      tests:
+      data_tests:
         - not_null
     - name: ingestion_date
       data_type: DATE
-      tests:
+      data_tests:
         - not_null
 
   - name: fact_trips
@@ -271,80 +274,83 @@ models:
       - name: trip_key
         description: Surrogate key generated from trip_id and stop_id.
         data_type: string
-        tests:
+        data_tests:
           - not_null
           - unique
 
       - name: trip_id
         description: Trip ID.
         data_type: string
-        tests:
+        data_tests:
           - not_null
 
       - name: sk_stop
         description: Surrogate key for the stop (foreign key to dim_stops).
         data_type: string
-        tests:
+        data_tests:
           - not_null
 
       - name: sk_line
         description: Surrogate key for the line (foreign key to dim_lines).
         data_type: string
-        tests:
+        data_tests:
           - not_null
 
       - name: line_id
         description: Identifier or name of the line.
         data_type: string
-        tests:
+        data_tests:
           - not_null
 
       - name: trip_date
         description: Date of the trip (foreign key to dim_date).
         data_type: INT64
-        tests:
+        data_tests:
           - not_null
 
       - name: is_peak_trip
         description: Boolean flag indicating if the trip is during peak hours.
         data_type: boolean
-        tests:
+        data_tests:
           - not_null
-#          - accepted_values:
-#              values: [true, false]
+          - accepted_values:
+              values: [true, false]
+              quote: false
 
       - name: trip_duration
         description: Total duration of the trip in minutes.
         data_type: INT64
+        data_tests:
+          - not_null
 
       - name: distance
         description: Total distance of the trip in kilometers.
         data_type: FLOAT64
-        tests:
+        data_tests:
           - not_null
 
       - name: pattern_id
         description: Identifier for the pattern followed by the trip.
         data_type: string
-        tests:
+        data_tests:
           - not_null
 
       - name: service_id
         description: Identifier of the associated service.
         data_type: string
-        tests:
+        data_tests:
           - not_null
 
       - name: created_at
         description: Timestamp when the record was created.
         data_type: timestamp
-        tests:
+        data_tests:
           - not_null
 
       - name: last_updated_at
         description: Timestamp when the record was last updated.
         data_type: timestamp
-        tests:
+        data_tests:
           - not_null
 
   - name: fact_stops
@@ -357,32 +363,32 @@ models:
       - name: f_stop_key
         description: Surrogate key generated from stop_id, line_id and date.
         data_type: string
-        tests:
+        data_tests:
           - not_null
           - unique
 
       - name: sk_line
         description: Surrogate key for the line (foreign key to dim_lines).
         data_type: string
-        tests:
+        data_tests:
           - not_null
 
       - name: sk_stop
         description: Surrogate key for the stop (foreign key to dim_stops).
         data_type: string
-        tests:
+        data_tests:
           - not_null
 
       - name: sk_date
         description: Surrogate key for the date (foreign key to dim_date).
         data_type: INT64
-        tests:
+        data_tests:
           - not_null
 
       - name: sk_municipalities
         description: Surrogate key for the municipalities (foreign key to dim_muncicipalities).
         data_type: string
-        tests:
+        data_tests:
           - not_null
 
       - name: day_type
@@ -412,8 +418,9 @@ models:
         data_type: boolean
         data_tests:
           - not_null
-          #- accepted_values:
-           #   values: [true, false]# ← esse teste está falhando
+          - accepted_values:
+              values: [true, false]
+              quote: false
 
       - name: municipality_name
         description: Municipality name where stop is located.
@@ -430,17 +437,17 @@ models:
       - name: total_line_stops
         description: Indicates the number of times a specific transit line stopped at a given stop on a particular service day. This metric helps quantify service frequency at the stop level.
         data_type: INT64
-        tests:
+        data_tests:
           - not_null
 
       - name: created_at
         description: Timestamp when the record was created.
         data_type: timestamp
-        tests:
+        data_tests:
           - not_null
 
       - name: last_updated_at
         description: Timestamp when the record was last updated.
         data_type: timestamp
-        tests:
+        data_tests:
           - not_null
